@@ -24,7 +24,7 @@ const faqs = [
   {
     question: "¿Cómo funciona el análisis de riesgos?",
     answer:
-      "Sube o pega el texto de cualquier contrato y nuestro sistema analiza automáticamente el documento buscando cláusulas problemáticas: penalizaciones excesivas, cesión total de derechos, exclusividades sin límite temporal, responsabilidad ilimitada y más. Recibes un puntaje de seguridad del 0 al 100 con sugerencias concretas de negociación.",
+      "Pega el texto de cualquier contrato y el sistema lo analiza automáticamente buscando 9 tipos de cláusulas problemáticas: penalizaciones excesivas, cesión total de derechos, exclusividades sin límite temporal, responsabilidad ilimitada y más. Recibes un puntaje de seguridad del 0 al 100 con sugerencias concretas para negociar cada punto.",
   },
   {
     question: "¿Dónde se guardan mis contratos?",
