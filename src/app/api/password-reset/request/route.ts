@@ -1,9 +1,8 @@
 import { createResetToken } from "@/lib/reset-tokens";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: Request) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   let body: unknown;
   try {
     body = await request.json();
