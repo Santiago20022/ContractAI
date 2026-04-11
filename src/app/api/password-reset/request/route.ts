@@ -2,7 +2,6 @@ import { createResetToken } from "@/lib/reset-tokens";
 import { Resend } from "resend";
 
 export async function POST(request: Request) {
-  const resend = new Resend(process.env.RESEND_API_KEY);
   let body: unknown;
   try {
     body = await request.json();
@@ -24,17 +23,23 @@ export async function POST(request: Request) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const resetLink = `${appUrl}/reset-password?token=${token}`;
 
-  const { data, error } = await resend.emails.send({
-    from: "ContractAI <onboarding@resend.dev>",
-    to: normalizedEmail,
-    subject: "Restablece tu contraseña — ContractAI",
-    html: buildEmailHtml(resetLink),
-  });
-
-  if (error) {
-    console.error("[password-reset] Resend error:", JSON.stringify(error));
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.error("[password-reset] RESEND_API_KEY is not configured");
   } else {
-    console.log("[password-reset] Email sent, id:", data?.id);
+    const resend = new Resend(apiKey);
+    const { data, error } = await resend.emails.send({
+      from: "ContractAI <onboarding@resend.dev>",
+      to: normalizedEmail,
+      subject: "Restablece tu contraseña — ContractAI",
+      html: buildEmailHtml(resetLink),
+    });
+
+    if (error) {
+      console.error("[password-reset] Resend error:", JSON.stringify(error));
+    } else {
+      console.log("[password-reset] Email sent, id:", data?.id);
+    }
   }
 
   // Always return success — never confirm/deny if an email is registered
