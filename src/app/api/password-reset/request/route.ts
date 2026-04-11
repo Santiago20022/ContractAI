@@ -1,5 +1,4 @@
 import { createResetToken } from "@/lib/reset-tokens";
-import { Resend } from "resend";
 
 export async function POST(request: Request) {
   let body: unknown;
@@ -27,6 +26,7 @@ export async function POST(request: Request) {
   if (!apiKey) {
     console.error("[password-reset] RESEND_API_KEY is not configured");
   } else {
+    const { Resend } = await import("resend");
     const resend = new Resend(apiKey);
     const { data, error } = await resend.emails.send({
       from: "ContractAI <onboarding@resend.dev>",
