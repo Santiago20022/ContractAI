@@ -16,6 +16,7 @@ export function Navbar() {
     { href: "#how-it-works", label: "Cómo funciona" },
     { href: "#pricing", label: "Precios" },
     { href: "#faq", label: "FAQ" },
+    { href: "/developers", label: "API" },
   ];
 
   return (
