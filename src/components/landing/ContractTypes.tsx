@@ -86,8 +86,29 @@ export function ContractTypes() {
           </p>
         </motion.div>
 
-        {/* Contract types grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Contract types — horizontal scroll on mobile, grid on desktop */}
+        <div className="flex sm:hidden overflow-x-auto gap-4 pb-4 -mx-4 px-4 snap-x snap-mandatory scrollbar-none">
+          {contracts.map((contract) => (
+            <Link key={contract.title} href="/generate" className="flex-shrink-0 w-52 snap-start">
+              <div className="group relative bg-white rounded-2xl p-5 border border-slate-100 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 h-full">
+                {contract.popular && (
+                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-medium px-2 py-1 rounded-full">
+                    Popular
+                  </div>
+                )}
+                <div className="w-11 h-11 bg-slate-100 group-hover:bg-indigo-100 rounded-xl flex items-center justify-center text-slate-600 group-hover:text-indigo-600 transition-colors mb-3">
+                  {contract.icon}
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-1 text-sm group-hover:text-indigo-600 transition-colors">
+                  {contract.title}
+                </h3>
+                <p className="text-xs text-slate-500">{contract.description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {contracts.map((contract, index) => (
             <motion.div
               key={contract.title}
@@ -98,25 +119,18 @@ export function ContractTypes() {
             >
               <Link href="/generate">
                 <div className="group relative bg-white rounded-2xl p-6 border border-slate-100 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 cursor-pointer h-full">
-                  {/* Popular badge */}
                   {contract.popular && (
                     <div className="absolute -top-2 -right-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-medium px-2 py-1 rounded-full">
                       Popular
                     </div>
                   )}
-
-                  {/* Icon */}
                   <div className="w-12 h-12 bg-slate-100 group-hover:bg-indigo-100 rounded-xl flex items-center justify-center text-slate-600 group-hover:text-indigo-600 transition-colors mb-4">
                     {contract.icon}
                   </div>
-
-                  {/* Content */}
                   <h3 className="font-semibold text-slate-900 mb-1 group-hover:text-indigo-600 transition-colors">
                     {contract.title}
                   </h3>
-                  <p className="text-sm text-slate-500">
-                    {contract.description}
-                  </p>
+                  <p className="text-sm text-slate-500">{contract.description}</p>
                 </div>
               </Link>
             </motion.div>

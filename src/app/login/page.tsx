@@ -110,7 +110,7 @@ export default function LoginPage() {
                 <span className="text-slate-600">Recordarme</span>
               </label>
               <Link
-                href="#"
+                href="/forgot-password"
                 className="text-indigo-600 hover:text-indigo-700 font-medium"
               >
                 ¿Olvidaste tu contraseña?

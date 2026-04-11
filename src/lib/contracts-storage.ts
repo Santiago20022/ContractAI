@@ -13,14 +13,12 @@ export type Contract = {
 
 const CONTRACTS_KEY = "contractai_contracts";
 
-// Get all contracts from localStorage
 function getAllContracts(): Contract[] {
   if (typeof window === "undefined") return [];
   const contracts = localStorage.getItem(CONTRACTS_KEY);
   return contracts ? JSON.parse(contracts) : [];
 }
 
-// Save contracts to localStorage
 function saveContracts(contracts: Contract[]): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(CONTRACTS_KEY, JSON.stringify(contracts));
@@ -34,10 +32,10 @@ export function getUserContracts(userId: string): Contract[] {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
-// Get a single contract
-export function getContract(id: string): Contract | undefined {
+// Get a single contract — ALWAYS verifies ownership to prevent IDOR
+export function getContract(id: string, userId: string): Contract | undefined {
   const contracts = getAllContracts();
-  return contracts.find((c) => c.id === id);
+  return contracts.find((c) => c.id === id && c.userId === userId);
 }
 
 // Add a new contract
@@ -48,7 +46,7 @@ export function addContract(
   const contracts = getAllContracts();
 
   const newContract: Contract = {
-    id: `contract_${Date.now()}`,
+    id: crypto.randomUUID(),
     userId,
     title: data.title,
     type: data.type,
@@ -64,10 +62,10 @@ export function addContract(
   return newContract;
 }
 
-// Update a contract
-export function updateContract(id: string, updates: Partial<Contract>): Contract | undefined {
+// Update a contract — verifies ownership
+export function updateContract(id: string, userId: string, updates: Partial<Contract>): Contract | undefined {
   const contracts = getAllContracts();
-  const index = contracts.findIndex((c) => c.id === id);
+  const index = contracts.findIndex((c) => c.id === id && c.userId === userId);
 
   if (index === -1) return undefined;
 
@@ -77,10 +75,10 @@ export function updateContract(id: string, updates: Partial<Contract>): Contract
   return contracts[index];
 }
 
-// Delete a contract
-export function deleteContract(id: string): boolean {
+// Delete a contract — verifies ownership
+export function deleteContract(id: string, userId: string): boolean {
   const contracts = getAllContracts();
-  const index = contracts.findIndex((c) => c.id === id);
+  const index = contracts.findIndex((c) => c.id === id && c.userId === userId);
 
   if (index === -1) return false;
 

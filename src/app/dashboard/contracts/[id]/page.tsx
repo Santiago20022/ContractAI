@@ -32,13 +32,16 @@ export default function ContractDetailPage() {
   }, [user, isLoading, router]);
 
   useEffect(() => {
-    if (params.id && typeof params.id === "string") {
-      const found = getContract(params.id);
+    if (params.id && typeof params.id === "string" && user) {
+      const found = getContract(params.id, user.id);
       if (found) {
         setContract(found);
+      } else {
+        // Not found or doesn't belong to this user
+        router.push("/dashboard/contracts");
       }
     }
-  }, [params.id]);
+  }, [params.id, user, router]);
 
   const handleCopy = () => {
     if (contract) {
@@ -63,8 +66,8 @@ export default function ContractDetailPage() {
   };
 
   const handleDelete = () => {
-    if (contract && confirm("¿Estás seguro de que quieres eliminar este contrato?")) {
-      deleteContract(contract.id);
+    if (contract && user && confirm("¿Estás seguro de que quieres eliminar este contrato?")) {
+      deleteContract(contract.id, user.id);
       router.push("/dashboard/contracts");
     }
   };

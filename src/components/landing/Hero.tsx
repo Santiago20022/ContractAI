@@ -28,6 +28,7 @@ export function Hero() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
+            className="text-center lg:text-left"
           >
             {/* Badge */}
             <motion.div
@@ -47,7 +48,7 @@ export function Hero() {
             </h1>
 
             {/* Subheading */}
-            <p className="text-xl text-slate-600 mb-8 max-w-lg">
+            <p className="text-xl text-slate-600 mb-8 max-w-lg mx-auto lg:mx-0">
               Genera, analiza y comprende cualquier contrato en segundos.
               Protege tu negocio sin necesidad de ser abogado.
             </p>
@@ -69,14 +70,14 @@ export function Hero() {
             </ul>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/generate">
-                <Button variant="primary" size="lg" icon={<Sparkles className="w-5 h-5" />}>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Link href="/generate" className="w-full sm:w-auto">
+                <Button variant="primary" size="lg" icon={<Sparkles className="w-5 h-5" />} className="w-full sm:w-auto">
                   Generar contrato gratis
                 </Button>
               </Link>
-              <Link href="/analyze">
-                <Button variant="secondary" size="lg" icon={<Shield className="w-5 h-5" />}>
+              <Link href="/analyze" className="w-full sm:w-auto">
+                <Button variant="secondary" size="lg" icon={<Shield className="w-5 h-5" />} className="w-full sm:w-auto">
                   Analizar mi contrato
                 </Button>
               </Link>
@@ -87,19 +88,19 @@ export function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
-              className="mt-8 text-sm text-slate-500 flex items-center gap-2"
+              className="mt-8 text-sm text-slate-500 flex items-center gap-2 justify-center lg:justify-start"
             >
               <Shield className="w-4 h-4 text-green-500" />
               Usado por más de 10,000 freelancers y emprendedores
             </motion.p>
           </motion.div>
 
-          {/* Right side - Visual */}
+          {/* Right side - Visual (hidden on mobile) */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="relative"
+            className="relative hidden lg:block"
           >
             {/* Main card */}
             <div className="bg-white rounded-3xl shadow-2xl shadow-indigo-500/10 p-8 border border-slate-100">

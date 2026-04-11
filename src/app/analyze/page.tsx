@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Textarea } from "@/components/ui/Textarea";
-import { useAuth } from "@/context/AuthContext";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { addContract } from "@/lib/contracts-storage";
 import { analyzeContract } from "@/lib/contract-templates";
 import { cn } from "@/lib/utils";
@@ -40,7 +40,7 @@ type AnalysisItem = {
 };
 
 export default function AnalyzePage() {
-  const { user } = useAuth();
+  const { user, isLoading } = useRequireAuth();
   const [contractText, setContractText] = useState("");
   const [fileName, setFileName] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -183,6 +183,8 @@ export default function AnalyzePage() {
     setOverallScore(0);
     setExpandedItems([]);
   };
+
+  if (isLoading || !user) return null;
 
   return (
     <div className="min-h-screen bg-slate-50">

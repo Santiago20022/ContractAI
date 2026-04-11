@@ -46,14 +46,29 @@ export async function POST(request: Request) {
     );
   }
 
+  const MAX_FIELD_LENGTH = 2000;
   const required: (keyof ContractData)[] = ["partyA", "partyB", "description", "amount", "duration"];
   for (const field of required) {
-    if (!data?.[field]?.trim()) {
+    const value = data?.[field];
+    if (!value?.trim()) {
       return Response.json(
         { error: `Field 'data.${field}' is required and cannot be empty`, code: "invalid_request" },
         { status: 400 }
       );
     }
+    if (value.length > MAX_FIELD_LENGTH) {
+      return Response.json(
+        { error: `Field 'data.${field}' exceeds maximum length of ${MAX_FIELD_LENGTH} characters`, code: "invalid_request" },
+        { status: 400 }
+      );
+    }
+  }
+
+  if (data?.additionalClauses && data.additionalClauses.length > MAX_FIELD_LENGTH) {
+    return Response.json(
+      { error: `Field 'data.additionalClauses' exceeds maximum length of ${MAX_FIELD_LENGTH} characters`, code: "invalid_request" },
+      { status: 400 }
+    );
   }
 
   try {

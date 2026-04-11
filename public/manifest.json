@@ -1,0 +1,17 @@
+{
+  "name": "ContractAI",
+  "short_name": "ContractAI",
+  "description": "Contratos legales sin complicaciones. Genera y analiza en segundos.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

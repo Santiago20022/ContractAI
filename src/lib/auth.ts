@@ -1,5 +1,5 @@
 // Simple auth system using LocalStorage (no API key needed)
-// Can be migrated to Supabase later
+// NOTE: For production, migrate to Supabase Auth with bcrypt hashing.
 
 export type User = {
   id: string;
@@ -9,105 +9,182 @@ export type User = {
 };
 
 type StoredUser = User & {
-  password: string;
+  passwordHash: string;
+  salt: string;
 };
 
 const USERS_KEY = "contractai_users";
 const CURRENT_USER_KEY = "contractai_current_user";
 
-// Helper to hash password (simple hash for demo - in production use bcrypt)
-function simpleHash(str: string): string {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash).toString(16);
+// Generate a random hex salt using the Web Crypto API
+function generateSalt(): string {
+  const arr = new Uint8Array(16);
+  crypto.getRandomValues(arr);
+  return Array.from(arr)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
-// Get all users from localStorage
+// Deterministic hash of (salt + password).
+// Uses multiple rounds of djb2 to make brute-force slightly harder.
+// Per-user salt prevents precomputed rainbow-table attacks.
+// NOTE: for production, replace with bcrypt or PBKDF2 via crypto.subtle.
+function hashPassword(password: string, salt: string): string {
+  const input = salt + password;
+  let hash = 5381;
+  for (let round = 0; round < 10; round++) {
+    for (let i = 0; i < input.length; i++) {
+      hash = ((hash << 5) + hash) ^ input.charCodeAt(i);
+      hash = hash & hash; // force 32-bit int
+    }
+  }
+  return Math.abs(hash).toString(16) + salt.slice(0, 8);
+}
+
+// Validate email format
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 function getUsers(): StoredUser[] {
   if (typeof window === "undefined") return [];
   const users = localStorage.getItem(USERS_KEY);
   return users ? JSON.parse(users) : [];
 }
 
-// Save users to localStorage
 function saveUsers(users: StoredUser[]): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
-// Register a new user
-export function register(email: string, password: string, name: string): { success: boolean; error?: string; user?: User } {
-  const users = getUsers();
-
-  // Check if user already exists
-  if (users.find((u) => u.email.toLowerCase() === email.toLowerCase())) {
-    return { success: false, error: "Este email ya está registrado" };
-  }
-
-  // Validate
+export function register(
+  email: string,
+  password: string,
+  name: string
+): { success: boolean; error?: string; user?: User } {
   if (!email || !password || !name) {
     return { success: false, error: "Todos los campos son requeridos" };
+  }
+
+  if (!isValidEmail(email)) {
+    return { success: false, error: "El formato del email no es válido" };
   }
 
   if (password.length < 6) {
     return { success: false, error: "La contraseña debe tener al menos 6 caracteres" };
   }
 
-  // Create new user
+  const users = getUsers();
+
+  if (users.find((u) => u.email.toLowerCase() === email.toLowerCase())) {
+    return { success: false, error: "Este email ya está registrado" };
+  }
+
+  const salt = generateSalt();
   const newUser: StoredUser = {
-    id: `user_${Date.now()}`,
+    id: crypto.randomUUID(),
     email: email.toLowerCase(),
     name,
-    password: simpleHash(password),
+    salt,
+    passwordHash: hashPassword(password, salt),
     createdAt: new Date().toISOString(),
   };
 
   users.push(newUser);
   saveUsers(users);
 
-  // Auto login after register
-  const { password: _, ...userWithoutPassword } = newUser;
-  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
+  const { passwordHash: _, salt: _s, ...userWithoutSecrets } = newUser;
+  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutSecrets));
 
-  return { success: true, user: userWithoutPassword };
+  return { success: true, user: userWithoutSecrets };
 }
 
-// Login user
-export function login(email: string, password: string): { success: boolean; error?: string; user?: User } {
+export function login(
+  email: string,
+  password: string
+): { success: boolean; error?: string; user?: User } {
   const users = getUsers();
 
-  const user = users.find(
-    (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === simpleHash(password)
-  );
+  const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
 
-  if (!user) {
+  // Always compute hash even if user not found (prevents timing-based user enumeration)
+  const salt = user?.salt ?? generateSalt();
+  const computed = hashPassword(password, salt);
+
+  if (!user || computed !== user.passwordHash) {
     return { success: false, error: "Email o contraseña incorrectos" };
   }
 
-  const { password: _, ...userWithoutPassword } = user;
-  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutPassword));
+  const { passwordHash: _, salt: _s, ...userWithoutSecrets } = user;
+  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userWithoutSecrets));
 
-  return { success: true, user: userWithoutPassword };
+  return { success: true, user: userWithoutSecrets };
 }
 
-// Logout user
 export function logout(): void {
   if (typeof window === "undefined") return;
   localStorage.removeItem(CURRENT_USER_KEY);
 }
 
-// Get current logged in user
+// Get current logged-in user — validates against stored users to prevent
+// privilege escalation via direct localStorage manipulation.
 export function getCurrentUser(): User | null {
   if (typeof window === "undefined") return null;
-  const user = localStorage.getItem(CURRENT_USER_KEY);
-  return user ? JSON.parse(user) : null;
+
+  const stored = localStorage.getItem(CURRENT_USER_KEY);
+  if (!stored) return null;
+
+  let parsed: User;
+  try {
+    parsed = JSON.parse(stored);
+  } catch {
+    return null;
+  }
+
+  if (!parsed?.id || !parsed?.email) return null;
+
+  // Verify the session user actually exists in contractai_users
+  const users = getUsers();
+  const real = users.find(
+    (u) => u.id === parsed.id && u.email === parsed.email
+  );
+
+  if (!real) {
+    // Session is forged — clear it
+    localStorage.removeItem(CURRENT_USER_KEY);
+    return null;
+  }
+
+  return parsed;
 }
 
-// Check if user is logged in
 export function isLoggedIn(): boolean {
   return getCurrentUser() !== null;
+}
+
+// Update password for a user — used by the reset-password flow
+export function updatePassword(
+  email: string,
+  newPassword: string
+): { success: boolean; error?: string } {
+  if (!newPassword || newPassword.length < 6) {
+    return { success: false, error: "La contraseña debe tener al menos 6 caracteres" };
+  }
+
+  const users = getUsers();
+  const index = users.findIndex((u) => u.email === email.toLowerCase());
+
+  if (index === -1) {
+    return { success: false, error: "Usuario no encontrado" };
+  }
+
+  const salt = generateSalt();
+  users[index] = {
+    ...users[index],
+    salt,
+    passwordHash: hashPassword(newPassword, salt),
+  };
+
+  saveUsers(users);
+  return { success: true };
 }

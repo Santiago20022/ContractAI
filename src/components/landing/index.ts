@@ -1,8 +1,11 @@
 export { Hero } from "./Hero";
+export { ClientTypes } from "./ClientTypes";
 export { Features } from "./Features";
+export { Stats } from "./Stats";
 export { HowItWorks } from "./HowItWorks";
 export { ContractTypes } from "./ContractTypes";
 export { Pricing } from "./Pricing";
+export { Comparison } from "./Comparison";
 export { Testimonials } from "./Testimonials";
 export { FAQ } from "./FAQ";
 export { CTA } from "./CTA";

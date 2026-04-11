@@ -50,8 +50,18 @@ export function Testimonials() {
           </p>
         </motion.div>
 
+        {/* Trust count */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="text-center text-sm text-slate-500 mb-12"
+        >
+          <span className="font-semibold text-slate-700">+500</span> reseñas de 5 estrellas en toda Latinoamérica
+        </motion.p>
+
         {/* Testimonials grid */}
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-6 items-center">
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.name}
@@ -59,10 +69,15 @@ export function Testimonials() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-xl transition-shadow duration-300"
+              whileHover={{ y: -4 }}
+              className={
+                index === 1
+                  ? "bg-white rounded-3xl p-8 border border-indigo-200 shadow-lg shadow-indigo-500/10 scale-105 relative z-10"
+                  : "bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300"
+              }
             >
               {/* Quote icon */}
-              <Quote className="w-10 h-10 text-indigo-100 mb-4" />
+              <Quote className={`w-10 h-10 mb-4 ${index === 1 ? "text-indigo-200" : "text-indigo-100"}`} />
 
               {/* Rating */}
               <div className="flex gap-1 mb-4">

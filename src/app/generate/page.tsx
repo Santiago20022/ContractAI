@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
-import { useAuth } from "@/context/AuthContext";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { addContract } from "@/lib/contracts-storage";
 import { generateContract, ContractData } from "@/lib/contract-templates";
 import { cn } from "@/lib/utils";
@@ -95,7 +95,7 @@ const contractTypes: ContractType[] = [
 ];
 
 export default function GeneratePage() {
-  const { user } = useAuth();
+  const { user, isLoading } = useRequireAuth();
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -180,6 +180,8 @@ export default function GeneratePage() {
       URL.revokeObjectURL(url);
     }
   };
+
+  if (isLoading || !user) return null;
 
   return (
     <div className="min-h-screen bg-slate-50">

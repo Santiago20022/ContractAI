@@ -42,8 +42,8 @@ export default function ContractsPage() {
   }, [user]);
 
   const handleDelete = (id: string) => {
-    if (confirm("¿Estás seguro de que quieres eliminar este contrato?")) {
-      deleteContract(id);
+    if (user && confirm("¿Estás seguro de que quieres eliminar este contrato?")) {
+      deleteContract(id, user.id);
       setContracts(contracts.filter((c) => c.id !== id));
     }
     setOpenMenu(null);
