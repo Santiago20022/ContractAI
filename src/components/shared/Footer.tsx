@@ -32,9 +32,9 @@ export function Footer() {
       { label: "API", href: "/developers" },
     ],
     legal: [
-      { label: "Privacidad", href: "#" },
-      { label: "Términos", href: "#" },
-      { label: "Cookies", href: "#" },
+      { label: "Privacidad", href: "/privacy" },
+      { label: "Términos", href: "/terms" },
+      { label: "Cookies", href: "/privacy#cookies" },
     ],
     empresa: [
       { label: "Nosotros", href: "#" },

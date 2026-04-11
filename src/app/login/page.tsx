@@ -154,11 +154,11 @@ export default function LoginPage() {
         {/* Footer */}
         <p className="text-center text-sm text-slate-500 mt-8">
           Al continuar, aceptas nuestros{" "}
-          <Link href="#" className="text-indigo-600 hover:underline">
+          <Link href="/terms" className="text-indigo-600 hover:underline">
             Términos de servicio
           </Link>{" "}
           y{" "}
-          <Link href="#" className="text-indigo-600 hover:underline">
+          <Link href="/privacy" className="text-indigo-600 hover:underline">
             Política de privacidad
           </Link>
         </p>
