@@ -54,7 +54,7 @@ export function Features() {
       icon: <Lock className="w-6 h-6" />,
       title: "Privado y seguro",
       description:
-        "Tus documentos están encriptados. Nunca compartimos ni almacenamos tu información sensible.",
+        "Tus documentos se guardan solo en tu navegador, sin enviarse a ningún servidor externo. Nadie más tiene acceso a tus contratos.",
       color: "slate",
     },
   ];

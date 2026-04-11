@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { FileText, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -15,6 +15,7 @@ export function Navbar() {
     { href: "#features", label: "Características" },
     { href: "#how-it-works", label: "Cómo funciona" },
     { href: "#pricing", label: "Precios" },
+    { href: "#faq", label: "FAQ" },
   ];
 
   return (
@@ -87,12 +88,14 @@ export function Navbar() {
         </div>
 
         {/* Mobile Navigation */}
+        <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden py-4 border-t border-slate-100"
+            transition={{ duration: 0.2 }}
+            className="md:hidden py-4 border-t border-slate-100 overflow-hidden"
           >
             <div className="flex flex-col gap-4">
               {navItems.map((item) => (
@@ -130,6 +133,7 @@ export function Navbar() {
             </div>
           </motion.div>
         )}
+        </AnimatePresence>
       </div>
     </motion.nav>
   );

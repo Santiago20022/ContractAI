@@ -18,7 +18,7 @@ export function HowItWorks() {
       icon: <Upload className="w-8 h-8" />,
       title: "Sube o genera",
       description:
-        "Genera un contrato nuevo desde cero o sube uno existente que quieras analizar. Aceptamos PDF, Word y más.",
+        "Genera un contrato nuevo desde cero o pega el texto de uno existente que quieras analizar. También puedes subir archivos .txt.",
       color: "purple",
     },
     {

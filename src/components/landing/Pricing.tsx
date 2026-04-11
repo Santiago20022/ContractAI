@@ -15,9 +15,10 @@ export function Pricing() {
         "3 contratos al mes",
         "Análisis básico de riesgos",
         "Plantillas esenciales",
-        "Exportar a PDF",
+        "Descargar en .txt",
       ],
       cta: "Empezar gratis",
+      href: "/register",
       popular: false,
     },
     {
@@ -33,6 +34,7 @@ export function Pricing() {
         "Soporte prioritario",
       ],
       cta: "Comenzar prueba",
+      href: "/register",
       popular: true,
     },
     {
@@ -48,6 +50,7 @@ export function Pricing() {
         "Account manager dedicado",
       ],
       cta: "Contactar ventas",
+      href: "/register",
       popular: false,
     },
   ];
@@ -102,10 +105,15 @@ export function Pricing() {
                 </h3>
                 <p className="text-slate-500 text-sm mb-4">{plan.description}</p>
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-4xl font-bold text-slate-900">
-                    ${plan.price}
-                  </span>
-                  <span className="text-slate-500">/mes</span>
+                  {plan.price === "0" ? (
+                    <span className="text-4xl font-bold text-slate-900">Gratis</span>
+                  ) : (
+                    <>
+                      <span className="text-2xl font-semibold text-slate-500">USD</span>
+                      <span className="text-4xl font-bold text-slate-900">{plan.price}</span>
+                      <span className="text-slate-500">/mes</span>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -120,7 +128,7 @@ export function Pricing() {
               </ul>
 
               {/* CTA */}
-              <Link href="/dashboard" className="block">
+              <Link href={plan.href} className="block">
                 <Button
                   variant={plan.popular ? "primary" : "secondary"}
                   className="w-full"
@@ -139,7 +147,7 @@ export function Pricing() {
           viewport={{ once: true }}
           className="text-center text-slate-500 text-sm mt-12"
         >
-          Todos los planes incluyen encriptación de datos y garantía de satisfacción de 30 días
+          Todos los planes incluyen almacenamiento privado en tu navegador y acceso sin tarjeta de crédito
         </motion.p>
       </div>
     </section>
