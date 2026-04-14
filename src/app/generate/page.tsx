@@ -102,6 +102,7 @@ export default function GeneratePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedContract, setGeneratedContract] = useState<string | null>(null);
   const [streamingText, setStreamingText] = useState("");
+  const [aiUsed, setAiUsed] = useState<boolean | null>(null);
   const [copied, setCopied] = useState(false);
   const [formData, setFormData] = useState<ContractData>({
     partyA: "",
@@ -151,6 +152,7 @@ export default function GeneratePage() {
     setStep(3);
     setGeneratedContract(null);
     setStreamingText("");
+    setAiUsed(null);
 
     try {
       const res = await fetch("/api/generate", {
@@ -166,11 +168,12 @@ export default function GeneratePage() {
         const json = await res.json();
         if (json.fallback) {
           const contract = generateContract(selectedType, formData);
+          setAiUsed(false);
           setGeneratedContract(contract);
           saveToStorage(contract);
         }
       } else {
-        // Streaming response
+        // Streaming response from Gemini
         const reader = res.body?.getReader();
         if (!reader) throw new Error("No readable stream");
 
@@ -185,12 +188,14 @@ export default function GeneratePage() {
           setStreamingText((prev) => prev + chunk);
         }
 
+        setAiUsed(true);
         setGeneratedContract(fullText);
         saveToStorage(fullText);
       }
     } catch {
       // Fallback to local template on any error
       const contract = generateContract(selectedType, formData);
+      setAiUsed(false);
       setGeneratedContract(contract);
       saveToStorage(contract);
     } finally {
@@ -602,9 +607,19 @@ export default function GeneratePage() {
                           <p className="font-semibold text-slate-900">
                             {contractTypes.find((c) => c.id === selectedType)?.title}
                           </p>
-                          <p className="text-sm text-slate-500">
-                            Generado justo ahora
-                          </p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            {aiUsed === true ? (
+                              <span className="inline-flex items-center gap-1 text-xs font-medium bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">
+                                <Sparkles className="w-3 h-3" />
+                                Generado con Gemini AI
+                              </span>
+                            ) : aiUsed === false ? (
+                              <span className="inline-flex items-center gap-1 text-xs font-medium bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">
+                                <FileText className="w-3 h-3" />
+                                Plantilla local
+                              </span>
+                            ) : null}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
