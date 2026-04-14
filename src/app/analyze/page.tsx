@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/Card";
 import { Textarea } from "@/components/ui/Textarea";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { addContract } from "@/lib/contracts-storage";
-import { analyzeContract } from "@/lib/contract-templates";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -36,6 +35,8 @@ type AnalysisItem = {
   description: string;
   clause: string;
   risk: RiskLevel;
+  // Gemini format uses "level" instead of "risk"
+  level?: RiskLevel;
   suggestion: string;
 };
 
@@ -47,6 +48,7 @@ export default function AnalyzePage() {
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<AnalysisItem[]>([]);
   const [overallScore, setOverallScore] = useState(0);
+  const [summary, setAnalysisSummary] = useState("");
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -106,30 +108,62 @@ export default function AnalyzePage() {
 
   const handleAnalyze = async () => {
     if (!contractText.trim()) return;
-
     setIsAnalyzing(true);
 
-    // Simulate analysis time
-    await new Promise((resolve) => setTimeout(resolve, 2500));
-
-    const { results, score } = analyzeContract(contractText);
-
-    setAnalysisResults(results);
-    setOverallScore(score);
-
-    // Save to storage if user is logged in
-    if (user) {
-      addContract(user.id, {
-        title: fileName || `Análisis - ${new Date().toLocaleDateString("es-ES")}`,
-        type: "analyzed",
-        content: contractText,
-        status: "analyzed",
-        riskScore: score,
+    try {
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: contractText }),
       });
-    }
 
-    setIsAnalyzing(false);
-    setAnalysisComplete(true);
+      const data = await res.json();
+
+      // The API returns either the Gemini result or the local fallback result
+      // Gemini format: { risks, riskScore, summary }
+      // Local fallback format: { results, score }
+      if (data.risks) {
+        // Normalize Gemini format: map "level" to "risk" for display compatibility
+        const normalized: AnalysisItem[] = (data.risks as AnalysisItem[]).map(
+          (item) => ({
+            ...item,
+            risk: item.level ?? item.risk ?? "info",
+          })
+        );
+        setAnalysisResults(normalized);
+        setOverallScore(data.riskScore ?? 50);
+        setAnalysisSummary(data.summary || "");
+      } else {
+        // Local fallback format
+        setAnalysisResults(data.results || data.findings || []);
+        setOverallScore(data.score || 50);
+        setAnalysisSummary("");
+      }
+
+      // Save to localStorage
+      const finalScore = data.riskScore || data.score || 50;
+      if (user) {
+        addContract(user.id, {
+          title: fileName || `Análisis - ${new Date().toLocaleDateString("es-ES")}`,
+          type: "analyzed",
+          content: contractText,
+          status: "analyzed",
+          riskScore: finalScore,
+        });
+      }
+
+      setAnalysisComplete(true);
+    } catch {
+      // Fallback to local analysis
+      const { analyzeContract } = await import("@/lib/contract-templates");
+      const { results, score } = analyzeContract(contractText);
+      setAnalysisResults(results);
+      setOverallScore(score);
+      setAnalysisSummary("");
+      setAnalysisComplete(true);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const toggleExpand = (id: number) => {
@@ -182,6 +216,7 @@ export default function AnalyzePage() {
     setAnalysisResults([]);
     setOverallScore(0);
     setExpandedItems([]);
+    setAnalysisSummary("");
   };
 
   if (isLoading || !user) return null;
@@ -429,6 +464,13 @@ export default function AnalyzePage() {
                 </p>
               </div>
 
+              {/* AI Summary banner */}
+              {summary && (
+                <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-6 py-4 max-w-3xl mx-auto mb-6">
+                  <p className="text-indigo-800 text-sm font-medium">{summary}</p>
+                </div>
+              )}
+
               {/* Quick stats */}
               <div className="grid grid-cols-4 gap-4 max-w-3xl mx-auto mb-8">
                 {[
@@ -542,7 +584,7 @@ export default function AnalyzePage() {
                                     Nuestra sugerencia
                                   </p>
                                   <p className="text-sm text-slate-700 bg-white/80 p-3 rounded-lg border border-slate-200">
-                                    💡 {item.suggestion}
+                                    {item.suggestion}
                                   </p>
                                 </div>
                               </div>

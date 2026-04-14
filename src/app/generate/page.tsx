@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type ContractType = {
   id: string;
@@ -101,6 +101,7 @@ export default function GeneratePage() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedContract, setGeneratedContract] = useState<string | null>(null);
+  const [streamingText, setStreamingText] = useState("");
   const [copied, setCopied] = useState(false);
   const [formData, setFormData] = useState<ContractData>({
     partyA: "",
@@ -111,6 +112,15 @@ export default function GeneratePage() {
     additionalClauses: "",
     city: "",
   });
+
+  const streamingRef = useRef<HTMLPreElement>(null);
+
+  // Auto-scroll streaming container
+  useEffect(() => {
+    if (streamingRef.current) {
+      streamingRef.current.scrollTop = streamingRef.current.scrollHeight;
+    }
+  }, [streamingText]);
 
   const handleTypeSelect = (typeId: string) => {
     setSelectedType(typeId);
@@ -130,6 +140,7 @@ export default function GeneratePage() {
     } else if (step === 3) {
       setStep(2);
       setGeneratedContract(null);
+      setStreamingText("");
     }
   };
 
@@ -138,25 +149,65 @@ export default function GeneratePage() {
 
     setIsGenerating(true);
     setStep(3);
+    setGeneratedContract(null);
+    setStreamingText("");
 
-    // Simulate generation time
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: selectedType, data: formData }),
+      });
 
-    const contract = generateContract(selectedType, formData);
-    setGeneratedContract(contract);
+      const contentType = res.headers.get("Content-Type") || "";
 
-    // Save to storage if user is logged in
+      if (contentType.includes("application/json")) {
+        // Fallback to local template
+        const json = await res.json();
+        if (json.fallback) {
+          const contract = generateContract(selectedType, formData);
+          setGeneratedContract(contract);
+          saveToStorage(contract);
+        }
+      } else {
+        // Streaming response
+        const reader = res.body?.getReader();
+        if (!reader) throw new Error("No readable stream");
+
+        const decoder = new TextDecoder();
+        let fullText = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          fullText += chunk;
+          setStreamingText((prev) => prev + chunk);
+        }
+
+        setGeneratedContract(fullText);
+        saveToStorage(fullText);
+      }
+    } catch {
+      // Fallback to local template on any error
+      const contract = generateContract(selectedType, formData);
+      setGeneratedContract(contract);
+      saveToStorage(contract);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const saveToStorage = (contract: string) => {
     if (user) {
       const selectedContractType = contractTypes.find((c) => c.id === selectedType);
       addContract(user.id, {
         title: `${selectedContractType?.title || "Contrato"} - ${formData.partyB || "Sin nombre"}`,
-        type: selectedType,
+        type: selectedType!,
         content: contract,
         status: "completed",
       });
     }
-
-    setIsGenerating(false);
   };
 
   const copyToClipboard = () => {
@@ -179,6 +230,48 @@ export default function GeneratePage() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
+  };
+
+  const downloadPDF = async () => {
+    const { jsPDF } = await import("jspdf");
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const margin = 20;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const textWidth = pageWidth - margin * 2;
+
+    // Header
+    doc.setFontSize(9);
+    doc.setTextColor(130, 130, 130);
+    doc.text("ContractAI — contractai.app", margin, 12);
+    doc.text(new Date().toLocaleDateString("es-ES"), pageWidth - margin, 12, { align: "right" });
+    doc.setDrawColor(99, 102, 241);
+    doc.setLineWidth(0.5);
+    doc.line(margin, 15, pageWidth - margin, 15);
+
+    // Content
+    doc.setFontSize(10.5);
+    doc.setTextColor(20, 20, 20);
+    let y = 24;
+    const lines = doc.splitTextToSize(generatedContract || "", textWidth);
+    for (const line of lines) {
+      if (y > 272) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.text(line, margin, y);
+      y += 5.5;
+    }
+
+    // Footer on each page
+    const total = doc.getNumberOfPages();
+    for (let i = 1; i <= total; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(160, 160, 160);
+      doc.text(`Página ${i} de ${total}  ·  Generado por ContractAI`, pageWidth / 2, 288, { align: "center" });
+    }
+
+    doc.save(`contrato-${selectedType}-${Date.now()}.pdf`);
   };
 
   if (isLoading || !user) return null;
@@ -444,17 +537,46 @@ export default function GeneratePage() {
               transition={{ duration: 0.3 }}
             >
               {isGenerating ? (
-                <div className="text-center py-20">
-                  <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
+                streamingText ? (
+                  /* Streaming view — ChatGPT effect */
+                  <div className="max-w-3xl mx-auto">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-indigo-600 animate-pulse" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-slate-900">
+                          Generando con IA...
+                        </h2>
+                        <p className="text-sm text-slate-500">
+                          El contrato se está escribiendo en tiempo real
+                        </p>
+                      </div>
+                    </div>
+                    <Card>
+                      <pre
+                        ref={streamingRef}
+                        className="whitespace-pre-wrap font-mono text-sm text-slate-700 leading-relaxed max-h-[500px] overflow-y-auto"
+                      >
+                        {streamingText}
+                        <span className="inline-block w-2 h-4 bg-indigo-500 ml-0.5 animate-pulse" />
+                      </pre>
+                    </Card>
                   </div>
-                  <h2 className="text-2xl font-bold text-slate-900 mb-3">
-                    Generando tu contrato...
-                  </h2>
-                  <p className="text-slate-600">
-                    Estamos creando un contrato profesional personalizado
-                  </p>
-                </div>
+                ) : (
+                  /* Initial spinner before first chunk arrives */
+                  <div className="text-center py-20">
+                    <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-3">
+                      Generando tu contrato...
+                    </h2>
+                    <p className="text-slate-600">
+                      Estamos creando un contrato profesional personalizado
+                    </p>
+                  </div>
+                )
               ) : (
                 <>
                   <div className="text-center mb-10">
@@ -495,12 +617,20 @@ export default function GeneratePage() {
                           {copied ? "¡Copiado!" : "Copiar"}
                         </Button>
                         <Button
-                          variant="primary"
+                          variant="secondary"
                           size="sm"
                           onClick={downloadContract}
                           icon={<Download className="w-4 h-4" />}
                         >
-                          Descargar
+                          .txt
+                        </Button>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={downloadPDF}
+                          icon={<Download className="w-4 h-4" />}
+                        >
+                          PDF
                         </Button>
                       </div>
                     </div>

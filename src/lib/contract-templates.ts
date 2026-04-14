@@ -38,7 +38,9 @@ Ambas partes se reconocen mutuamente la capacidad legal necesaria para la firma 
 
                               EXPONEN
 
-Que EL CLIENTE está interesado en contratar los servicios profesionales de EL PRESTADOR, quien cuenta con la experiencia y conocimientos necesarios para llevar a cabo dichos servicios.
+I. Que EL CLIENTE está interesado en contratar los servicios profesionales de EL PRESTADOR, quien cuenta con la experiencia, conocimientos y medios necesarios para llevar a cabo dichos servicios.
+
+II. Que EL PRESTADOR ha evaluado los requerimientos de EL CLIENTE y se encuentra en condiciones de prestar los servicios solicitados en los términos aquí establecidos.
 
 Por lo anterior, ambas partes acuerdan celebrar el presente CONTRATO DE PRESTACIÓN DE SERVICIOS, que se regirá por las siguientes:
 
@@ -47,45 +49,75 @@ Por lo anterior, ambas partes acuerdan celebrar el presente CONTRATO DE PRESTACI
 PRIMERA.- OBJETO DEL CONTRATO
 ${data.description || "EL PRESTADOR se compromete a realizar los servicios profesionales acordados, aplicando sus conocimientos y experiencia para lograr los objetivos establecidos por EL CLIENTE."}
 
+El alcance detallado de los servicios, los entregables específicos y los criterios de aceptación quedarán definidos en el Anexo Técnico que forma parte integral del presente contrato. Cualquier servicio no comprendido en dicho alcance constituirá un cambio de alcance sujeto a la cláusula correspondiente.
+
 SEGUNDA.- DURACIÓN
-El presente contrato tendrá una duración de ${data.duration || "[DURACIÓN ACORDADA]"}, comenzando a partir de la fecha de firma del presente documento. Podrá ser prorrogado de mutuo acuerdo entre las partes.
+El presente contrato tendrá una duración de ${data.duration || "[DURACIÓN ACORDADA]"}, comenzando a partir de la fecha de firma del presente documento. Podrá ser prorrogado por períodos iguales de mutuo acuerdo entre las partes, siempre que la solicitud de prórroga se comunique con un mínimo de quince (15) días de antelación al vencimiento.
 
 TERCERA.- HONORARIOS Y FORMA DE PAGO
 Como contraprestación por los servicios prestados, EL CLIENTE abonará a EL PRESTADOR la cantidad de ${data.amount || "[CANTIDAD ACORDADA]"}.
 
 El pago se realizará de la siguiente forma:
-• 50% al inicio del proyecto
-• 50% a la entrega final
+• 50% al inicio del proyecto, como anticipo no reembolsable en caso de desistimiento imputable a EL CLIENTE.
+• 50% a la entrega y aceptación formal de los entregables finales.
 
-CUARTA.- OBLIGACIONES DEL PRESTADOR
+Los pagos se realizarán mediante transferencia bancaria a la cuenta indicada por EL PRESTADOR. En caso de mora, se aplicará un interés mensual equivalente a la tasa de interés de referencia vigente más dos (2) puntos porcentuales, sin necesidad de requerimiento previo.
+
+EL PRESTADOR emitirá la factura correspondiente con cinco (5) días hábiles de antelación a la fecha de pago. EL CLIENTE tendrá un plazo de tres (3) días hábiles para manifestar cualquier objeción fundada; de lo contrario, se entenderá que la factura es conforme.
+
+CUARTA.- GARANTÍA DE CALIDAD
+EL PRESTADOR garantiza que los servicios serán prestados con diligencia profesional y que los entregables se ajustarán a las especificaciones acordadas. En caso de que EL CLIENTE identifique defectos o incumplimientos dentro de los quince (15) días siguientes a la entrega, EL PRESTADOR se compromete a subsanarlos sin costo adicional dentro de un plazo razonable. Esta garantía no cubre modificaciones solicitadas por EL CLIENTE con posterioridad a la aceptación, ni defectos derivados de información incorrecta o incompleta proporcionada por EL CLIENTE.
+
+QUINTA.- PROCEDIMIENTO PARA CAMBIOS DE ALCANCE
+Cualquier modificación al alcance definido en la cláusula primera deberá tramitarse mediante una "Solicitud de Cambio" por escrito. EL PRESTADOR evaluará el impacto en plazo y costo dentro de cinco (5) días hábiles de recibida la solicitud. El cambio solo será ejecutado una vez que ambas partes hayan suscrito el correspondiente addendum al contrato. Ningún cambio verbal será vinculante.
+
+SEXTA.- OBLIGACIONES DEL PRESTADOR
 EL PRESTADOR se compromete a:
-a) Ejecutar los servicios objeto de este contrato con la máxima diligencia y profesionalidad.
-b) Mantener informado a EL CLIENTE sobre el progreso de los trabajos.
-c) Cumplir con los plazos acordados.
-d) Guardar estricta confidencialidad sobre toda información relacionada con EL CLIENTE.
+a) Ejecutar los servicios objeto de este contrato con la máxima diligencia y profesionalidad, cumpliendo las normas técnicas aplicables.
+b) Mantener informado a EL CLIENTE sobre el progreso de los trabajos mediante informes periódicos o reuniones de seguimiento acordadas.
+c) Cumplir con los plazos acordados, comunicando con la mayor antelación posible cualquier circunstancia que pudiera afectarlos.
+d) Guardar estricta confidencialidad sobre toda información relacionada con EL CLIENTE, sus negocios y sus clientes.
 e) No subcontratar los servicios sin autorización previa y por escrito de EL CLIENTE.
+f) Contar con los seguros de responsabilidad civil profesional que sean aplicables a la naturaleza de los servicios.
 
-QUINTA.- OBLIGACIONES DEL CLIENTE
+SÉPTIMA.- OBLIGACIONES DEL CLIENTE
 EL CLIENTE se compromete a:
-a) Proporcionar toda la información y materiales necesarios para la correcta ejecución de los servicios.
-b) Realizar los pagos en los plazos acordados.
-c) Comunicar de forma clara y oportuna cualquier cambio en los requisitos.
-d) Facilitar el acceso a los recursos necesarios para el desarrollo del trabajo.
+a) Proporcionar toda la información, accesos y materiales necesarios para la correcta ejecución de los servicios en los plazos acordados.
+b) Realizar los pagos en los términos establecidos en la cláusula tercera.
+c) Comunicar de forma clara, oportuna y por escrito cualquier cambio en los requisitos, siguiendo el procedimiento de cambios de alcance.
+d) Designar un responsable del proyecto con capacidad de decisión para la interlocución con EL PRESTADOR.
+e) Revisar y aprobar los entregables dentro de los plazos acordados. La ausencia de respuesta dentro de los diez (10) días hábiles siguientes a la entrega se considerará aprobación tácita.
 
-SEXTA.- CONFIDENCIALIDAD
-Ambas partes se comprometen a mantener estricta confidencialidad sobre toda la información intercambiada durante la vigencia del presente contrato y después de su terminación. Esta obligación se extiende a todos los datos, documentos, métodos, procedimientos y know-how.
+OCTAVA.- PROPIEDAD INTELECTUAL
+Los derechos de propiedad intelectual sobre los entregables desarrollados específicamente para EL CLIENTE en virtud de este contrato serán cedidos a EL CLIENTE de forma no exclusiva, una vez recibido el pago total acordado. Hasta ese momento, EL PRESTADOR conserva todos los derechos.
 
-SÉPTIMA.- PROPIEDAD INTELECTUAL
-Los derechos de propiedad intelectual sobre los trabajos realizados serán cedidos a EL CLIENTE una vez completado el pago total acordado. EL PRESTADOR podrá utilizar los trabajos como referencia en su portfolio, salvo que EL CLIENTE solicite expresamente lo contrario.
+EL PRESTADOR retiene en todo caso la titularidad sobre:
+a) Metodologías, herramientas, frameworks y conocimiento preexistente utilizado en la ejecución.
+b) Módulos o componentes de uso genérico no desarrollados específicamente para este contrato.
 
-OCTAVA.- RESOLUCIÓN
-Cualquiera de las partes podrá resolver el presente contrato mediante notificación escrita con un preaviso mínimo de quince (15) días. En caso de resolución anticipada, EL CLIENTE deberá abonar los servicios efectivamente prestados hasta la fecha de resolución.
+EL PRESTADOR podrá referenciar los trabajos realizados en su portfolio y material comercial, salvo que EL CLIENTE solicite expresamente lo contrario mediante comunicación escrita.
 
-NOVENA.- MODIFICACIONES
-Cualquier modificación del presente contrato deberá realizarse por escrito y ser firmada por ambas partes.
+NOVENA.- CONFIDENCIALIDAD
+Ambas partes se comprometen a mantener estricta confidencialidad sobre toda la información no pública intercambiada durante la vigencia del presente contrato y durante los dos (2) años posteriores a su terminación. Esta obligación se extiende a datos, documentos, métodos, procedimientos, estrategias comerciales y know-how. No se considerará confidencial la información que sea de dominio público, que ya obrara en poder de la parte receptora antes de la firma, o cuya divulgación sea ordenada por autoridad competente.
 
-${data.additionalClauses ? `DÉCIMA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}DÉCIMA${data.additionalClauses ? " PRIMERA" : ""}.- LEGISLACIÓN APLICABLE Y JURISDICCIÓN
-El presente contrato se regirá e interpretará de acuerdo con la legislación española. Para cualquier controversia derivada del mismo, las partes se someten a los Juzgados y Tribunales de ${data.city || "[Ciudad]"}, renunciando a cualquier otro fuero que pudiera corresponderles.
+DÉCIMA.- RESOLUCIÓN DEL CONTRATO
+Cualquiera de las partes podrá resolver el presente contrato mediante notificación escrita con un preaviso mínimo de quince (15) días naturales. En caso de resolución anticipada:
+a) Por causa imputable a EL CLIENTE: EL CLIENTE deberá abonar los servicios efectivamente prestados hasta la fecha de resolución, más una indemnización equivalente al 20% del importe pendiente de ejecutar.
+b) Por causa imputable a EL PRESTADOR: EL PRESTADOR reembolsará la parte proporcional de los honorarios ya cobrados por servicios no prestados.
+
+Cualquier parte podrá resolver el contrato de forma inmediata y sin penalización en caso de incumplimiento material de la otra parte que no sea subsanado dentro de los diez (10) días siguientes a la notificación escrita del incumplimiento.
+
+DECIMOPRIMERA.- MODIFICACIONES
+Cualquier modificación del presente contrato, distinta a los cambios de alcance regulados en la cláusula quinta, deberá realizarse por escrito y ser firmada por ambas partes. Ninguna comunicación verbal o por medios informales tendrá efecto modificatorio.
+
+DECIMOSEGUNDA.- RESOLUCIÓN DE DISPUTAS
+Las partes se comprometen a resolver cualquier controversia derivada de este contrato mediante el siguiente procedimiento escalonado:
+1. Negociación directa: las partes designarán representantes con poder de decisión que se reunirán dentro de los diez (10) días siguientes a la notificación de la controversia.
+2. Mediación: si no se alcanza acuerdo en quince (15) días, cualquier parte podrá solicitar mediación ante un centro de mediación reconocido.
+3. Arbitraje o jurisdicción ordinaria: si la mediación fracasa, las partes se someterán a lo dispuesto en la cláusula de jurisdicción.
+
+${data.additionalClauses ? `DECIMOTERCERA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}DECIMOTERCER${data.additionalClauses ? "A (CONT.)" : "A"}.- LEGISLACIÓN APLICABLE Y JURISDICCIÓN
+El presente contrato se regirá e interpretará de acuerdo con la legislación vigente en el lugar de firma. Para cualquier controversia no resuelta conforme al procedimiento establecido, las partes se someten a los Juzgados y Tribunales de ${data.city || "[Ciudad]"}, renunciando a cualquier otro fuero que pudiera corresponderles.
 
 Y en prueba de conformidad, firman el presente contrato por duplicado y a un solo efecto.
 
@@ -95,7 +127,7 @@ _____________________________              _____________________________
     ${data.partyA || "[Firma]"}                         ${data.partyB || "[Firma]"}
 
 
-DNI/NIF: _________________              DNI/NIF: _________________
+DNI/NIF/RFC: _______________              DNI/NIF/RFC: _______________
 `.trim(),
 
   nda: (data) => `
@@ -115,60 +147,75 @@ Ambas partes, conjuntamente denominadas "LAS PARTES", reconociéndose mutuamente
 
                               EXPONEN
 
-I. Que LAS PARTES desean explorar una posible relación comercial o de colaboración que requerirá el intercambio de información confidencial.
+I. Que LAS PARTES desean explorar una posible relación comercial o de colaboración que requerirá el intercambio de información confidencial y sensible.
 
-II. Que LAS PARTES desean proteger dicha información confidencial y establecer los términos bajo los cuales será compartida.
+II. Que LAS PARTES tienen un interés legítimo en proteger dicha información y establecer con claridad los términos, obligaciones y remedios aplicables a su intercambio.
 
 Por lo anterior, LAS PARTES acuerdan celebrar el presente ACUERDO DE CONFIDENCIALIDAD conforme a las siguientes:
 
                              CLÁUSULAS
 
 PRIMERA.- DEFINICIÓN DE INFORMACIÓN CONFIDENCIAL
-Se considerará "Información Confidencial" toda información, ya sea oral, escrita, gráfica, electrónica o de cualquier otro tipo, que incluye pero no se limita a:
-${data.description || `• Información técnica, comercial, financiera o estratégica
-• Datos de clientes, proveedores y socios comerciales
-• Planes de negocio, marketing y desarrollo
-• Software, código fuente, algoritmos y especificaciones técnicas
-• Know-how, procesos, metodologías y procedimientos
-• Cualquier otra información designada como confidencial`}
+Se considerará "Información Confidencial" toda información, dato o material que LA PARTE DIVULGADORA comparta con LA PARTE RECEPTORA, directa o indirectamente, en cualquier formato (oral, escrito, gráfico, digital, magnético u otro), que incluye pero no se limita a:
+${data.description || `• Información técnica: diseños, planos, prototipos, especificaciones, código fuente, algoritmos, arquitecturas de sistemas y documentación técnica.
+• Información comercial y financiera: estados financieros, proyecciones, precios, márgenes, estrategias de mercado, planes de expansión y modelos de negocio.
+• Información de clientes y proveedores: bases de datos, contratos, condiciones comerciales e historial de transacciones.
+• Propiedad intelectual: patentes (solicitadas o no), marcas, secretos industriales, know-how y metodologías propietarias.
+• Información de personal: datos de empleados, estructuras organizacionales, políticas de compensación y planes de recursos humanos.
+• Cualquier información expresamente designada como "confidencial" o "reservada", independientemente del soporte en que conste.`}
+
+Para evitar dudas, también se considerará Información Confidencial toda aquella que, por su naturaleza o por las circunstancias de su divulgación, una persona razonable entendería que debe ser tratada como confidencial, aunque no esté expresamente marcada como tal.
 
 SEGUNDA.- OBLIGACIONES DE CONFIDENCIALIDAD
 LA PARTE RECEPTORA se compromete a:
-a) Mantener la Información Confidencial en estricta reserva.
-b) No divulgar la Información Confidencial a terceros sin autorización previa y por escrito.
-c) Utilizar la Información Confidencial únicamente para los fines acordados.
-d) Proteger la Información Confidencial con el mismo grado de cuidado que utiliza para proteger su propia información confidencial.
-e) Limitar el acceso a la Información Confidencial a aquellos empleados o colaboradores que necesiten conocerla.
+a) Mantener la Información Confidencial en estricta reserva, aplicando medidas de seguridad razonables y al menos equivalentes a las que utiliza para proteger su propia información confidencial de similar importancia.
+b) No divulgar, publicar, transferir ni poner a disposición de terceros la Información Confidencial sin autorización previa y por escrito de LA PARTE DIVULGADORA.
+c) Utilizar la Información Confidencial exclusivamente para los fines descritos en el presente acuerdo y en ningún caso en beneficio propio o de terceros fuera de dicho propósito.
+d) Limitar el acceso a la Información Confidencial a sus empleados, directivos o asesores que tengan necesidad de conocerla para los fines acordados y que estén sujetos a obligaciones de confidencialidad al menos equivalentes a las de este acuerdo.
+e) Notificar de forma inmediata a LA PARTE DIVULGADORA cualquier divulgación no autorizada o brecha de seguridad que afecte a la Información Confidencial, tomando las medidas correctivas necesarias.
+f) No reproducir, copiar ni duplicar la Información Confidencial más allá de lo estrictamente necesario para los fines de este acuerdo.
 
 TERCERA.- EXCEPCIONES
-No se considerará Información Confidencial aquella que:
-a) Sea de dominio público en el momento de su divulgación.
-b) Se convierta en información pública sin incumplimiento de este acuerdo.
-c) Estuviera en posesión legítima de LA PARTE RECEPTORA antes de su divulgación.
-d) Sea desarrollada independientemente por LA PARTE RECEPTORA.
-e) Deba ser divulgada por mandato legal o judicial.
+Las obligaciones de confidencialidad no se aplicarán a la información que LA PARTE RECEPTORA pueda demostrar fehacientemente que:
+a) Era de dominio público en el momento de su divulgación o que posteriormente pasó a serlo sin incumplimiento del presente acuerdo por parte de LA PARTE RECEPTORA.
+b) Estaba ya en posesión legítima de LA PARTE RECEPTORA con anterioridad a la fecha de firma de este acuerdo, acreditada mediante documentos con fecha cierta.
+c) Fue recibida de un tercero que, a su vez, no estaba sujeto a obligación de confidencialidad alguna respecto de dicha información.
+d) Fue desarrollada de forma independiente por LA PARTE RECEPTORA sin uso ni referencia a la Información Confidencial, acreditado mediante documentación interna fechada.
+e) Debe ser divulgada por imperativo legal, orden judicial o requerimiento de autoridad regulatoria competente, en cuyo caso LA PARTE RECEPTORA notificará a LA PARTE DIVULGADORA con la mayor antelación posible para que pueda adoptar las medidas legales oportunas, y solo revelará la cantidad mínima de información necesaria.
 
 CUARTA.- DURACIÓN
-Este acuerdo tendrá una duración de ${data.duration || "dos (2) años"} a partir de la fecha de su firma. Las obligaciones de confidencialidad sobrevivirán a la terminación del acuerdo por un período adicional de tres (3) años.
+Este acuerdo tendrá una duración de ${data.duration || "dos (2) años"} a partir de la fecha de su firma. Las obligaciones de confidencialidad establecidas en la cláusula segunda sobrevivirán a la terminación o vencimiento del presente acuerdo por un período adicional de tres (3) años, independientemente de la causa de terminación.
 
-QUINTA.- DEVOLUCIÓN DE INFORMACIÓN
-A la terminación de este acuerdo o a solicitud de LA PARTE DIVULGADORA, LA PARTE RECEPTORA deberá devolver o destruir toda la Información Confidencial recibida, incluyendo copias y documentos derivados.
+QUINTA.- DEVOLUCIÓN Y DESTRUCCIÓN DE INFORMACIÓN
+A la terminación o vencimiento de este acuerdo, o en cualquier momento a requerimiento escrito de LA PARTE DIVULGADORA, LA PARTE RECEPTORA deberá, a su elección:
+a) Devolver a LA PARTE DIVULGADORA toda la Información Confidencial recibida, incluyendo cualquier copia, resumen, análisis, nota o documento derivado, en el plazo de cinco (5) días hábiles.
+b) Destruir de forma segura e irreversible dicha información y certificar por escrito dicha destrucción a LA PARTE DIVULGADORA.
+
+Lo anterior no afectará a las copias de seguridad que LA PARTE RECEPTORA esté obligada a conservar por razones legales o regulatorias, las cuales seguirán sujetas a las obligaciones de confidencialidad del presente acuerdo.
 
 SEXTA.- PROPIEDAD DE LA INFORMACIÓN
-Toda la Información Confidencial seguirá siendo propiedad exclusiva de LA PARTE DIVULGADORA. Este acuerdo no otorga a LA PARTE RECEPTORA ningún derecho sobre dicha información.
+Toda la Información Confidencial seguirá siendo propiedad exclusiva de LA PARTE DIVULGADORA. El presente acuerdo no otorga a LA PARTE RECEPTORA ningún derecho de propiedad, licencia, franquicia ni ningún otro derecho sobre la Información Confidencial o sobre la propiedad intelectual de LA PARTE DIVULGADORA. La divulgación de Información Confidencial no implica ninguna representación, garantía ni compromiso de celebrar contrato alguno entre LAS PARTES.
 
-SÉPTIMA.- REMEDIOS
-En caso de incumplimiento, LA PARTE DIVULGADORA tendrá derecho a solicitar medidas cautelares y/o indemnización por daños y perjuicios.
+SÉPTIMA.- REMEDIOS POR INCUMPLIMIENTO
+LAS PARTES reconocen que el incumplimiento de las obligaciones de confidencialidad puede causar daños irreparables a LA PARTE DIVULGADORA, que no podrían ser adecuadamente compensados mediante una indemnización económica. Por ello, en caso de incumplimiento o amenaza de incumplimiento, LA PARTE DIVULGADORA tendrá derecho a:
+a) Solicitar medidas cautelares urgentes, incluyendo órdenes de cesación o medidas de no divulgación, ante los tribunales competentes sin necesidad de prestar fianza adicional.
+b) Exigir el cumplimiento específico de las obligaciones pactadas.
+c) Reclamar indemnización por los daños y perjuicios efectivamente causados, incluyendo daño emergente, lucro cesante y daño reputacional, sin perjuicio de las acciones anteriores.
 
-${data.additionalClauses ? `OCTAVA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}OCTAVA${data.additionalClauses ? " (CONT.)" : ""}.- JURISDICCIÓN
-Para cualquier controversia, LAS PARTES se someten a los Juzgados y Tribunales de ${data.city || "[Ciudad]"}.
+El ejercicio de cualquiera de estos remedios no excluirá el ejercicio de los demás.
 
-Y en prueba de conformidad, firman el presente acuerdo por duplicado.
+${data.additionalClauses ? `OCTAVA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}OCTAVA${data.additionalClauses ? " (CONT.)" : ""}.- LEGISLACIÓN APLICABLE Y JURISDICCIÓN
+El presente acuerdo se regirá e interpretará conforme a la legislación vigente en ${data.city || "[Ciudad]"}. Para cualquier controversia derivada del presente acuerdo que no pueda resolverse amigablemente, LAS PARTES se someten a la jurisdicción exclusiva de los Juzgados y Tribunales de ${data.city || "[Ciudad]"}, con renuncia a cualquier otro fuero.
+
+Y en prueba de conformidad, firman el presente acuerdo por duplicado y a un solo efecto.
 
 
 _____________________________              _____________________________
     LA PARTE DIVULGADORA                      LA PARTE RECEPTORA
     ${data.partyA || "[Firma]"}                         ${data.partyB || "[Firma]"}
+
+
+DNI/NIF/RFC: _______________              DNI/NIF/RFC: _______________
 `.trim(),
 
   employment: (data) => `
@@ -180,52 +227,104 @@ En ${data.city || "[Ciudad]"}, a ${data.date || formatDate()}
 
                               REUNIDOS
 
-De una parte, ${data.partyA || "[NOMBRE DE LA EMPRESA]"}, con domicilio en [DIRECCIÓN], y CIF [CIF], representada por [REPRESENTANTE], en adelante "LA EMPRESA".
+De una parte, ${data.partyA || "[NOMBRE DE LA EMPRESA]"}, con domicilio en [DIRECCIÓN], y RFC/NIF [RFC], representada por [REPRESENTANTE], en adelante "LA EMPRESA".
 
-De otra parte, ${data.partyB || "[NOMBRE DEL TRABAJADOR]"}, con DNI [DNI] y domicilio en [DIRECCIÓN], en adelante "EL TRABAJADOR".
+De otra parte, ${data.partyB || "[NOMBRE DEL TRABAJADOR]"}, con documento de identidad [DNI/CURP/CC] número [NÚMERO] y domicilio en [DIRECCIÓN], en adelante "EL TRABAJADOR".
 
                               MANIFIESTAN
 
-Que LA EMPRESA desea contratar los servicios laborales de EL TRABAJADOR, quien acepta prestar sus servicios bajo las condiciones que se establecen en el presente contrato.
+I. Que LA EMPRESA es una entidad legalmente constituida que requiere los servicios del perfil profesional que reúne EL TRABAJADOR.
+
+II. Que EL TRABAJADOR declara tener la capacidad, formación y habilitaciones necesarias para desempeñar el puesto al que es contratado, y acepta las condiciones aquí establecidas libremente y sin coacción.
+
+Por lo anterior, ambas partes acuerdan celebrar el presente CONTRATO DE TRABAJO conforme a las siguientes:
 
                              CLÁUSULAS
 
-PRIMERA.- OBJETO
-${data.description || "EL TRABAJADOR prestará sus servicios profesionales en el puesto de [PUESTO], realizando las funciones propias de dicha categoría profesional."}
+PRIMERA.- OBJETO Y FUNCIONES
+${data.description || "EL TRABAJADOR prestará sus servicios profesionales en el puesto de [PUESTO / CARGO], realizando las funciones propias de dicha categoría profesional descritas en el Anexo de Funciones adjunto."}
 
-SEGUNDA.- DURACIÓN
+LA EMPRESA podrá encomendar a EL TRABAJADOR otras funciones relacionadas con su categoría profesional, previa comunicación razonada y sin que ello suponga una modificación sustancial de las condiciones de trabajo.
+
+SEGUNDA.- DURACIÓN Y PERÍODO DE PRUEBA
 El presente contrato tendrá una duración ${data.duration || "indefinida"}, comenzando a surtir efectos desde la fecha de su firma.
 
-Se establece un período de prueba de [PERÍODO], durante el cual cualquiera de las partes podrá resolver el contrato sin necesidad de preaviso.
+Se establece un período de prueba de [PERÍODO — ej: 90 días], durante el cual cualquiera de las partes podrá resolver el contrato sin expresión de causa y sin derecho a indemnización, salvo los salarios devengados. Superado dicho período, el trabajador adquirirá la condición de empleado con todos los derechos y obligaciones que correspondan conforme a la normativa laboral aplicable.
 
-TERCERA.- JORNADA LABORAL
-La jornada de trabajo será de [HORAS] horas semanales, distribuidas de [DÍA] a [DÍA], en horario de [HORARIO].
+TERCERA.- JORNADA LABORAL Y LUGAR DE TRABAJO
+La jornada ordinaria de trabajo será de [HORAS] horas semanales, distribuidas de [DÍA] a [DÍA], en horario de [HORA ENTRADA] a [HORA SALIDA], con un descanso de [DURACIÓN] para el almuerzo.
+
+El trabajo se prestará de forma [presencial / remota / híbrida] en [DIRECCIÓN DEL CENTRO DE TRABAJO / modalidad acordada]. Cualquier cambio en la modalidad o el lugar de trabajo requerirá acuerdo mutuo por escrito.
+
+Las horas extraordinarias deberán ser autorizadas previamente por LA EMPRESA y serán compensadas conforme a la legislación laboral vigente o mediante descanso equivalente a acordar entre las partes.
 
 CUARTA.- RETRIBUCIÓN
-EL TRABAJADOR percibirá una retribución bruta anual de ${data.amount || "[CANTIDAD]"}, distribuida en [12/14] pagas.
+EL TRABAJADOR percibirá una retribución bruta [anual/mensual] de ${data.amount || "[CANTIDAD]"}, pagadera en [12/14] mensualidades, mediante transferencia bancaria dentro de los primeros [5] días hábiles de cada mes.
 
-QUINTA.- VACACIONES
-EL TRABAJADOR tendrá derecho a [30] días naturales de vacaciones anuales retribuidas, o la parte proporcional en caso de no completar el año.
+Esta retribución incluye:
+• Salario base: [IMPORTE]
+• Complementos: [DETALLE, si aplica]
+• Beneficios adicionales: [DETALLE, si aplica]
+
+La retribución será revisada anualmente conforme al índice de precios al consumo (IPC) o al desempeño, según la política salarial de LA EMPRESA vigente en cada momento.
+
+QUINTA.- BENEFICIOS LABORALES
+EL TRABAJADOR tendrá derecho a los siguientes beneficios:
+a) Vacaciones: [15 / 20 / 30] días hábiles de vacaciones anuales retribuidas, o la parte proporcional en el año de incorporación o cese. Las fechas de disfrute serán acordadas entre las partes con al menos treinta (30) días de antelación.
+b) Días de descanso: los días festivos oficiales del lugar de trabajo y los descansos semanales establecidos por ley.
+c) Permisos retribuidos: conforme a la legislación laboral aplicable (enfermedad, maternidad/paternidad, fallecimiento de familiar, etc.).
+d) Seguridad social: LA EMPRESA dará de alta a EL TRABAJADOR en el régimen de seguridad social que corresponda y realizará las cotizaciones que exija la normativa vigente.
+e) [Beneficios adicionales: seguro médico / bono de transporte / formación / otros, si aplican]
 
 SEXTA.- OBLIGACIONES DEL TRABAJADOR
 EL TRABAJADOR se compromete a:
-a) Cumplir con las obligaciones de su puesto de trabajo con diligencia y buena fe.
-b) Observar las medidas de seguridad e higiene establecidas.
-c) Guardar confidencialidad sobre la información de LA EMPRESA.
-d) No realizar competencia desleal.
+a) Cumplir con las obligaciones de su puesto de trabajo con diligencia, buena fe y lealtad hacia LA EMPRESA.
+b) Observar y promover las medidas de seguridad, salud e higiene establecidas por LA EMPRESA y por la normativa vigente.
+c) Guardar estricta confidencialidad sobre la información de LA EMPRESA, sus clientes, estrategias y operaciones, tanto durante la vigencia del contrato como durante los dos (2) años posteriores a su terminación.
+d) No realizar actividades que supongan competencia desleal o conflicto de intereses con LA EMPRESA, ni utilizar recursos de la empresa para fines personales o ajenos a sus funciones.
+e) Comunicar de forma inmediata cualquier situación que pudiera afectar al desempeño de sus funciones o suponer un conflicto de interés.
+f) Devolver a LA EMPRESA, al cese de la relación laboral, todos los equipos, documentos, credenciales de acceso y demás bienes que le hubieran sido entregados.
 
-SÉPTIMA.- PROTECCIÓN DE DATOS
-LA EMPRESA tratará los datos personales de EL TRABAJADOR conforme a la normativa vigente en materia de protección de datos.
+SÉPTIMA.- OBLIGACIONES DE LA EMPRESA
+LA EMPRESA se compromete a:
+a) Abonar la retribución acordada en los plazos y forma establecidos.
+b) Garantizar un entorno de trabajo seguro, respetuoso y libre de acoso o discriminación.
+c) Proporcionar a EL TRABAJADOR los medios y herramientas necesarios para el desempeño de sus funciones.
+d) Cumplir con todas las obligaciones laborales y de seguridad social establecidas por la legislación vigente.
+e) Facilitar la formación continua necesaria para el adecuado desempeño del puesto.
 
-${data.additionalClauses ? `OCTAVA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}OCTAVA${data.additionalClauses ? " (CONT.)" : ""}.- LEGISLACIÓN APLICABLE
-El presente contrato se regirá por el Estatuto de los Trabajadores y demás normativa laboral aplicable.
+OCTAVA.- PROPIEDAD INTELECTUAL
+Todo trabajo, desarrollo, creación o invención que EL TRABAJADOR realice en el ejercicio de sus funciones o con recursos de LA EMPRESA durante la vigencia de este contrato será considerado obra por encargo y pertenecerá en exclusiva a LA EMPRESA. EL TRABAJADOR cede a LA EMPRESA todos los derechos de explotación sobre dichas creaciones, sin derecho a remuneración adicional salvo pacto expreso en contrario.
 
-Y en prueba de conformidad, firman el presente contrato por duplicado.
+NOVENA.- PROCESO DE TERMINACIÓN DEL CONTRATO
+La relación laboral podrá extinguirse por las causas y con los efectos previstos en la legislación laboral aplicable. En caso de:
+a) Terminación por decisión de LA EMPRESA sin causa justificada: LA EMPRESA deberá notificar con un preaviso de [30] días o abonar la parte proporcional de dicho preaviso, más la indemnización que corresponda conforme a ley.
+b) Renuncia voluntaria de EL TRABAJADOR: EL TRABAJADOR deberá notificar con un preaviso de [15] días, salvo acuerdo en contrario. El incumplimiento del preaviso facultará a LA EMPRESA a descontar los días no preavisados del finiquito.
+c) Terminación por causa disciplinaria: LA EMPRESA seguirá el procedimiento establecido en la normativa laboral, garantizando el derecho de defensa de EL TRABAJADOR.
+
+Al cese de la relación laboral, LA EMPRESA entregará a EL TRABAJADOR, en el plazo que exija la ley, el finiquito correspondiente y los documentos necesarios para ejercer sus derechos de seguridad social.
+
+DÉCIMA.- CONFIDENCIALIDAD POST-EMPLEO
+EL TRABAJADOR se obliga, durante el plazo de dos (2) años a partir de la extinción del contrato, a:
+a) No divulgar ni utilizar en beneficio propio o de terceros información confidencial de LA EMPRESA adquirida durante la relación laboral.
+b) No solicitar ni contratar a los empleados de LA EMPRESA, ni inducirlos a abandonar la empresa.
+c) [En caso de pacto de no competencia post-contractual, deberá pactarse expresamente con compensación económica adecuada conforme a la legislación aplicable.]
+
+DECIMOPRIMERA.- PROTECCIÓN DE DATOS
+LA EMPRESA tratará los datos personales de EL TRABAJADOR conforme a la normativa vigente en materia de protección de datos y únicamente para la gestión de la relación laboral. EL TRABAJADOR será informado de sus derechos de acceso, rectificación, supresión y oposición conforme a dicha normativa.
+
+${data.additionalClauses ? `DECIMOSEGUNDA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}DECIMOSEGUND${data.additionalClauses ? "A (CONT.)" : "A"}.- LEGISLACIÓN APLICABLE Y JURISDICCIÓN
+El presente contrato se regirá por la legislación laboral vigente en ${data.city || "[Ciudad]"} y las demás normas aplicables. Para cualquier controversia, las partes se someten a los tribunales laborales de ${data.city || "[Ciudad]"}, sin perjuicio del derecho de EL TRABAJADOR a acudir a las instancias administrativas laborales competentes.
+
+Y en prueba de conformidad, firman el presente contrato por duplicado y a un solo efecto.
 
 
 _____________________________              _____________________________
         LA EMPRESA                            EL TRABAJADOR
     ${data.partyA || "[Firma]"}                         ${data.partyB || "[Firma]"}
+
+
+Cargo/Representante: _________       DNI/CURP/CC: ________________
 `.trim(),
 
   partnership: (data) => `

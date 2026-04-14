@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import {
   ArrowRight,
   ArrowUpRight,
+  Check,
   Clock,
   FileCheck,
   FileText,
@@ -285,20 +286,53 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FileText className="w-8 h-8 text-slate-400" />
+              <div className="py-8">
+                {/* Welcome card */}
+                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100 p-8 mb-6 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Sparkles className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">
+                    Crea tu primer contrato en 2 minutos
+                  </h3>
+                  <p className="text-slate-600 text-sm mb-6 max-w-sm mx-auto">
+                    ContractAI genera contratos profesionales personalizados para tu situación específica.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Link href="/generate" className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg hover:shadow-indigo-500/25 transition-all">
+                      <Sparkles className="w-4 h-4" />
+                      Generar contrato
+                    </Link>
+                    <Link href="/analyze" className="inline-flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-6 py-3 rounded-xl font-medium hover:border-indigo-300 transition-all">
+                      <Search className="w-4 h-4" />
+                      Analizar un contrato
+                    </Link>
+                  </div>
                 </div>
-                <p className="text-slate-600 mb-4">
-                  Aún no has creado ningún contrato
-                </p>
-                <Link
-                  href="/generate"
-                  className="inline-flex items-center gap-2 text-indigo-600 font-medium hover:text-indigo-700"
-                >
-                  <Plus className="w-4 h-4" />
-                  Crear tu primer contrato
-                </Link>
+
+                {/* Getting started checklist */}
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Primeros pasos</p>
+                  {[
+                    { done: true, label: "Crear tu cuenta", href: null },
+                    { done: false, label: "Generar tu primer contrato", href: "/generate" },
+                    { done: false, label: "Analizar un contrato existente", href: "/analyze" },
+                    { done: false, label: "Explorar la API pública", href: "/developers" },
+                  ].map((item) => (
+                    <div key={item.label} className={`flex items-center gap-3 p-3 rounded-xl ${item.done ? "bg-green-50" : "bg-white border border-slate-100"}`}>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${item.done ? "bg-green-500" : "bg-slate-100"}`}>
+                        {item.done ? <Check className="w-3.5 h-3.5 text-white" /> : <div className="w-2 h-2 rounded-full bg-slate-300" />}
+                      </div>
+                      {item.href ? (
+                        <Link href={item.href} className="text-sm text-slate-700 hover:text-indigo-600 font-medium transition-colors flex-1">
+                          {item.label} &rarr;
+                        </Link>
+                      ) : (
+                        <span className="text-sm text-slate-500 flex-1">{item.label}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </Card>
