@@ -578,6 +578,7 @@ export function generateContract(type: string, data: ContractData): string {
 
 // Analysis templates for contract review
 export const riskPatterns = [
+  // ── Penalizaciones y cláusulas económicas existentes ────────────────────────
   {
     pattern: /penalización|penalidad|multa.*(\d{2,}%|\d{4,})/gi,
     title: "Penalización elevada detectada",
@@ -641,7 +642,278 @@ export const riskPatterns = [
     description: "Se transfieren derechos de propiedad intelectual.",
     suggestion: "Asegúrate de que la transferencia es justa y después del pago completo.",
   },
+
+  // ── Renovación automática ────────────────────────────────────────────────────
+  {
+    pattern: /renovación automática|prórroga automática|se prorrogará automáticamente/gi,
+    title: "Renovación automática del contrato",
+    risk: "medium" as const,
+    description: "El contrato se renueva automáticamente sin requerir acción expresa de las partes. Si no estás atento a las fechas, podrías quedar vinculado por otro período completo sin desearlo.",
+    suggestion: "Verifica el plazo de aviso para cancelar la renovación. Negocia que sea al menos 30 días antes del vencimiento y que se envíe una notificación activa.",
+  },
+  {
+    pattern: /preaviso.*(\d\s*días|una semana|48 horas|72 horas).*cancel|cancel.*preaviso.*(\d\s*días|una semana|48 horas|72 horas)/gi,
+    title: "Plazo de cancelación muy corto",
+    risk: "medium" as const,
+    description: "La ventana para cancelar la renovación automática es demasiado breve, lo que puede hacer difícil ejercer ese derecho en la práctica.",
+    suggestion: "Negocia un plazo de aviso de al menos 30 días antes del vencimiento. Programa un recordatorio en el calendario.",
+  },
+  {
+    pattern: /precio.*bloqueado.*renovación|tarifa.*fija.*prórroga|incremento.*automático.*renov/gi,
+    title: "Precio bloqueado o incremento automático en renovación",
+    risk: "medium" as const,
+    description: "El precio queda fijado o se incrementa automáticamente al renovar, sin posibilidad de renegociación.",
+    suggestion: "Solicita que el precio de la renovación sea renegociado antes de cada período o indexado a un índice oficial (IPC).",
+  },
+
+  // ── Desequilibrio de partes ──────────────────────────────────────────────────
+  {
+    pattern: /solo.*(?:una parte|el cliente|el proveedor|la empresa).*podrá terminar|únicamente.*(?:una parte|el cliente|el proveedor).*rescindir/gi,
+    title: "Terminación unilateral asimétrica",
+    risk: "high" as const,
+    description: "Solo una de las partes tiene el derecho de terminar el contrato a su conveniencia. Esto crea un desequilibrio contractual significativo.",
+    suggestion: "Negocia que ambas partes tengan el mismo derecho de terminación bajo condiciones equivalentes o elimina la cláusula.",
+  },
+  {
+    pattern: /modificar.*condiciones.*sin.*consentimiento|actualizar.*términos.*sin.*previo aviso|cambiar.*unilateralmente.*sin.*acuerdo/gi,
+    title: "Modificación unilateral de condiciones",
+    risk: "high" as const,
+    description: "Una parte puede cambiar las condiciones del contrato sin requerir el acuerdo de la otra. Esto vulnera el principio de pacta sunt servanda.",
+    suggestion: "Establece que cualquier modificación requiere el consentimiento escrito de ambas partes, y que los cambios no tendrán efecto retroactivo.",
+  },
+  {
+    pattern: /arbitraje.*(?:exclusivamente|solo).*(?:en favor de|beneficia a).*(?:una parte|el cliente|la empresa)|disputas.*resueltas.*según.*criterio.*(?:exclusivo|unilateral)/gi,
+    title: "Resolución de disputas asimétrica",
+    risk: "high" as const,
+    description: "El mecanismo de resolución de disputas está diseñado en favor de una sola parte, limitando tus opciones de defensa.",
+    suggestion: "Negocia un proceso de resolución de conflictos neutral: mediación primero y arbitraje con árbitro independiente acordado por ambas partes.",
+  },
+  {
+    pattern: /indemnizar.*únicamente.*(?:el prestador|el proveedor|el contratista)|solo.*(?:una parte).*responde.*por daños/gi,
+    title: "Indemnización unilateral",
+    risk: "high" as const,
+    description: "Solo una de las partes está obligada a indemnizar a la otra, sin reciprocidad. Este desequilibrio supone un riesgo económico desproporcionado.",
+    suggestion: "Negocia que las obligaciones de indemnización sean recíprocas y proporcionales al grado de culpa o negligencia de cada parte.",
+  },
+
+  // ── Propiedad intelectual ────────────────────────────────────────────────────
+  {
+    pattern: /obra.*por.*encargo|work.*for.*hire|todos los derechos.*cedidos.*empresa|propiedad.*intelectual.*pertenece.*exclusivamente.*(?:al cliente|a la empresa)/gi,
+    title: "Cláusula work-for-hire: cesión total de PI",
+    risk: "high" as const,
+    description: "El contrato transfiere toda la propiedad intelectual a la otra parte, incluyendo posiblemente trabajos preexistentes o herramientas propias.",
+    suggestion: "Limita la cesión a los entregables específicos de este contrato. Excluye expresamente tus herramientas, metodologías y propiedad intelectual preexistente.",
+  },
+  {
+    pattern: /licencia.*perpetua.*gratuita|licencia.*irrevocable.*sin.*royalty|uso.*ilimitado.*sin.*compensación/gi,
+    title: "Licencia perpetua y gratuita",
+    risk: "high" as const,
+    description: "Se concede una licencia de uso perpetua y sin contraprestación económica, lo que puede equivaler económicamente a una cesión total de derechos.",
+    suggestion: "Limita la licencia en tiempo, territorio y finalidad de uso. Considera establecer una compensación económica periódica.",
+  },
+  {
+    pattern: /no competencia.*(?:nacional|todo el país|internacional|mundial)|competencia.*prohibida.*(?:a nivel nacional|en todo el territorio)/gi,
+    title: "No competencia de alcance geográfico excesivo",
+    risk: "high" as const,
+    description: "La cláusula de no competencia cubre un área geográfica demasiado amplia, lo que puede limitar gravemente tu capacidad de trabajar en tu sector.",
+    suggestion: "Limita el alcance geográfico de la no competencia al área donde la empresa opera efectivamente y tiene clientes activos.",
+  },
+  {
+    pattern: /no competencia.*(?:[3-9]\s*años|más de dos años|indefinida)|competencia.*prohibida.*(?:[3-9]\s*años|más de dos años)/gi,
+    title: "No competencia con duración excesiva",
+    risk: "high" as const,
+    description: "La cláusula de no competencia tiene una duración superior a 2 años, lo que puede resultar desproporcionada y en muchas jurisdicciones ser nula.",
+    suggestion: "Negocia una duración máxima de 12 a 24 meses. Verifica la legislación local, ya que muchas jurisdicciones limitan estas cláusulas.",
+  },
+
+  // ── Pagos y finanzas ─────────────────────────────────────────────────────────
+  {
+    pattern: /interés.*(?:2[1-9]|[3-9]\d)\s*%|mora.*(?:2[1-9]|[3-9]\d)\s*%|tasa.*retraso.*(?:2[1-9]|[3-9]\d)\s*%/gi,
+    title: "Interés por mora excesivamente alto",
+    risk: "high" as const,
+    description: "La tasa de interés por mora supera el 20% anual, lo que puede resultar desproporcionada y en algunos países ser considerada usuraria.",
+    suggestion: "Negocia una tasa de interés moratorio razonable (1-2% mensual o vinculada a la tasa de referencia del banco central más 2 puntos).",
+  },
+  {
+    pattern: /pago.*(?:a\s*)?(?:90|120|180)\s*días|plazo.*(?:90|120|180)\s*días.*factura|(?:90|120|180)\s*días.*neto/gi,
+    title: "Plazo de pago de 90 días o más",
+    risk: "high" as const,
+    description: "El plazo de pago supera los 60 días, afectando gravemente el flujo de caja. En muchas jurisdicciones latinoamericanas esto puede ser contrario a la ley.",
+    suggestion: "Negocia pagos a 30 días o, como máximo, 60 días. Considera facturar por hitos para mejorar el flujo de caja.",
+  },
+  {
+    pattern: /pago.*(?:a\s*)?(?:60|75)\s*días|plazo.*(?:60|75)\s*días.*factura/gi,
+    title: "Plazo de pago de 60 a 75 días",
+    risk: "medium" as const,
+    description: "El plazo de pago está en el límite superior del estándar comercial, lo que puede generar tensiones de liquidez.",
+    suggestion: "Intenta reducirlo a 30-45 días. Si no es posible, negocia pagos anticipados parciales o descuentos por pronto pago.",
+  },
+  {
+    pattern: /factura.*requisitos.*(?:específicos|estrictos)|rechazo.*factura.*(?:por|debido a)|requisitos.*facturación.*(?:incumplimiento|penalización)/gi,
+    title: "Requisitos de facturación que pueden retrasar el pago",
+    risk: "medium" as const,
+    description: "El contrato establece requisitos formales muy estrictos para la factura, cuyo incumplimiento puede retrasar el inicio del plazo de pago.",
+    suggestion: "Aclara todos los requisitos de facturación antes de firmar y establece un procedimiento claro para subsanar errores sin reiniciar el plazo de pago.",
+  },
+
+  // ── Terminación ──────────────────────────────────────────────────────────────
+  {
+    pattern: /terminación.*conveniencia.*(?:solo|únicamente|exclusivamente).*(?:cliente|empresa|contratante)|rescisión.*a.*voluntad.*(?:solo|únicamente).*(?:una parte)/gi,
+    title: "Terminación por conveniencia solo para una parte",
+    risk: "high" as const,
+    description: "Solo una de las partes puede terminar el contrato a su conveniencia y sin causa, dejando a la otra parte en una posición vulnerable.",
+    suggestion: "Negocia el derecho mutuo de terminación por conveniencia con el mismo plazo de preaviso para ambas partes, o solicita una indemnización por terminación anticipada.",
+  },
+  {
+    pattern: /plazo.*subsanación.*(?:1|2|3|4)\s*días|cure.*period.*(?:1|2|3|4)\s*días|corregir.*incumplimiento.*(?:1|2|3|4)\s*días/gi,
+    title: "Plazo de subsanación insuficiente (menos de 5 días)",
+    risk: "high" as const,
+    description: "El período para corregir un incumplimiento es inferior a 5 días, lo que puede resultar prácticamente imposible de cumplir y facilitar terminaciones abusivas.",
+    suggestion: "Negocia un plazo de subsanación de al menos 10-15 días hábiles para incumplimientos ordinarios, y considera plazos mayores para situaciones complejas.",
+  },
+  {
+    pattern: /terminación.*inmediata.*sin.*causa|rescisión.*inmediata.*sin.*preaviso|resolución.*automática.*sin.*notificación/gi,
+    title: "Terminación inmediata sin causa ni preaviso",
+    risk: "high" as const,
+    description: "El contrato permite la terminación inmediata sin causa justificada ni preaviso, lo que puede causarte graves perjuicios económicos sin tiempo de reacción.",
+    suggestion: "Solicita que la terminación sin causa requiera siempre un preaviso mínimo de 30 días y el pago de los servicios o trabajos ya realizados.",
+  },
+
+  // ── Responsabilidad ──────────────────────────────────────────────────────────
+  {
+    pattern: /responsabilidad.*ilimitada|sin.*límite.*responsabilidad|liability.*unlimited/gi,
+    title: "Cláusula de responsabilidad ilimitada",
+    risk: "high" as const,
+    description: "El contrato no establece un techo a la responsabilidad que asumes, lo que podría exponerte a reclamaciones por importes muy superiores al valor del contrato.",
+    suggestion: "Negocia un límite de responsabilidad equivalente al valor total del contrato o, como máximo, al importe asegurado bajo tu póliza de responsabilidad civil.",
+  },
+  {
+    pattern: /indemnizar.*reclamaciones.*terceros|defender.*demandas.*terceros|mantener.*indemne.*por.*terceros/gi,
+    title: "Indemnización por reclamaciones de terceros sin límite",
+    risk: "high" as const,
+    description: "Estás obligado a indemnizar a la otra parte por reclamaciones de terceros sin ningún límite de importe ni restricción por tipo de daño.",
+    suggestion: "Limita la indemnización a reclamaciones directamente causadas por tu negligencia o incumplimiento, y establece un techo económico claro.",
+  },
+  {
+    pattern: /límite.*responsabilidad.*(?:10|5|1)\s*%|techo.*responsabilidad.*mínimo|cap.*responsabilidad.*inferior/gi,
+    title: "Límite de responsabilidad excesivamente bajo",
+    risk: "high" as const,
+    description: "El límite de responsabilidad establecido es tan bajo que podría no cubrir los daños reales que un incumplimiento pudiera causar.",
+    suggestion: "Negocia que el límite de responsabilidad sea como mínimo equivalente al valor total del contrato.",
+  },
+  {
+    pattern: /daños.*consecuentes.*no.*cubiertos|daño.*indirecto.*excluido|pérdida.*beneficios.*no.*indemnizable|lucro.*cesante.*excluido/gi,
+    title: "Exclusión de daños consecuentes y lucro cesante",
+    risk: "medium" as const,
+    description: "El contrato excluye la responsabilidad por daños indirectos, consecuentes y lucro cesante. En caso de incumplimiento, solo podrás reclamar daños directos.",
+    suggestion: "Evalúa si esta exclusión es aceptable en función del tipo de servicio. Para contratos críticos, negocia al menos la cobertura del lucro cesante previsible.",
+  },
+
+  // ── Confidencialidad ─────────────────────────────────────────────────────────
+  {
+    pattern: /confidencialidad.*perpetua|obligación.*confidencial.*sin.*plazo|secreto.*indefinido.*sin.*excepción/gi,
+    title: "Confidencialidad perpetua sin excepciones",
+    risk: "medium" as const,
+    description: "La obligación de confidencialidad no tiene plazo de vencimiento ni excepciones estándar (información pública, requerimiento legal), lo que puede resultar desproporcionado.",
+    suggestion: "Negocia un plazo razonable (2-5 años) y asegúrate de que se incluyan las excepciones estándar: información de dominio público, revelación por mandato legal, etc.",
+  },
+  {
+    pattern: /información confidencial.*incluye.*toda.*información|cualquier.*información.*considerada.*confidencial|toda.*comunicación.*confidencial/gi,
+    title: "Definición de información confidencial excesivamente amplia",
+    risk: "medium" as const,
+    description: "La definición de información confidencial es tan amplia que podría incluir información ya pública o que recibirás de otras fuentes, complicando el cumplimiento.",
+    suggestion: "Negocia una definición acotada que requiera que la información esté marcada como confidencial o sea claramente sensible por su naturaleza.",
+  },
+
+  // ── Jurisdicción ─────────────────────────────────────────────────────────────
+  {
+    pattern: /jurisdicción.*(?:extranjera|otro país|estados unidos|españa|reino unido)|tribunales.*(?:de otro país|internacionales|extranjeros)|leyes.*(?:de otro país|extranjeras)/gi,
+    title: "Jurisdicción extranjera",
+    risk: "high" as const,
+    description: "El contrato establece que las disputas se resolverán bajo la ley o en los tribunales de otro país, lo que puede resultar en costos y complejidades muy elevadas.",
+    suggestion: "Negocia que la jurisdicción sea la del país donde resides o donde se ejecutan los servicios. Como alternativa, acepta arbitraje internacional neutral.",
+  },
+  {
+    pattern: /arbitraje.*obligatorio.*(?:según|conforme a).*(?:reglas|reglamento).*(?:de|del).*(?:cliente|empresa|contratante)|arbitraje.*administrado.*por.*(?:la empresa|el cliente)/gi,
+    title: "Arbitraje obligatorio con reglas de una sola parte",
+    risk: "high" as const,
+    description: "Se impone un arbitraje obligatorio bajo reglas establecidas unilateralmente o administrado por instituciones vinculadas a una de las partes.",
+    suggestion: "El arbitraje debe ser ante una institución neutral (CIAC, ICC, AAA) con reglas predeterminadas y árbitros independientes acordados por ambas partes.",
+  },
+  {
+    pattern: /renuncia.*derechos.*consumidor|renuncia.*protecciones.*legales|waiver.*derechos.*irrenunciables/gi,
+    title: "Renuncia a protecciones legales o derechos del consumidor",
+    risk: "high" as const,
+    description: "El contrato incluye renuncia a derechos que en muchas jurisdicciones son irrenunciables, lo que podría hacer nula esa cláusula o incluso el contrato entero.",
+    suggestion: "Consulta con un abogado local. En muchos países LATAM no se puede renunciar a derechos laborales, del consumidor o de orden público.",
+  },
+
+  // ── Misceláneos ──────────────────────────────────────────────────────────────
+  {
+    pattern: /acuerdo.*completo.*reemplaza.*anteriores|integración.*total.*deja.*sin efecto|este contrato.*sustituye.*todos.*acuerdos/gi,
+    title: "Cláusula de integración que elimina acuerdos previos",
+    risk: "medium" as const,
+    description: "Esta cláusula anula todos los acuerdos, representaciones y promesas previas. Si algo fue prometido verbalmente y no quedó en el contrato, no será exigible.",
+    suggestion: "Antes de firmar, asegúrate de que todo lo prometido durante la negociación está reflejado en el texto del contrato o en un anexo firmado.",
+  },
+  {
+    pattern: /ceder.*contrato.*sin.*consentimiento|transferir.*derechos.*sin.*aprobación|asignar.*obligaciones.*a.*tercero.*libremente/gi,
+    title: "Cesión del contrato sin consentimiento",
+    risk: "medium" as const,
+    description: "Una de las partes puede ceder sus derechos u obligaciones a un tercero sin tu aprobación. Podrías acabar contratando involuntariamente con una entidad desconocida.",
+    suggestion: "Incluye una cláusula que requiera consentimiento escrito previo para cualquier cesión, o al menos el derecho a terminar el contrato si la cesión te perjudica.",
+  },
+  {
+    pattern: /fuerza mayor.*(?:no incluye|excluye).*(?:huelga|pandemia|crisis económica|fallo.*sistemas)|fuerza mayor.*lista.*cerrada/gi,
+    title: "Definición de fuerza mayor demasiado restrictiva",
+    risk: "medium" as const,
+    description: "La definición de fuerza mayor es una lista cerrada y excluye eventos razonablemente imprevisibles. En caso de crisis, no podrás alegar este eximente.",
+    suggestion: "Negocia una definición amplia de fuerza mayor que incluya cláusula de cierre ('y otros eventos fuera del control razonable de las partes').",
+  },
+  {
+    pattern: /fuerza mayor.*(?:incluye|comprende).*(?:cambio.*mercado|variación.*precio|dificultades económicas)|cualquier.*evento.*fuerza mayor/gi,
+    title: "Definición de fuerza mayor excesivamente amplia",
+    risk: "medium" as const,
+    description: "La definición de fuerza mayor es tan amplia que podría utilizarse para excusar incumplimientos que en realidad son gestionables o previsibles.",
+    suggestion: "Limita la fuerza mayor a eventos genuinamente imprevisibles e irresistibles. Incluye la obligación de notificar y mitigar los efectos.",
+  },
+  {
+    pattern: /no.*disparag|no.*desprestigiar|prohibido.*comentar.*negativamente|no.*críticas.*públicas/gi,
+    title: "Cláusula de no difamación excesivamente amplia",
+    risk: "medium" as const,
+    description: "La cláusula de no difamación puede estar redactada de forma tan amplia que podría impedirte hacer valoraciones honestas o alertar a otros sobre malas prácticas.",
+    suggestion: "Asegúrate de que la cláusula se limite a declaraciones falsas y malintencionadas, y que no cubra opiniones honestas, reseñas o comunicaciones privadas.",
+  },
+  {
+    pattern: /prórroga.*tácita|renovación.*tácita|silencio.*implica.*aceptación.*renovación/gi,
+    title: "Prórroga tácita por silencio",
+    risk: "low" as const,
+    description: "El contrato se renueva automáticamente si ninguna parte manifiesta su voluntad de no renovar. El silencio equivale al consentimiento.",
+    suggestion: "Anota la fecha de vencimiento y el plazo de preaviso para no renovar. Considera negociar que la renovación requiera acción expresa, no silencio.",
+  },
+  {
+    pattern: /gastos.*legales.*asume.*(?:la parte perdedora|quien pierda)|costas.*procesales.*paga.*vencido/gi,
+    title: "Cláusula de costas procesales en contra",
+    risk: "low" as const,
+    description: "La parte que pierda el litigio deberá asumir todos los gastos legales. Esto puede disuadirte de reclamar tus derechos ante el temor al coste.",
+    suggestion: "Evalúa si esta cláusula es recíproca. Considera proponer que cada parte asuma sus propios gastos independientemente del resultado.",
+  },
+  {
+    pattern: /garantía.*excluida|sin.*garantía.*expresa|as.*is.*sin.*garantías|sin.*responsabilidad.*por.*defectos/gi,
+    title: "Exclusión total de garantías",
+    risk: "medium" as const,
+    description: "El contrato excluye expresamente todas las garantías sobre los bienes o servicios entregados, lo que te deja sin protección ante defectos o incumplimientos de calidad.",
+    suggestion: "Negocia al menos una garantía mínima de que los servicios/bienes serán conformes a las especificaciones acordadas y se entregarán libres de vicios conocidos.",
+  },
+  {
+    pattern: /derechos.*reservados.*proveedor|licencia.*no.*exclusiva.*revocable|uso.*condicionado.*pago.*continuo/gi,
+    title: "Licencia de uso revocable condicionada al pago continuo",
+    risk: "low" as const,
+    description: "Tu derecho de uso sobre el producto o servicio puede ser revocado si dejas de pagar, incluso si ya pagaste por el período completo.",
+    suggestion: "Verifica las condiciones exactas de revocación. Para software o activos críticos, negocia un derecho de uso permanente sobre las versiones ya pagadas.",
+  },
 ];
+
 
 export function analyzeContract(content: string) {
   const results: Array<{
