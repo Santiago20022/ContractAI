@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 
   try {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `Analiza el siguiente contrato legal y devuelve ÚNICAMENTE un objeto JSON válido (sin markdown, sin explicaciones, solo el JSON) con esta estructura exacta:
 {
