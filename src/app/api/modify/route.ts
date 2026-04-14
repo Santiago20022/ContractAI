@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
   try {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
     const prompt = `Eres un experto en derecho contractual latinoamericano. Se te proporciona un contrato existente y una instrucción de modificación.
 
@@ -51,7 +51,8 @@ Devuelve el contrato COMPLETO con la modificación aplicada. Mantén el mismo fo
         "X-Accel-Buffering": "no",
       },
     });
-  } catch {
+  } catch (err) {
+    console.error("[/api/modify] Gemini error:", err);
     return Response.json({ fallback: true });
   }
 }

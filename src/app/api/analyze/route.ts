@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 
   try {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
     const prompt = `Analiza el siguiente contrato legal y devuelve ÚNICAMENTE un objeto JSON válido (sin markdown, sin explicaciones, solo el JSON) con esta estructura exacta:
 {
@@ -87,7 +87,8 @@ ${content}`;
       const { results, score } = analyzeContract(content);
       return Response.json({ results, score });
     }
-  } catch {
+  } catch (err) {
+    console.error("[/api/analyze] Gemini error:", err);
     // Gemini call failed — fall back to local analysis
     const { results, score } = analyzeContract(content);
     return Response.json({ results, score });
