@@ -33,6 +33,7 @@ function ContractsPageContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [menuOpenUp, setMenuOpenUp] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Handle sidebar filter links (?filter=signed / ?filter=expiring)
@@ -263,6 +264,11 @@ function ContractsPageContent() {
           </select>
         </Card>
 
+        {/* Click-outside overlay for dropdown */}
+        {openMenu && (
+          <div className="fixed inset-0 z-40" onClick={() => setOpenMenu(null)} />
+        )}
+
         {/* Contracts list */}
         {filteredContracts.length > 0 ? (
           <div className="grid gap-4">
@@ -355,11 +361,11 @@ function ContractsPageContent() {
                       {/* Actions menu */}
                       <div className="relative">
                         <button
-                          onClick={() =>
-                            setOpenMenu(
-                              openMenu === contract.id ? null : contract.id
-                            )
-                          }
+                          onClick={(e) => {
+                            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                            setMenuOpenUp(rect.bottom + 280 > window.innerHeight);
+                            setOpenMenu(openMenu === contract.id ? null : contract.id);
+                          }}
                           className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
                         >
                           <MoreVertical className="w-5 h-5 text-slate-400" />
@@ -369,7 +375,7 @@ function ContractsPageContent() {
                           <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="absolute right-0 top-full mt-1 w-52 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-10"
+                            className={`absolute right-0 w-52 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 ${menuOpenUp ? "bottom-full mb-1" : "top-full mt-1"}`}
                           >
                             <Link
                               href={`/dashboard/contracts/${contract.id}`}
