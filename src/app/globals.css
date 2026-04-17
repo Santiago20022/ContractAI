@@ -249,12 +249,159 @@ body {
   color: #4f46e5;
 }
 
-/* ─── Accent colors ───────────────────────────────────── */
+/* ─── Accent colors — CSS vars (for .btn-primary, .gradient-text, etc.) ── */
 [data-accent="violet"] { --primary: #8b5cf6; --primary-dark: #7c3aed; --secondary: #f5f3ff; }
 [data-accent="blue"]   { --primary: #3b82f6; --primary-dark: #2563eb; --secondary: #eff6ff; }
 [data-accent="emerald"]{ --primary: #10b981; --primary-dark: #059669; --secondary: #ecfdf5; }
 [data-accent="rose"]   { --primary: #f43f5e; --primary-dark: #e11d48; --secondary: #fff1f2; }
 [data-accent="amber"]  { --primary: #f59e0b; --primary-dark: #d97706; --secondary: #fffbeb; }
+
+/* ─── Accent overrides for hardcoded Tailwind indigo/purple classes ─── */
+
+/* VIOLET ─────────────────────────────── */
+[data-accent="violet"] .bg-indigo-50,
+[data-accent="violet"] .hover\:bg-indigo-50:hover { background-color: #f5f3ff !important; }
+[data-accent="violet"] .bg-indigo-100,
+[data-accent="violet"] .hover\:bg-indigo-100:hover,
+[data-accent="violet"] .group-hover\:bg-indigo-100 { background-color: #ede9fe !important; }
+[data-accent="violet"] .bg-indigo-500,
+[data-accent="violet"] .hover\:bg-indigo-500:hover { background-color: #8b5cf6 !important; }
+[data-accent="violet"] .bg-indigo-600 { background-color: #7c3aed !important; }
+[data-accent="violet"] .bg-purple-50 { background-color: #f5f3ff !important; }
+[data-accent="violet"] .text-indigo-200 { color: #ddd6fe !important; }
+[data-accent="violet"] .text-indigo-400 { color: #a78bfa !important; }
+[data-accent="violet"] .text-indigo-500,
+[data-accent="violet"] .hover\:text-indigo-500:hover { color: #8b5cf6 !important; }
+[data-accent="violet"] .text-indigo-600,
+[data-accent="violet"] .hover\:text-indigo-600:hover,
+[data-accent="violet"] .group-hover\:text-indigo-600 { color: #7c3aed !important; }
+[data-accent="violet"] .text-indigo-700,
+[data-accent="violet"] .hover\:text-indigo-700:hover,
+[data-accent="violet"] .hover\:text-indigo-800:hover { color: #6d28d9 !important; }
+[data-accent="violet"] .text-purple-600 { color: #7c3aed !important; }
+[data-accent="violet"] .border-indigo-100 { border-color: #ede9fe !important; }
+[data-accent="violet"] .border-indigo-500,
+[data-accent="violet"] .focus\:border-indigo-500:focus { border-color: #8b5cf6 !important; }
+[data-accent="violet"] .from-indigo-500 { --tw-gradient-from: #8b5cf6 !important; }
+[data-accent="violet"] .from-indigo-600 { --tw-gradient-from: #7c3aed !important; }
+[data-accent="violet"] .to-purple-500,
+[data-accent="violet"] .to-purple-600 { --tw-gradient-to: #6d28d9 !important; }
+
+/* BLUE ──────────────────────────────── */
+[data-accent="blue"] .bg-indigo-50,
+[data-accent="blue"] .hover\:bg-indigo-50:hover { background-color: #eff6ff !important; }
+[data-accent="blue"] .bg-indigo-100,
+[data-accent="blue"] .hover\:bg-indigo-100:hover,
+[data-accent="blue"] .group-hover\:bg-indigo-100 { background-color: #dbeafe !important; }
+[data-accent="blue"] .bg-indigo-500,
+[data-accent="blue"] .hover\:bg-indigo-500:hover { background-color: #3b82f6 !important; }
+[data-accent="blue"] .bg-indigo-600 { background-color: #2563eb !important; }
+[data-accent="blue"] .bg-purple-50 { background-color: #eff6ff !important; }
+[data-accent="blue"] .text-indigo-200 { color: #bfdbfe !important; }
+[data-accent="blue"] .text-indigo-400 { color: #60a5fa !important; }
+[data-accent="blue"] .text-indigo-500,
+[data-accent="blue"] .hover\:text-indigo-500:hover { color: #3b82f6 !important; }
+[data-accent="blue"] .text-indigo-600,
+[data-accent="blue"] .hover\:text-indigo-600:hover,
+[data-accent="blue"] .group-hover\:text-indigo-600 { color: #2563eb !important; }
+[data-accent="blue"] .text-indigo-700,
+[data-accent="blue"] .hover\:text-indigo-700:hover,
+[data-accent="blue"] .hover\:text-indigo-800:hover { color: #1d4ed8 !important; }
+[data-accent="blue"] .text-purple-600 { color: #2563eb !important; }
+[data-accent="blue"] .border-indigo-100 { border-color: #dbeafe !important; }
+[data-accent="blue"] .border-indigo-500,
+[data-accent="blue"] .focus\:border-indigo-500:focus { border-color: #3b82f6 !important; }
+[data-accent="blue"] .from-indigo-500 { --tw-gradient-from: #3b82f6 !important; }
+[data-accent="blue"] .from-indigo-600 { --tw-gradient-from: #2563eb !important; }
+[data-accent="blue"] .to-purple-500,
+[data-accent="blue"] .to-purple-600 { --tw-gradient-to: #1d4ed8 !important; }
+
+/* EMERALD ───────────────────────────── */
+[data-accent="emerald"] .bg-indigo-50,
+[data-accent="emerald"] .hover\:bg-indigo-50:hover { background-color: #ecfdf5 !important; }
+[data-accent="emerald"] .bg-indigo-100,
+[data-accent="emerald"] .hover\:bg-indigo-100:hover,
+[data-accent="emerald"] .group-hover\:bg-indigo-100 { background-color: #d1fae5 !important; }
+[data-accent="emerald"] .bg-indigo-500,
+[data-accent="emerald"] .hover\:bg-indigo-500:hover { background-color: #10b981 !important; }
+[data-accent="emerald"] .bg-indigo-600 { background-color: #059669 !important; }
+[data-accent="emerald"] .bg-purple-50 { background-color: #ecfdf5 !important; }
+[data-accent="emerald"] .text-indigo-200 { color: #a7f3d0 !important; }
+[data-accent="emerald"] .text-indigo-400 { color: #34d399 !important; }
+[data-accent="emerald"] .text-indigo-500,
+[data-accent="emerald"] .hover\:text-indigo-500:hover { color: #10b981 !important; }
+[data-accent="emerald"] .text-indigo-600,
+[data-accent="emerald"] .hover\:text-indigo-600:hover,
+[data-accent="emerald"] .group-hover\:text-indigo-600 { color: #059669 !important; }
+[data-accent="emerald"] .text-indigo-700,
+[data-accent="emerald"] .hover\:text-indigo-700:hover,
+[data-accent="emerald"] .hover\:text-indigo-800:hover { color: #047857 !important; }
+[data-accent="emerald"] .text-purple-600 { color: #059669 !important; }
+[data-accent="emerald"] .border-indigo-100 { border-color: #d1fae5 !important; }
+[data-accent="emerald"] .border-indigo-500,
+[data-accent="emerald"] .focus\:border-indigo-500:focus { border-color: #10b981 !important; }
+[data-accent="emerald"] .from-indigo-500 { --tw-gradient-from: #10b981 !important; }
+[data-accent="emerald"] .from-indigo-600 { --tw-gradient-from: #059669 !important; }
+[data-accent="emerald"] .to-purple-500,
+[data-accent="emerald"] .to-purple-600 { --tw-gradient-to: #047857 !important; }
+
+/* ROSE ──────────────────────────────── */
+[data-accent="rose"] .bg-indigo-50,
+[data-accent="rose"] .hover\:bg-indigo-50:hover { background-color: #fff1f2 !important; }
+[data-accent="rose"] .bg-indigo-100,
+[data-accent="rose"] .hover\:bg-indigo-100:hover,
+[data-accent="rose"] .group-hover\:bg-indigo-100 { background-color: #ffe4e6 !important; }
+[data-accent="rose"] .bg-indigo-500,
+[data-accent="rose"] .hover\:bg-indigo-500:hover { background-color: #f43f5e !important; }
+[data-accent="rose"] .bg-indigo-600 { background-color: #e11d48 !important; }
+[data-accent="rose"] .bg-purple-50 { background-color: #fff1f2 !important; }
+[data-accent="rose"] .text-indigo-200 { color: #fecdd3 !important; }
+[data-accent="rose"] .text-indigo-400 { color: #fb7185 !important; }
+[data-accent="rose"] .text-indigo-500,
+[data-accent="rose"] .hover\:text-indigo-500:hover { color: #f43f5e !important; }
+[data-accent="rose"] .text-indigo-600,
+[data-accent="rose"] .hover\:text-indigo-600:hover,
+[data-accent="rose"] .group-hover\:text-indigo-600 { color: #e11d48 !important; }
+[data-accent="rose"] .text-indigo-700,
+[data-accent="rose"] .hover\:text-indigo-700:hover,
+[data-accent="rose"] .hover\:text-indigo-800:hover { color: #be123c !important; }
+[data-accent="rose"] .text-purple-600 { color: #e11d48 !important; }
+[data-accent="rose"] .border-indigo-100 { border-color: #ffe4e6 !important; }
+[data-accent="rose"] .border-indigo-500,
+[data-accent="rose"] .focus\:border-indigo-500:focus { border-color: #f43f5e !important; }
+[data-accent="rose"] .from-indigo-500 { --tw-gradient-from: #f43f5e !important; }
+[data-accent="rose"] .from-indigo-600 { --tw-gradient-from: #e11d48 !important; }
+[data-accent="rose"] .to-purple-500,
+[data-accent="rose"] .to-purple-600 { --tw-gradient-to: #be123c !important; }
+
+/* AMBER ─────────────────────────────── */
+[data-accent="amber"] .bg-indigo-50,
+[data-accent="amber"] .hover\:bg-indigo-50:hover { background-color: #fffbeb !important; }
+[data-accent="amber"] .bg-indigo-100,
+[data-accent="amber"] .hover\:bg-indigo-100:hover,
+[data-accent="amber"] .group-hover\:bg-indigo-100 { background-color: #fef3c7 !important; }
+[data-accent="amber"] .bg-indigo-500,
+[data-accent="amber"] .hover\:bg-indigo-500:hover { background-color: #f59e0b !important; }
+[data-accent="amber"] .bg-indigo-600 { background-color: #d97706 !important; }
+[data-accent="amber"] .bg-purple-50 { background-color: #fffbeb !important; }
+[data-accent="amber"] .text-indigo-200 { color: #fde68a !important; }
+[data-accent="amber"] .text-indigo-400 { color: #fbbf24 !important; }
+[data-accent="amber"] .text-indigo-500,
+[data-accent="amber"] .hover\:text-indigo-500:hover { color: #f59e0b !important; }
+[data-accent="amber"] .text-indigo-600,
+[data-accent="amber"] .hover\:text-indigo-600:hover,
+[data-accent="amber"] .group-hover\:text-indigo-600 { color: #d97706 !important; }
+[data-accent="amber"] .text-indigo-700,
+[data-accent="amber"] .hover\:text-indigo-700:hover,
+[data-accent="amber"] .hover\:text-indigo-800:hover { color: #b45309 !important; }
+[data-accent="amber"] .text-purple-600 { color: #d97706 !important; }
+[data-accent="amber"] .border-indigo-100 { border-color: #fef3c7 !important; }
+[data-accent="amber"] .border-indigo-500,
+[data-accent="amber"] .focus\:border-indigo-500:focus { border-color: #f59e0b !important; }
+[data-accent="amber"] .from-indigo-500 { --tw-gradient-from: #f59e0b !important; }
+[data-accent="amber"] .from-indigo-600 { --tw-gradient-from: #d97706 !important; }
+[data-accent="amber"] .to-purple-500,
+[data-accent="amber"] .to-purple-600 { --tw-gradient-to: #b45309 !important; }
 
 /* ─── Dark mode ───────────────────────────────────────── */
 [data-theme="dark"] {

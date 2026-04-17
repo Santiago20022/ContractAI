@@ -137,6 +137,17 @@ export default function SettingsPage() {
     const updated = { ...settings, [key]: value };
     setSettings(updated);
     saveUserSettings({ [key]: value });
+    // Apply accent/theme instantly to <html>
+    if (key === "accentColor") {
+      document.documentElement.dataset.accent = value as string;
+    }
+    if (key === "theme") {
+      let theme = value as string;
+      if (theme === "system") {
+        theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.dataset.theme = theme;
+    }
   };
 
   const flashSaved = (section: string) => {
