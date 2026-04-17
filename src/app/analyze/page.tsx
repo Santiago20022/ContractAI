@@ -35,9 +35,18 @@ type AnalysisItem = {
   description: string;
   clause: string;
   risk: RiskLevel;
-  // Gemini format uses "level" instead of "risk"
   level?: RiskLevel;
   suggestion: string;
+};
+
+type ContractSummary = {
+  contractType: string;
+  object: string;
+  partyA: { name: string; role: string; mainDuties: string[] };
+  partyB: { name: string; role: string; mainDuties: string[] };
+  duration: string | null;
+  amount: string | null;
+  keyTerms: string[];
 };
 
 export default function AnalyzePage() {
@@ -49,6 +58,7 @@ export default function AnalyzePage() {
   const [analysisResults, setAnalysisResults] = useState<AnalysisItem[]>([]);
   const [overallScore, setOverallScore] = useState(0);
   const [summary, setAnalysisSummary] = useState("");
+  const [contractSummary, setContractSummary] = useState<ContractSummary | null>(null);
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -123,7 +133,6 @@ export default function AnalyzePage() {
       // Gemini format: { risks, riskScore, summary }
       // Local fallback format: { results, score }
       if (data.risks) {
-        // Normalize Gemini format: map "level" to "risk" for display compatibility
         const normalized: AnalysisItem[] = (data.risks as AnalysisItem[]).map(
           (item) => ({
             ...item,
@@ -133,6 +142,7 @@ export default function AnalyzePage() {
         setAnalysisResults(normalized);
         setOverallScore(data.riskScore ?? 50);
         setAnalysisSummary(data.summary || "");
+        setContractSummary(data.contractSummary ?? null);
       } else {
         // Local fallback format
         setAnalysisResults(data.results || data.findings || []);
@@ -217,6 +227,7 @@ export default function AnalyzePage() {
     setOverallScore(0);
     setExpandedItems([]);
     setAnalysisSummary("");
+    setContractSummary(null);
   };
 
   if (isLoading || !user) return null;
@@ -468,6 +479,103 @@ export default function AnalyzePage() {
               {summary && (
                 <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-6 py-4 max-w-3xl mx-auto mb-6">
                   <p className="text-indigo-800 text-sm font-medium">{summary}</p>
+                </div>
+              )}
+
+              {/* Contract Summary */}
+              {contractSummary && (
+                <div className="max-w-3xl mx-auto mb-8">
+                  <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                    <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-white" />
+                        <h2 className="text-white font-semibold text-lg">Resumen del contrato</h2>
+                        <span className="ml-auto text-xs bg-white/20 text-white px-3 py-1 rounded-full font-medium">
+                          {contractSummary.contractType}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-6 space-y-6">
+                      {/* Object */}
+                      <div>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Objeto del contrato</p>
+                        <p className="text-slate-700 text-sm leading-relaxed">{contractSummary.object}</p>
+                      </div>
+
+                      {/* Parties */}
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        {/* Party A */}
+                        <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-7 h-7 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">A</div>
+                            <div>
+                              <p className="font-semibold text-slate-900 text-sm leading-tight">{contractSummary.partyA.name}</p>
+                              <p className="text-xs text-indigo-600 font-medium">{contractSummary.partyA.role}</p>
+                            </div>
+                          </div>
+                          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Obligaciones</p>
+                          <ul className="space-y-1">
+                            {contractSummary.partyA.mainDuties.map((duty, i) => (
+                              <li key={i} className="flex items-start gap-2 text-xs text-slate-600">
+                                <span className="text-indigo-400 mt-0.5 flex-shrink-0">•</span>
+                                {duty}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* Party B */}
+                        <div className="bg-purple-50 rounded-xl p-4 border border-purple-100">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-7 h-7 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">B</div>
+                            <div>
+                              <p className="font-semibold text-slate-900 text-sm leading-tight">{contractSummary.partyB.name}</p>
+                              <p className="text-xs text-purple-600 font-medium">{contractSummary.partyB.role}</p>
+                            </div>
+                          </div>
+                          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Obligaciones</p>
+                          <ul className="space-y-1">
+                            {contractSummary.partyB.mainDuties.map((duty, i) => (
+                              <li key={i} className="flex items-start gap-2 text-xs text-slate-600">
+                                <span className="text-purple-400 mt-0.5 flex-shrink-0">•</span>
+                                {duty}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+
+                      {/* Key terms row */}
+                      <div className="grid grid-cols-3 gap-4">
+                        {contractSummary.duration && (
+                          <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Duración</p>
+                            <p className="text-sm font-semibold text-slate-800">{contractSummary.duration}</p>
+                          </div>
+                        )}
+                        {contractSummary.amount && (
+                          <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Valor</p>
+                            <p className="text-sm font-semibold text-slate-800">{contractSummary.amount}</p>
+                          </div>
+                        )}
+                        {contractSummary.keyTerms?.length > 0 && (
+                          <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 col-span-1">
+                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Condiciones clave</p>
+                            <ul className="space-y-1">
+                              {contractSummary.keyTerms.slice(0, 3).map((term, i) => (
+                                <li key={i} className="text-xs text-slate-600 flex items-start gap-1">
+                                  <span className="text-slate-400 flex-shrink-0">•</span>
+                                  {term}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 

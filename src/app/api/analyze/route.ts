@@ -40,7 +40,24 @@ export async function POST(request: Request) {
     const prompt = `Analiza el siguiente contrato legal y devuelve ÚNICAMENTE un objeto JSON válido (sin markdown, sin explicaciones, solo el JSON) con esta estructura exacta:
 {
   "riskScore": número entre 0 y 100 (100 = totalmente seguro, 0 = muy peligroso),
-  "summary": "resumen ejecutivo en 1-2 oraciones sobre los principales riesgos",
+  "summary": "resumen ejecutivo de riesgos en 1-2 oraciones",
+  "contractSummary": {
+    "contractType": "tipo de contrato (ej: Contrato de Servicios, NDA, Arrendamiento, etc.)",
+    "object": "descripción del objeto o propósito principal del contrato en 1-2 oraciones",
+    "partyA": {
+      "name": "nombre completo de la parte A tal como aparece en el contrato",
+      "role": "rol de la parte A (ej: Prestador, Arrendador, Empleador, Proveedor)",
+      "mainDuties": ["obligación principal 1", "obligación principal 2", "obligación principal 3"]
+    },
+    "partyB": {
+      "name": "nombre completo de la parte B tal como aparece en el contrato",
+      "role": "rol de la parte B (ej: Cliente, Arrendatario, Empleado, Distribuidor)",
+      "mainDuties": ["obligación principal 1", "obligación principal 2", "obligación principal 3"]
+    },
+    "duration": "duración del contrato si se menciona, o null",
+    "amount": "valor económico principal si se menciona, o null",
+    "keyTerms": ["término o condición clave 1", "término o condición clave 2", "término o condición clave 3"]
+  },
   "risks": [
     {
       "id": número,

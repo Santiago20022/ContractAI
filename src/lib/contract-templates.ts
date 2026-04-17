@@ -329,55 +329,149 @@ Cargo/Representante: _________       DNI/CURP/CC: ________________
 
   partnership: (data) => `
 ═══════════════════════════════════════════════════════════════
-                    CONTRATO DE SOCIOS
+                ACUERDO DE SOCIOS Y FUNDADORES
 ═══════════════════════════════════════════════════════════════
 
-En ${data.city || "[Ciudad]"}, a ${data.date || formatDate()}
+En ${data.city || "la ciudad acordada"}, a ${data.date || formatDate()}
 
                               REUNIDOS
 
-${data.partyA || "[SOCIO 1]"}, en adelante "SOCIO A".
-${data.partyB || "[SOCIO 2]"}, en adelante "SOCIO B".
+De una parte, ${data.partyA || "Socio Fundador A"}, mayor de edad, con plena capacidad legal, en adelante "SOCIO A" o "EL FUNDADOR A".
 
-Conjuntamente denominados "LOS SOCIOS".
+De otra parte, ${data.partyB || "Socio Fundador B"}, mayor de edad, con plena capacidad legal, en adelante "SOCIO B" o "EL FUNDADOR B".
+
+Conjuntamente denominados "LOS SOCIOS" o "LOS FUNDADORES".
 
                               EXPONEN
 
-Que LOS SOCIOS desean constituir una sociedad para ${data.description || "desarrollar conjuntamente un proyecto empresarial"}.
+I. Que LOS SOCIOS comparten la visión de construir un proyecto empresarial sostenible y desean formalizar su relación mediante el presente acuerdo, que establece con claridad sus derechos, obligaciones y mecanismos de gobierno.
+
+II. Que LOS SOCIOS han decidido unir sus capacidades, conocimientos y recursos para ${data.description || "desarrollar y operar conjuntamente un proyecto empresarial con vocación de crecimiento"}.
+
+III. Que LOS SOCIOS actúan de buena fe y convienen que este acuerdo prevalecerá sobre cualquier entendimiento verbal previo.
+
+Por lo anterior, LOS SOCIOS acuerdan celebrar el presente ACUERDO DE SOCIOS Y FUNDADORES, que se regirá por las siguientes:
 
                              CLÁUSULAS
 
-PRIMERA.- OBJETO SOCIAL
-${data.description || "La sociedad tendrá por objeto [DESCRIPCIÓN DEL NEGOCIO]."}
+PRIMERA.- OBJETO Y PROPÓSITO DEL NEGOCIO
+El objeto del presente acuerdo es regular la relación entre LOS SOCIOS en el marco del siguiente proyecto empresarial:
 
-SEGUNDA.- CAPITAL Y PARTICIPACIONES
-El capital social será de ${data.amount || "[CANTIDAD]"}, distribuido de la siguiente manera:
-• SOCIO A: [XX]%
-• SOCIO B: [XX]%
+${data.description || "Desarrollo, comercialización y operación del proyecto empresarial acordado entre las partes, incluyendo todas las actividades necesarias para su puesta en marcha, escalamiento y sostenibilidad."}
+
+Cualquier expansión del objeto hacia nuevas líneas de negocio o mercados requerirá acuerdo unánime y escrito de LOS SOCIOS.
+
+SEGUNDA.- PARTICIPACIONES Y VALORACIÓN INICIAL
+La participación de cada socio en el proyecto es la siguiente:
+
+• ${data.partyA || "SOCIO A"}: 50% de participación
+• ${data.partyB || "SOCIO B"}: 50% de participación
+
+La valoración inicial acordada del proyecto para los efectos del presente acuerdo es de ${data.amount || "la cantidad que LOS SOCIOS acuerden por escrito"}.
+
+Cualquier emisión de nuevas participaciones o incorporación de nuevos socios requerirá aprobación unánime y se realizará conforme al procedimiento establecido en la cláusula de dilución.
 
 TERCERA.- DURACIÓN
-La sociedad tendrá una duración ${data.duration || "indefinida"}.
+El presente acuerdo tendrá una duración ${data.duration || "indefinida"}, y estará vigente mientras cualquiera de LOS SOCIOS mantenga participación en el proyecto. El acuerdo podrá modificarse por consenso escrito de todas las partes.
 
-CUARTA.- ADMINISTRACIÓN
-La administración será [solidaria/mancomunada]. Las decisiones estratégicas requerirán acuerdo unánime de LOS SOCIOS.
+CUARTA.- VESTING Y MADURACIÓN DE PARTICIPACIONES
+Con el fin de proteger el proyecto y alinear los incentivos a largo plazo, las participaciones de LOS SOCIOS estarán sujetas a un esquema de maduración (vesting) de cuatro (4) años con un período de carencia (cliff) de doce (12) meses, en los siguientes términos:
 
-QUINTA.- REPARTO DE BENEFICIOS
-Los beneficios se repartirán proporcionalmente a la participación de cada socio.
+a) Durante los primeros doce (12) meses, ningún socio tendrá participaciones maduras. Si un socio abandona el proyecto antes de cumplir el cliff, no conservará participaciones.
+b) Al cumplirse los doce (12) meses, el 25% de las participaciones de cada socio quedarán maduras de forma inmediata.
+c) El 75% restante madurarán linealmente durante los siguientes treinta y seis (36) meses (aproximadamente 2.08% mensual).
+d) Las participaciones maduras no estarán sujetas a recompra obligatoria, salvo lo dispuesto en la cláusula de salida.
 
-SEXTA.- DEDICACIÓN
-Cada socio se compromete a dedicar [HORAS] horas semanales al proyecto.
+QUINTA.- ROLES, RESPONSABILIDADES Y DEDICACIÓN
+LOS SOCIOS asumirán los siguientes roles iniciales, que podrán modificarse por acuerdo mutuo:
 
-SÉPTIMA.- NO COMPETENCIA
-LOS SOCIOS se comprometen a no participar en negocios competidores durante la vigencia de este contrato.
+• ${data.partyA || "SOCIO A"}: Responsable de [área: operaciones/producto/tecnología/comercial].
+• ${data.partyB || "SOCIO B"}: Responsable de [área: operaciones/producto/tecnología/comercial].
 
-OCTAVA.- RESOLUCIÓN DE CONFLICTOS
-Los conflictos se resolverán mediante mediación. Si no hay acuerdo, se acudirá a arbitraje.
+Cada socio se compromete a dedicar al proyecto un mínimo del tiempo y energía necesarios para el cumplimiento de sus responsabilidades. La dedicación mínima equivalente a tiempo completo será obligatoria salvo acuerdo expreso en contrario.
 
-${data.additionalClauses ? `NOVENA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}
+SEXTA.- GOBIERNO Y TOMA DE DECISIONES
+Las decisiones del proyecto se clasificarán en:
+
+a) Decisiones operativas: aquellas necesarias para el funcionamiento diario del negocio dentro del área de responsabilidad de cada socio, que cada uno podrá tomar de forma autónoma hasta un límite de gasto de [definir importe].
+
+b) Decisiones ordinarias: aquellas que superen el límite operativo pero no sean estratégicas, que requerirán acuerdo de mayoría simple de los socios.
+
+c) Decisiones estratégicas (unanimidad requerida):
+• Emisión de nuevas participaciones o incorporación de nuevos socios.
+• Modificación del objeto social o del presente acuerdo.
+• Contratación de deuda financiera superior a [importe].
+• Venta total o parcial del negocio o de activos esenciales.
+• Nombramiento o destitución del CEO o representante legal.
+• Distribución de dividendos o reinversión de beneficios.
+• Apertura de filiales, sucursales o nuevas jurisdicciones.
+
+SÉPTIMA.- APORTACIONES DE CAPITAL Y FINANCIACIÓN
+Las aportaciones iniciales de capital de cada socio serán las siguientes:
+
+• ${data.partyA || "SOCIO A"}: [Monto en efectivo / activos / trabajo valorado en]
+• ${data.partyB || "SOCIO B"}: [Monto en efectivo / activos / trabajo valorado en]
+
+Las necesidades adicionales de financiación podrán cubrirse mediante:
+a) Aportaciones adicionales proporcionales de LOS SOCIOS, con derecho preferente para mantener su participación.
+b) Financiación externa (deuda o capital), bajo acuerdo unánime.
+c) Si un socio no puede o no desea aportar en una ronda adicional, su participación podrá diluirse conforme al acuerdo correspondiente.
+
+OCTAVA.- RETRIBUCIÓN DE LOS SOCIOS
+LOS SOCIOS podrán acordar una retribución o salario en concepto de dedicación al proyecto una vez que el negocio genere ingresos suficientes para sostenerlo. Dicha retribución será acordada por unanimidad y revisada anualmente.
+
+Mientras no se acuerde retribución, los gastos personales directamente incurridos en el desarrollo del negocio serán reembolsados previa presentación de justificante y aprobación del otro socio.
+
+NOVENA.- REPARTO DE BENEFICIOS Y DIVIDENDOS
+Los beneficios netos del negocio se repartirán entre LOS SOCIOS de forma proporcional a sus participaciones, previa decisión unánime sobre el porcentaje a distribuir y la cantidad a reinvertir en el crecimiento del negocio.
+
+Los dividendos no podrán repartirse si suponen comprometer la liquidez operativa necesaria para los próximos seis (6) meses de operación.
+
+DÉCIMA.- PROPIEDAD INTELECTUAL
+Toda la propiedad intelectual desarrollada por LOS SOCIOS en el marco del proyecto pertenecerá conjuntamente al negocio y no a los socios a título individual. LOS SOCIOS ceden al proyecto todos los derechos sobre los desarrollos, creaciones y know-how generados durante su participación activa.
+
+Si un socio abandona el proyecto, no podrá llevarse ni utilizar la propiedad intelectual desarrollada durante su participación, más allá de lo que acuerden las partes al momento de la salida.
+
+DECIMOPRIMERA.- CONFIDENCIALIDAD Y NO COMPETENCIA
+Durante la vigencia del presente acuerdo y por un período de dos (2) años desde la salida de cualquier socio:
+
+a) Cada socio mantendrá estricta confidencialidad sobre la información estratégica, financiera, técnica y comercial del proyecto.
+b) Ningún socio participará directa o indirectamente en negocios que compitan directamente con el objeto del proyecto sin autorización escrita del otro socio.
+c) Ningún socio captará empleados, clientes o proveedores estratégicos del proyecto para su propio beneficio o de terceros.
+
+DECIMOSEGUNDA.- DERECHOS DE PREFERENCIA Y TRANSFERENCIA DE PARTICIPACIONES
+Ningún socio podrá transferir su participación o parte de ella a terceros sin cumplir el siguiente procedimiento:
+
+a) Derecho de Primera Oferta: el socio que desee vender deberá notificar al otro socio las condiciones de la venta propuesta. El otro socio tendrá un plazo de quince (15) días hábiles para igualar la oferta.
+b) Derecho de Acompañamiento (Tag-Along): si un socio vende a un tercero, el otro socio tendrá derecho a vender su participación en las mismas condiciones.
+c) Derecho de Arrastre (Drag-Along): si un socio recibe una oferta de adquisición del 100% del negocio, podrá obligar al otro socio a vender en las mismas condiciones si la mayoría de las participaciones así lo aprueba.
+
+DECIMOTERCERA.- SALIDA DE UN SOCIO
+En caso de que un socio decida abandonar el proyecto voluntariamente, sea separado por causa grave, fallezca o quede incapacitado:
+
+a) Las participaciones no maduras conforme al esquema de vesting quedarán en el proyecto y no serán conservadas por el socio saliente.
+b) Las participaciones maduras podrán ser adquiridas por el socio restante o por el proyecto al precio justo de mercado, a determinar por un auditor independiente si las partes no llegan a acuerdo en quince (15) días.
+c) Se considerará causa grave de separación: incumplimiento reiterado de las obligaciones del presente acuerdo, apropiación indebida de fondos del proyecto, y conducta que perjudique gravemente la reputación del negocio.
+
+DECIMOCUARTA.- RESOLUCIÓN DE CONFLICTOS ENTRE SOCIOS
+LOS SOCIOS se comprometen a resolver cualquier conflicto mediante el siguiente procedimiento:
+
+1. Negociación directa entre los socios durante quince (15) días.
+2. Mediación ante un centro de mediación reconocido, durante treinta (30) días adicionales.
+3. Árbitro independiente acordado por ambas partes, cuya decisión será vinculante.
+
+${data.additionalClauses ? `DECIMOQUINTA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}DECIMOQU${data.additionalClauses ? "INTA (CONT.)" : "INTA"}.- LEGISLACIÓN APLICABLE Y JURISDICCIÓN
+El presente acuerdo se regirá por la legislación vigente en ${data.city || "la ciudad de firma"}. Para cualquier controversia, las partes se someten a los tribunales de ${data.city || "la ciudad de firma"}.
+
+Y en prueba de conformidad con lo aquí establecido, LOS SOCIOS firman el presente acuerdo por duplicado y a un solo efecto.
+
 
 _____________________________              _____________________________
-        SOCIO A                                  SOCIO B
-    ${data.partyA || "[Firma]"}                         ${data.partyB || "[Firma]"}
+          SOCIO A                                  SOCIO B
+    ${data.partyA || "_______________"}                    ${data.partyB || "_______________"}
+
+
+DNI/NIF/RFC: _______________              DNI/NIF/RFC: _______________
 `.trim(),
 
   rental: (data) => `
@@ -385,45 +479,108 @@ _____________________________              _____________________________
                 CONTRATO DE ARRENDAMIENTO
 ═══════════════════════════════════════════════════════════════
 
-En ${data.city || "[Ciudad]"}, a ${data.date || formatDate()}
+En ${data.city || "la ciudad de ubicación del inmueble"}, a ${data.date || formatDate()}
 
                               REUNIDOS
 
-De una parte, ${data.partyA || "[ARRENDADOR]"}, en adelante "EL ARRENDADOR".
+De una parte, ${data.partyA || "el propietario del inmueble"}, mayor de edad, con plena capacidad legal para contratar, en adelante "EL ARRENDADOR".
 
-De otra parte, ${data.partyB || "[ARRENDATARIO]"}, en adelante "EL ARRENDATARIO".
+De otra parte, ${data.partyB || "el arrendatario"}, mayor de edad, con plena capacidad legal para contratar, en adelante "EL ARRENDATARIO".
+
+Ambas partes se reconocen mutuamente la capacidad legal necesaria para la celebración del presente contrato, y
+
+                              EXPONEN
+
+I. Que EL ARRENDADOR es titular del inmueble objeto del presente contrato y tiene plena capacidad para darlo en arrendamiento, libre de cargas que impidan o limiten dicho uso.
+
+II. Que EL ARRENDATARIO está interesado en tomar en arrendamiento dicho inmueble en las condiciones que a continuación se estipulan, habiendo visitado e inspeccionado el inmueble y encontrándolo en condiciones adecuadas para el uso previsto.
+
+Por lo anterior, ambas partes acuerdan celebrar el presente CONTRATO DE ARRENDAMIENTO, que se regirá por las siguientes:
 
                              CLÁUSULAS
 
-PRIMERA.- OBJETO
-EL ARRENDADOR cede en arrendamiento a EL ARRENDATARIO el inmueble situado en:
-${data.description || "[DIRECCIÓN COMPLETA DEL INMUEBLE]"}
+PRIMERA.- OBJETO DEL ARRENDAMIENTO
+EL ARRENDADOR cede en arrendamiento a EL ARRENDATARIO, que acepta, el inmueble con las siguientes características:
 
-SEGUNDA.- DURACIÓN
-El arrendamiento tendrá una duración de ${data.duration || "[DURACIÓN]"}, desde [FECHA INICIO] hasta [FECHA FIN].
+${data.description || "Inmueble ubicado en la dirección acordada entre las partes, con las características, dimensiones y estado descritos en el Anexo de Inventario que forma parte integral del presente contrato."}
 
-TERCERA.- RENTA
-La renta mensual será de ${data.amount || "[CANTIDAD]"}, pagadera dentro de los primeros cinco días de cada mes.
+El arrendamiento incluye los elementos, mobiliario y equipamiento descritos en el Inventario anexo, firmado por ambas partes en la fecha de entrega del inmueble.
 
-CUARTA.- FIANZA
-EL ARRENDATARIO deposita la cantidad de [FIANZA] en concepto de fianza.
+SEGUNDA.- DESTINO Y USO DEL INMUEBLE
+EL ARRENDATARIO se compromete a destinar el inmueble exclusivamente al uso acordado: vivienda habitual / uso comercial / uso mixto (según lo estipulado). Queda expresamente prohibido:
+a) Subarrendar total o parcialmente el inmueble sin consentimiento escrito previo de EL ARRENDADOR.
+b) Realizar actividades ilegales, molestas o que puedan deteriorar el inmueble o alterar la convivencia del edificio.
+c) Modificar la estructura o instalaciones del inmueble sin autorización escrita de EL ARRENDADOR.
+d) Instalar rótulos, antenas u otros elementos visibles desde el exterior sin autorización previa.
 
-QUINTA.- USO
-El inmueble se destinará exclusivamente a vivienda habitual.
+TERCERA.- DURACIÓN DEL ARRENDAMIENTO
+El presente contrato tendrá una duración de ${data.duration || "un (1) año"}, comenzando el día de la entrega efectiva del inmueble.
 
-SEXTA.- GASTOS
-• Comunidad: [ARRENDADOR/ARRENDATARIO]
-• Suministros: EL ARRENDATARIO
-• IBI: EL ARRENDADOR
+A la finalización del plazo pactado, el contrato podrá prorrogarse por períodos anuales de mutuo acuerdo, salvo que cualquiera de las partes notifique su voluntad de no renovar con al menos treinta (30) días de antelación al vencimiento del período en curso.
 
-SÉPTIMA.- CONSERVACIÓN
-EL ARRENDATARIO mantendrá el inmueble en buen estado.
+CUARTA.- RENTA MENSUAL Y FORMA DE PAGO
+La renta mensual acordada es de ${data.amount || "la cantidad pactada entre las partes"}, pagadera dentro de los primeros cinco (5) días hábiles de cada mes.
 
-${data.additionalClauses ? `OCTAVA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}
+El pago se realizará mediante:
+• Transferencia bancaria a la cuenta que indique EL ARRENDADOR, o
+• El medio de pago que ambas partes acuerden por escrito.
+
+EL ARRENDADOR entregará recibo o confirmación de cada pago recibido. En caso de mora superior a cinco (5) días, se aplicará un recargo del 2% mensual sobre la renta pendiente, sin necesidad de requerimiento previo.
+
+QUINTA.- ACTUALIZACIÓN DE LA RENTA
+La renta podrá ser actualizada anualmente conforme a la variación del Índice de Precios al Consumidor (IPC) o índice equivalente publicado por el organismo oficial del país, aplicable al período transcurrido desde el inicio del contrato o desde la última actualización.
+
+La actualización se notificará por escrito con al menos treinta (30) días de antelación a su aplicación.
+
+SEXTA.- DEPÓSITO DE GARANTÍA
+En el acto de la firma del presente contrato, EL ARRENDATARIO entrega a EL ARRENDADOR la cantidad equivalente a una (1) mensualidad de renta en concepto de depósito de garantía.
+
+Este depósito tiene carácter de garantía por los posibles daños que EL ARRENDATARIO pudiera causar al inmueble, más allá del desgaste normal por uso. No podrá imputarse al pago de la última mensualidad de renta.
+
+EL ARRENDADOR deberá devolver el depósito íntegro dentro de los quince (15) días siguientes a la entrega del inmueble, salvo que existan daños que justifiquen retenciones parciales o totales, debidamente documentadas.
+
+SÉPTIMA.- DISTRIBUCIÓN DE GASTOS
+Los gastos del inmueble se distribuyen de la siguiente manera:
+a) A cargo de EL ARRENDADOR: impuesto predial / IBI / contribución urbana, cuotas de comunidad de propietarios, seguros del inmueble y reparaciones estructurales o de instalaciones generales por deterioro normal.
+b) A cargo de EL ARRENDATARIO: consumos de agua, luz, gas, internet y demás servicios contratados a su nombre, reparaciones menores por uso y daños causados por el ARRENDATARIO o sus convivientes.
+
+OCTAVA.- CONSERVACIÓN Y MANTENIMIENTO
+EL ARRENDATARIO se compromete a:
+a) Mantener el inmueble en buen estado de conservación e higiene durante toda la vigencia del contrato.
+b) Comunicar de forma inmediata a EL ARRENDADOR cualquier avería, daño o defecto que requiera reparación urgente para evitar daños mayores.
+c) No realizar obras, reformas ni modificaciones sin autorización escrita de EL ARRENDADOR. Las mejoras autorizadas quedarán en beneficio del inmueble sin derecho a compensación, salvo pacto expreso en contrario.
+d) Responder de los daños causados al inmueble por negligencia, uso inadecuado o falta de comunicación oportuna de averías.
+
+NOVENA.- SEGURO
+EL ARRENDATARIO se compromete a contratar y mantener vigente durante toda la vigencia del contrato un seguro de contenido que cubra los bienes muebles de su propiedad dentro del inmueble, y un seguro de responsabilidad civil por los daños que pudiera causar a EL ARRENDADOR o a terceros. EL ARRENDADOR, por su parte, mantendrá el seguro del continente (estructura del inmueble).
+
+DÉCIMA.- VISITAS DE INSPECCIÓN
+EL ARRENDADOR podrá visitar el inmueble para comprobar su estado de conservación, previa notificación con al menos cuarenta y ocho (48) horas de antelación, salvo en situaciones de emergencia que requieran acceso inmediato. Las visitas se realizarán en horarios razonables y con respeto a la privacidad de EL ARRENDATARIO.
+
+DECIMOPRIMERA.- RESOLUCIÓN ANTICIPADA
+EL ARRENDATARIO podrá resolver el contrato anticipadamente notificando a EL ARRENDADOR con al menos treinta (30) días de antelación. En caso de resolución anticipada sin preaviso suficiente, EL ARRENDATARIO deberá abonar el equivalente a los días de preaviso no cumplidos.
+
+EL ARRENDADOR solo podrá resolver el contrato anticipadamente en los supuestos legalmente establecidos: impago de renta, subarriendo no autorizado, daños graves al inmueble o actividades ilegales.
+
+DECIMOSEGUNDA.- DEVOLUCIÓN DEL INMUEBLE
+A la finalización del contrato, EL ARRENDATARIO deberá:
+a) Entregar el inmueble en las mismas condiciones en que fue recibido, salvo el desgaste normal por uso.
+b) Dejar todas las llaves, tarjetas de acceso y mandos entregados al inicio del contrato.
+c) Retirar todos sus bienes muebles y enseres personales.
+d) Participar en la inspección final del inmueble junto a EL ARRENDADOR para verificar el estado y hacer el levantamiento de inventario final.
+
+${data.additionalClauses ? `DECIMOTERCERA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}DECIMOTERC${data.additionalClauses ? "ERA (CONT.)" : "ERA"}.- LEGISLACIÓN APLICABLE Y JURISDICCIÓN
+El presente contrato se regirá por la legislación de arrendamientos urbanos vigente en ${data.city || "la ciudad de ubicación del inmueble"} y por la normativa civil aplicable. Para cualquier controversia, las partes se someten a los Juzgados y Tribunales de ${data.city || "la ciudad de ubicación del inmueble"}.
+
+Y en prueba de conformidad, firman el presente contrato por duplicado y a un solo efecto.
+
 
 _____________________________              _____________________________
-      EL ARRENDADOR                          EL ARRENDATARIO
-    ${data.partyA || "[Firma]"}                         ${data.partyB || "[Firma]"}
+       EL ARRENDADOR                          EL ARRENDATARIO
+    ${data.partyA || "_______________"}                    ${data.partyB || "_______________"}
+
+
+DNI/NIF/RFC: _______________              DNI/NIF/RFC: _______________
 `.trim(),
 
   sale: (data) => `
@@ -431,84 +588,234 @@ _____________________________              _____________________________
                 CONTRATO DE COMPRAVENTA
 ═══════════════════════════════════════════════════════════════
 
-En ${data.city || "[Ciudad]"}, a ${data.date || formatDate()}
+En ${data.city || "la ciudad acordada"}, a ${data.date || formatDate()}
 
                               REUNIDOS
 
-De una parte, ${data.partyA || "[VENDEDOR]"}, en adelante "EL VENDEDOR".
+De una parte, ${data.partyA || "el vendedor"}, con plena capacidad legal para disponer del bien objeto de este contrato, en adelante "EL VENDEDOR".
 
-De otra parte, ${data.partyB || "[COMPRADOR]"}, en adelante "EL COMPRADOR".
+De otra parte, ${data.partyB || "el comprador"}, con plena capacidad legal para adquirir, en adelante "EL COMPRADOR".
+
+Ambas partes se reconocen mutuamente la capacidad legal necesaria para celebrar el presente contrato, y
+
+                              EXPONEN
+
+I. Que EL VENDEDOR es propietario legítimo del bien descrito en la cláusula primera, con plena facultad para su venta y transmisión.
+
+II. Que EL COMPRADOR ha examinado e inspeccionado el bien y manifiesta conocer su estado y características, declarando su conformidad con la compra en las condiciones aquí establecidas.
+
+Por lo anterior, ambas partes acuerdan celebrar el presente CONTRATO DE COMPRAVENTA, que se regirá por las siguientes:
 
                              CLÁUSULAS
 
-PRIMERA.- OBJETO
-EL VENDEDOR vende a EL COMPRADOR, que acepta y adquiere:
-${data.description || "[DESCRIPCIÓN DETALLADA DEL BIEN]"}
+PRIMERA.- OBJETO DE LA COMPRAVENTA
+EL VENDEDOR vende, cede y transfiere a EL COMPRADOR, que acepta y adquiere, la plena propiedad del siguiente bien:
+
+${data.description || "Bien o activo cuyas características, estado y especificaciones han sido comunicadas y aceptadas por EL COMPRADOR, conforme al Anexo Descriptivo que forma parte integral del presente contrato."}
+
+EL VENDEDOR declara que el bien descrito es de su exclusiva propiedad, no está afecto a cargas, gravámenes, arrendamientos ni compromisos con terceros que puedan obstaculizar la transmisión plena de la propiedad, salvo los que expresamente se indiquen en el Anexo correspondiente.
 
 SEGUNDA.- PRECIO
-El precio de la compraventa es de ${data.amount || "[CANTIDAD]"}.
+El precio total acordado de la compraventa es de ${data.amount || "la cantidad pactada entre las partes y aceptada por ambas"}.
+
+Dicho precio ha sido fijado libremente por las partes, quienes declaran que es la justa contraprestación por el bien objeto de este contrato.
 
 TERCERA.- FORMA DE PAGO
-[Describir forma de pago: contado, plazos, etc.]
+El precio se abonará de la siguiente manera:
+a) Anticipo: el [XX]% del precio total, equivalente a [IMPORTE], en el momento de la firma del presente contrato, cuya recepción EL VENDEDOR expresamente acusa.
+b) Saldo: el [XX]% restante, equivalente a [IMPORTE], a la entrega efectiva del bien o en la fecha acordada.
 
-CUARTA.- ENTREGA
-La entrega se realizará ${data.duration || "en el momento de la firma del presente contrato"}.
+El pago se realizará mediante transferencia bancaria, efectivo o el medio acordado por las partes. En caso de pago a plazos, el impago de cualquier cuota vencerá automáticamente el resto de las cuotas, siendo exigible la totalidad del precio pendiente de forma inmediata.
 
-QUINTA.- GARANTÍA
-EL VENDEDOR garantiza que el bien está libre de cargas y gravámenes.
+CUARTA.- ENTREGA Y TRANSMISIÓN DE LA PROPIEDAD
+La entrega del bien se realizará ${data.duration || "en la fecha y lugar acordados por las partes"}, momento en el cual se transmitirá la propiedad a EL COMPRADOR, condicionado al pago íntegro del precio acordado.
 
-${data.additionalClauses ? `SEXTA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}
+Hasta la entrega del bien, el riesgo de pérdida o deterioro será de EL VENDEDOR. A partir de la entrega, EL COMPRADOR asume todos los riesgos asociados a la posesión y uso del bien.
+
+QUINTA.- GARANTÍAS DEL VENDEDOR
+EL VENDEDOR garantiza expresamente que:
+a) Es el único y legítimo propietario del bien vendido.
+b) El bien está libre de cargas, gravámenes, hipotecas, prendas, embargos, arrendamientos u obligaciones que puedan afectar a la libre disposición del comprador.
+c) No existe ningún litigio, reclamación o procedimiento judicial o administrativo pendiente que afecte al bien.
+d) El bien cumple con la descripción realizada y no presenta defectos ocultos que EL VENDEDOR conozca y no haya revelado.
+
+El incumplimiento de cualquiera de estas garantías facultará a EL COMPRADOR para resolver el contrato y exigir la devolución del precio pagado más una indemnización por los daños y perjuicios causados.
+
+SEXTA.- SANEAMIENTO POR EVICCIÓN Y VICIOS OCULTOS
+EL VENDEDOR responde del saneamiento por evicción (privación total o parcial del bien por sentencia firme) y por los vicios o defectos ocultos que existieran en el bien al tiempo de la venta y que sean suficientemente graves para hacerlo impropio para el uso al que se destina o que disminuyan su valor de tal modo que el COMPRADOR no lo hubiera adquirido o hubiera dado menos precio de haberlos conocido.
+
+La acción de saneamiento por vicios ocultos prescribirá conforme a la legislación aplicable en la jurisdicción correspondiente.
+
+SÉPTIMA.- INSPECCIÓN Y PERÍODO DE REVISIÓN
+EL COMPRADOR tendrá un plazo de diez (10) días hábiles desde la entrega del bien para notificar por escrito cualquier defecto o incumplimiento de las especificaciones acordadas. Transcurrido dicho plazo sin notificación, se entenderá que EL COMPRADOR acepta el bien en las condiciones en que fue recibido, sin perjuicio de las garantías legales por vicios ocultos.
+
+OCTAVA.- DOCUMENTOS Y TRANSFERENCIA DE TITULARIDAD
+EL VENDEDOR se compromete a entregar a EL COMPRADOR, junto con el bien, todos los documentos necesarios para acreditar la titularidad y facilitar su registro o uso, incluyendo: títulos de propiedad, manuales, garantías, certificados de conformidad y cualquier otro documento pertinente.
+
+NOVENA.- GASTOS E IMPUESTOS
+Los gastos e impuestos derivados de la formalización y transmisión del bien se distribuirán de la siguiente manera, salvo que la legislación aplicable establezca otra cosa:
+a) Impuestos sobre la transmisión (IVA, ITP o equivalente): a cargo de quien corresponda según la normativa fiscal aplicable.
+b) Notaría y registro (si aplica): por partes iguales entre ambas partes, salvo acuerdo en contrario.
+c) Gastos de envío o transporte del bien: a cargo de EL COMPRADOR, salvo pacto expreso en contrario.
+
+DÉCIMA.- RESERVA DE DOMINIO
+En caso de pago aplazado, EL VENDEDOR conserva la propiedad del bien hasta el pago íntegro del precio. Hasta ese momento, EL COMPRADOR no podrá vender, gravar, ceder ni disponer del bien sin el consentimiento escrito de EL VENDEDOR.
+
+DECIMOPRIMERA.- RESOLUCIÓN DEL CONTRATO
+Cualquiera de las partes podrá resolver el presente contrato en caso de incumplimiento material de la otra, previo requerimiento escrito y plazo de subsanación de diez (10) días. En caso de resolución por incumplimiento de EL COMPRADOR, EL VENDEDOR podrá retener el anticipo abonado como indemnización por daños, sin perjuicio de acciones adicionales. En caso de resolución por incumplimiento de EL VENDEDOR, deberá devolver el doble del anticipo recibido.
+
+DECIMOSEGUNDA.- RESOLUCIÓN DE DISPUTAS
+Las disputas derivadas del presente contrato se resolverán mediante negociación directa en primer lugar. Si no se alcanza acuerdo en quince (15) días, cualquier parte podrá acudir a mediación. De no resolverse por mediación, las partes se someterán a los tribunales competentes de ${data.city || "la ciudad acordada"}.
+
+${data.additionalClauses ? `DECIMOTERCERA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}DECIMOTERC${data.additionalClauses ? "ERA (CONT.)" : "ERA"}.- LEGISLACIÓN APLICABLE
+El presente contrato se regirá e interpretará de acuerdo con la legislación vigente en ${data.city || "el lugar de celebración del contrato"}.
+
+Y en prueba de conformidad, firman el presente contrato por duplicado y a un solo efecto.
+
 
 _____________________________              _____________________________
         EL VENDEDOR                            EL COMPRADOR
-    ${data.partyA || "[Firma]"}                         ${data.partyB || "[Firma]"}
+    ${data.partyA || "_______________"}                    ${data.partyB || "_______________"}
+
+
+DNI/NIF/RFC: _______________              DNI/NIF/RFC: _______________
 `.trim(),
 
   terms: (data) => `
 ═══════════════════════════════════════════════════════════════
-                TÉRMINOS Y CONDICIONES DE USO
+            TÉRMINOS Y CONDICIONES DE USO
 ═══════════════════════════════════════════════════════════════
 
-Última actualización: ${data.date || formatDate()}
+Fecha de última actualización: ${data.date || formatDate()}
+Empresa / Plataforma: ${data.partyA || "el titular del servicio"}
+Contacto: ${data.partyB || "contacto@ejemplo.com"}
 
-Bienvenido a ${data.partyA || "[NOMBRE DEL SITIO WEB/APP]"}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-${data.description || "Estos términos y condiciones regulan el uso de nuestros servicios."}
+AVISO IMPORTANTE: Por favor, lea detenidamente estos Términos y Condiciones antes de utilizar nuestros servicios. El acceso o uso del servicio implica la aceptación plena y sin reservas de los presentes Términos.
 
-1. ACEPTACIÓN DE LOS TÉRMINOS
-Al acceder y utilizar este sitio web, usted acepta estos términos y condiciones en su totalidad.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-2. DESCRIPCIÓN DEL SERVICIO
-${data.partyA || "[NOMBRE]"} proporciona [DESCRIPCIÓN DEL SERVICIO].
+1. IDENTIFICACIÓN DEL TITULAR Y DESCRIPCIÓN DEL SERVICIO
 
-3. REGISTRO Y CUENTA
-• Debe proporcionar información veraz y actualizada.
-• Es responsable de mantener la confidencialidad de su cuenta.
-• Debe tener al menos 18 años para registrarse.
+${data.partyA || "El titular del servicio"} (en adelante "LA EMPRESA" o "nosotros"), debidamente constituida y con domicilio en ${data.city || "la ciudad de operación"}, pone a disposición del usuario el siguiente servicio:
 
-4. USO ACEPTABLE
-Usted se compromete a NO:
-• Usar el servicio para fines ilegales.
-• Transmitir contenido dañino o malicioso.
-• Intentar acceder a sistemas no autorizados.
-• Violar derechos de propiedad intelectual.
+${data.description || "Plataforma digital que ofrece servicios al usuario a través de internet, conforme a las características técnicas y funcionales descritas en el sitio web o aplicación correspondiente."}
 
-5. PROPIEDAD INTELECTUAL
-Todo el contenido de ${data.partyA || "[NOMBRE]"} está protegido por derechos de autor.
+La EMPRESA se reserva el derecho de modificar, ampliar, reducir o discontinuar cualquier funcionalidad del servicio, notificándolo previamente con un plazo razonable cuando dicha modificación sea sustancial.
 
-6. LIMITACIÓN DE RESPONSABILIDAD
-El servicio se proporciona "tal cual". No garantizamos disponibilidad ininterrumpida.
+2. ACEPTACIÓN DE LOS TÉRMINOS Y CONDICIONES
 
-7. PRIVACIDAD
-El tratamiento de datos personales se rige por nuestra Política de Privacidad.
+Al acceder, registrarse o utilizar el servicio, el usuario declara:
+a) Haber leído y comprendido íntegramente los presentes Términos y Condiciones.
+b) Tener capacidad legal para contratar (ser mayor de edad o contar con autorización de su representante legal).
+c) Aceptar de forma libre, voluntaria e informada todos los términos aquí establecidos.
+d) Que la información proporcionada al registrarse es veraz, completa y actualizada.
 
-8. MODIFICACIONES
-Nos reservamos el derecho de modificar estos términos en cualquier momento.
+Si el usuario no acepta estos Términos en su totalidad, deberá abstenerse de acceder o utilizar el servicio.
 
-9. CONTACTO
-Para cualquier consulta: ${data.partyB || "[EMAIL DE CONTACTO]"}
+3. REGISTRO DE CUENTA Y CREDENCIALES
 
-${data.additionalClauses ? `10. CONDICIONES ADICIONALES\n${data.additionalClauses}` : ""}
+Para acceder a ciertas funcionalidades del servicio, el usuario deberá crear una cuenta personal. En este proceso, el usuario se compromete a:
+a) Proporcionar información exacta, completa y actualizada en el formulario de registro.
+b) Mantener la confidencialidad de su contraseña y credenciales de acceso, siendo el único responsable de toda actividad realizada bajo su cuenta.
+c) Notificar inmediatamente a LA EMPRESA cualquier uso no autorizado de su cuenta o vulneración de seguridad detectada.
+d) No compartir, ceder ni transferir su cuenta a terceros.
+e) Actualizar su información de perfil cuando sea necesario para mantenerla vigente.
+
+LA EMPRESA se reserva el derecho de suspender o cancelar cuentas que incumplan estas condiciones, que hayan sido creadas de forma fraudulenta, o que estén siendo utilizadas de manera contraria a los presentes Términos.
+
+4. USO ACEPTABLE DEL SERVICIO
+
+El usuario podrá utilizar el servicio únicamente con fines lícitos y conforme a los presentes Términos. Queda expresamente prohibido:
+
+a) Utilizar el servicio para fines ilegales, fraudulentos o que violen derechos de terceros.
+b) Publicar, transmitir o distribuir contenido que sea difamatorio, obsceno, amenazante, discriminatorio, que incite al odio o que viole derechos de propiedad intelectual.
+c) Realizar ingeniería inversa, descompilar, desensamblar o intentar obtener el código fuente del software subyacente.
+d) Utilizar robots, scrapers, spiders u otras herramientas automatizadas para acceder o extraer datos del servicio sin autorización expresa.
+e) Sobrecargar, atacar, interferir o interrumpir los servidores, redes o infraestructuras asociadas al servicio (incluyendo ataques DDoS).
+f) Acceder o intentar acceder a áreas restringidas, cuentas de otros usuarios o sistemas internos de LA EMPRESA.
+g) Suplantar la identidad de personas físicas o jurídicas, o declarar falsamente su vinculación con alguna persona o entidad.
+h) Revender, sublicenciar o comercializar el acceso al servicio sin autorización expresa de LA EMPRESA.
+
+El incumplimiento de estas prohibiciones podrá dar lugar a la suspensión inmediata de la cuenta y al ejercicio de las acciones legales correspondientes.
+
+5. TARIFAS, PAGOS Y FACTURACIÓN
+
+${data.amount ? `El acceso al servicio tiene un costo de ${data.amount}. Las condiciones de pago, facturación y renovación aplicables son las siguientes:` : "Las condiciones económicas del servicio, cuando apliquen, serán las publicadas en el sitio web al momento de la contratación."}
+
+a) Los precios publicados incluyen los impuestos aplicables, salvo indicación expresa en contrario.
+b) Los pagos realizados no son reembolsables, salvo en los supuestos expresamente previstos en la Política de Reembolsos de LA EMPRESA o por imperativo legal.
+c) Las suscripciones de pago se renovarán automáticamente al final de cada período, salvo que el usuario cancele antes de la fecha de renovación.
+d) LA EMPRESA podrá modificar sus tarifas, notificando al usuario con al menos treinta (30) días de antelación. Si el usuario no acepta el nuevo precio, podrá cancelar su suscripción antes de la renovación.
+e) El impago de las cuotas aplicables dará derecho a LA EMPRESA a suspender o cancelar el acceso al servicio.
+
+6. PROPIEDAD INTELECTUAL
+
+Todo el contenido del servicio —incluyendo pero no limitado a: software, código fuente, bases de datos, diseños gráficos, interfaces, textos, imágenes, logotipos, marcas comerciales y nombres comerciales— es propiedad exclusiva de ${data.partyA || "LA EMPRESA"} o de sus licenciantes, y está protegido por las leyes de propiedad intelectual e industrial aplicables.
+
+El usuario recibe una licencia de uso personal, limitada, no exclusiva, intransferible y revocable para acceder y utilizar el servicio, exclusivamente conforme a los presentes Términos. Esta licencia no incluye el derecho a:
+a) Reproducir, distribuir, modificar o crear obras derivadas del contenido del servicio.
+b) Utilizar el contenido o las marcas de LA EMPRESA con fines comerciales.
+c) Eliminar o alterar cualquier aviso de propiedad intelectual.
+
+El contenido generado por el usuario en la plataforma (si aplica) seguirá siendo de su propiedad, pero el usuario concede a LA EMPRESA una licencia mundial, no exclusiva, gratuita y sublicenciable para utilizarlo con el fin de prestar el servicio.
+
+7. PRIVACIDAD Y PROTECCIÓN DE DATOS
+
+El tratamiento de los datos personales del usuario se rige por la Política de Privacidad de LA EMPRESA, que forma parte integral de los presentes Términos. Al usar el servicio, el usuario consiente el tratamiento de sus datos conforme a dicha política.
+
+LA EMPRESA se compromete a cumplir con la legislación aplicable en materia de protección de datos personales vigente en las jurisdicciones en que opera el servicio.
+
+8. LIMITACIÓN DE RESPONSABILIDAD
+
+En la máxima extensión permitida por la ley aplicable, LA EMPRESA no será responsable de:
+a) Daños indirectos, incidentales, especiales, consecuentes o punitivos derivados del uso o la imposibilidad de usar el servicio.
+b) Pérdida de datos, lucro cesante, pérdida de reputación o negocio, aunque LA EMPRESA hubiera sido advertida de la posibilidad de dichos daños.
+c) Interrupciones del servicio debidas a causas de fuerza mayor, fallos de terceros proveedores de infraestructura, o mantenimiento programado.
+d) Inexactitudes, errores u omisiones en el contenido del servicio no generado directamente por LA EMPRESA.
+
+La responsabilidad total de LA EMPRESA frente al usuario por cualquier causa y con independencia de la naturaleza de la acción no excederá el importe total abonado por el usuario en los doce (12) meses anteriores al hecho que originó la reclamación, o la cantidad de cien dólares (USD 100) si el servicio es gratuito.
+
+9. EXCLUSIÓN DE GARANTÍAS
+
+El servicio se presta "tal cual" y "según disponibilidad". LA EMPRESA no garantiza que el servicio sea ininterrumpido, libre de errores, seguro frente a ataques externos, ni que satisfaga las expectativas específicas del usuario. LA EMPRESA hará sus mejores esfuerzos razonables para mantener la disponibilidad y funcionalidad del servicio, pero no asume responsabilidad frente a interrupciones o degradaciones temporales.
+
+10. ENLACES A TERCEROS
+
+El servicio puede contener enlaces a sitios web o servicios de terceros que no son controlados por LA EMPRESA. La inclusión de estos enlaces no implica respaldo ni responsabilidad de LA EMPRESA respecto del contenido, políticas o prácticas de dichos terceros. El usuario accede a dichos sitios bajo su propia responsabilidad.
+
+11. DURACIÓN Y TERMINACIÓN
+
+Los presentes Términos están vigentes mientras el usuario utilice el servicio. LA EMPRESA podrá suspender o cancelar el acceso del usuario en caso de incumplimiento de los presentes Términos, sin necesidad de aviso previo cuando la gravedad de la infracción así lo justifique.
+
+El usuario podrá cancelar su cuenta en cualquier momento a través de la configuración del servicio o contactando a LA EMPRESA. La cancelación no dará derecho a reembolso de importes ya abonados, salvo lo previsto en la Política de Reembolsos.
+
+12. MODIFICACIONES DE LOS TÉRMINOS
+
+LA EMPRESA se reserva el derecho de modificar los presentes Términos en cualquier momento. Las modificaciones sustanciales serán notificadas al usuario con al menos treinta (30) días de antelación por correo electrónico o mediante aviso destacado en el servicio. El uso continuado del servicio tras la fecha de entrada en vigor de las modificaciones constituye la aceptación de los nuevos Términos.
+
+13. FUERZA MAYOR
+
+LA EMPRESA no será responsable de los retrasos o incumplimientos derivados de causas fuera de su control razonable, incluyendo catástrofes naturales, pandemias, conflictos armados, huelgas de terceros, fallos generalizados de internet o cortes de suministro eléctrico.
+
+14. NULIDAD PARCIAL
+
+Si alguna disposición de los presentes Términos fuera declarada nula, inválida o inaplicable por resolución judicial o administrativa, el resto de disposiciones permanecerá en plena vigencia y eficacia.
+
+15. LEY APLICABLE Y JURISDICCIÓN
+
+Los presentes Términos y Condiciones se rigen por las leyes de ${data.city || "la jurisdicción donde opera LA EMPRESA"}. Para cualquier controversia derivada de los mismos, las partes se someten a los tribunales competentes de ${data.city || "dicha jurisdicción"}, sin perjuicio de los derechos irrenunciables que la legislación de consumo aplicable pueda reconocer al usuario.
+
+16. CONTACTO
+
+Para cualquier consulta, reclamación o ejercicio de derechos relacionados con el servicio o con los presentes Términos:
+
+Empresa: ${data.partyA || "el titular del servicio"}
+Email de contacto: ${data.partyB || "contacto@empresa.com"}
+Dirección: ${data.city || "la dirección de la empresa"}
+
+${data.additionalClauses ? `17. CONDICIONES ADICIONALES\n\n${data.additionalClauses}` : ""}
 `.trim(),
 
   privacy: (data) => `
@@ -516,55 +823,602 @@ ${data.additionalClauses ? `10. CONDICIONES ADICIONALES\n${data.additionalClause
                     POLÍTICA DE PRIVACIDAD
 ═══════════════════════════════════════════════════════════════
 
-Última actualización: ${data.date || formatDate()}
+Fecha de última actualización: ${data.date || formatDate()}
+Responsable del tratamiento: ${data.partyA || "el titular del servicio"}
+Contacto / DPO: ${data.partyB || "privacidad@empresa.com"}
+Jurisdicción: ${data.city || "la jurisdicción de operación del servicio"}
 
-${data.partyA || "[NOMBRE DE LA EMPRESA]"} ("nosotros", "nuestro") se compromete a proteger su privacidad.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. INFORMACIÓN QUE RECOPILAMOS
-${data.description || `• Datos de identificación (nombre, email, teléfono)
-• Datos de navegación (IP, cookies, dispositivo)
-• Datos de transacciones`}
+En cumplimiento de la normativa vigente en materia de protección de datos personales (incluyendo, según corresponda, el Reglamento General de Protección de Datos de la UE —RGPD—, la Ley Federal de Protección de Datos Personales en Posesión de Particulares de México, la Ley 1581 de 2012 de Colombia, la Ley 25.326 de Argentina y demás normativas aplicables en LATAM), ${data.partyA || "el responsable del tratamiento"} informa a los usuarios sobre el tratamiento de sus datos personales.
 
-2. CÓMO USAMOS SU INFORMACIÓN
-Utilizamos sus datos para:
-• Proporcionar nuestros servicios
-• Mejorar la experiencia del usuario
-• Enviar comunicaciones relevantes
-• Cumplir obligaciones legales
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-3. BASE LEGAL
-Procesamos sus datos basándonos en:
-• Su consentimiento
-• Ejecución de contrato
-• Interés legítimo
-• Obligación legal
+1. RESPONSABLE DEL TRATAMIENTO
 
-4. COMPARTIR INFORMACIÓN
-No vendemos sus datos. Podemos compartirlos con:
-• Proveedores de servicios
-• Autoridades (cuando sea requerido por ley)
+${data.partyA || "El titular del servicio"}, con domicilio en ${data.city || "la ciudad de operación"}, es el responsable del tratamiento de los datos personales recopilados a través del servicio:
 
-5. SUS DERECHOS (RGPD)
-Usted tiene derecho a:
-• Acceder a sus datos
-• Rectificar datos incorrectos
-• Solicitar la eliminación
-• Oponerse al procesamiento
-• Portabilidad de datos
+${data.description || "Plataforma digital y servicios asociados ofrecidos a través del sitio web o aplicación del responsable del tratamiento."}
 
-6. RETENCIÓN DE DATOS
-Conservamos sus datos durante ${data.duration || "[PERÍODO]"} o según obligaciones legales.
+Para cualquier consulta sobre privacidad o ejercicio de derechos, puede contactarnos en: ${data.partyB || "privacidad@empresa.com"}
 
-7. SEGURIDAD
-Implementamos medidas técnicas y organizativas para proteger sus datos.
+2. DATOS PERSONALES QUE RECOPILAMOS
 
-8. COOKIES
-Utilizamos cookies. Puede gestionar sus preferencias en la configuración de su navegador.
+Recopilamos los siguientes tipos de datos personales, según la naturaleza de la interacción:
 
-9. CONTACTO
-Delegado de Protección de Datos: ${data.partyB || "[EMAIL DPO]"}
+a) Datos de identificación y contacto: nombre completo, dirección de correo electrónico, número de teléfono, fecha de nacimiento (cuando aplique) y documento de identidad.
+b) Datos de cuenta: nombre de usuario, contraseña cifrada, preferencias y configuración de la cuenta.
+c) Datos de uso y navegación: dirección IP, tipo de navegador, sistema operativo, páginas visitadas, duración de la sesión, clics y patrones de comportamiento en el servicio.
+d) Datos de transacciones: historial de compras, facturas, información de pago (procesada por proveedores de pago certificados PCI-DSS; no almacenamos datos completos de tarjetas).
+e) Datos de comunicaciones: mensajes enviados a través de formularios de contacto, soporte técnico o cualquier otra vía de comunicación con nosotros.
+f) Datos de ubicación: ciudad o región (derivados de la IP), y geolocalización precisa solo si el usuario otorga permiso explícito.
+g) Cookies y tecnologías similares: según lo descrito en nuestra sección de Cookies.
 
-${data.additionalClauses ? `10. INFORMACIÓN ADICIONAL\n${data.additionalClauses}` : ""}
+No recopilamos datos sensibles (origen racial o étnico, opiniones políticas, creencias religiosas, datos de salud, orientación sexual, datos genéticos o biométricos) salvo que sea estrictamente necesario para la prestación del servicio y contemos con su consentimiento explícito.
+
+3. FINALIDADES Y BASE LEGAL DEL TRATAMIENTO
+
+Tratamos sus datos personales para las siguientes finalidades y con las bases legales indicadas:
+
+a) Prestación del servicio contratado (base legal: ejecución del contrato): gestión de su cuenta, proceso de pagos, entrega de los servicios o productos adquiridos, y atención al cliente.
+b) Comunicaciones de servicio (base legal: ejecución del contrato / interés legítimo): notificaciones sobre su cuenta, cambios en el servicio, avisos de seguridad y comunicaciones operativas necesarias.
+c) Mejora del servicio (base legal: interés legítimo): análisis del comportamiento de uso para identificar errores, mejorar la experiencia de usuario y desarrollar nuevas funcionalidades.
+d) Marketing y comunicaciones comerciales (base legal: consentimiento): envío de información sobre novedades, ofertas y contenido relevante, solo si usted ha dado su consentimiento expreso. Puede revocar este consentimiento en cualquier momento.
+e) Cumplimiento de obligaciones legales (base legal: obligación legal): conservación de datos requerida por normativa fiscal, laboral o de prevención del blanqueo de capitales.
+f) Prevención del fraude y seguridad (base legal: interés legítimo): detección y prevención de actividades fraudulentas, uso abusivo del servicio y amenazas de seguridad.
+
+4. CONSERVACIÓN DE LOS DATOS
+
+Conservamos sus datos personales durante el tiempo necesario para las finalidades para las que fueron recopilados, con los siguientes criterios:
+• Datos de cuenta: mientras la cuenta esté activa y ${data.duration || "hasta tres (3) años después de su cancelación"}.
+• Datos de facturación y transacciones: el período exigido por la normativa fiscal aplicable (generalmente 5-10 años).
+• Datos de navegación y análisis: hasta 26 meses desde su recopilación.
+• Datos de comunicaciones: hasta 3 años desde la última interacción.
+
+Una vez cumplidos los plazos, los datos serán eliminados o anonimizados de forma segura.
+
+5. DESTINATARIOS Y TRANSFERENCIAS DE DATOS
+
+No vendemos ni cedemos sus datos personales a terceros para sus propios fines. Podemos compartir sus datos en los siguientes supuestos:
+
+a) Proveedores de servicios tecnológicos (encargados del tratamiento): servicios de hosting, bases de datos en la nube, herramientas de análisis, proveedores de pago y plataformas de correo electrónico, que actúan bajo instrucciones nuestras y con garantías adecuadas de protección.
+b) Obligación legal: cuando seamos requeridos por autoridades judiciales, administrativas o regulatorias mediante resolución legal válida.
+c) Operaciones corporativas: en caso de fusión, adquisición o venta de activos, sus datos podrán ser transferidos al nuevo responsable, que quedará sujeto a esta Política.
+
+En caso de transferencias internacionales de datos fuera del Espacio Económico Europeo o de la jurisdicción local, garantizamos que se realizan con las salvaguardas adecuadas (cláusulas contractuales tipo, decisiones de adecuación o mecanismos equivalentes).
+
+6. SUS DERECHOS EN MATERIA DE PROTECCIÓN DE DATOS
+
+Dependiendo de la legislación aplicable en su país, usted tiene los siguientes derechos respecto a sus datos personales:
+
+a) Derecho de acceso: conocer qué datos personales tratamos sobre usted y obtener una copia de los mismos.
+b) Derecho de rectificación: solicitar la corrección de datos inexactos o incompletos.
+c) Derecho de supresión ("derecho al olvido"): solicitar la eliminación de sus datos cuando ya no sean necesarios para la finalidad para la que fueron recopilados.
+d) Derecho de oposición: oponerse al tratamiento de sus datos, especialmente para fines de marketing directo o basados en interés legítimo.
+e) Derecho a la limitación del tratamiento: solicitar que restrinjamos el uso de sus datos en determinadas circunstancias.
+f) Derecho a la portabilidad: recibir sus datos en un formato estructurado, de uso común y legible por máquina.
+g) Derecho a retirar el consentimiento: cuando el tratamiento se base en su consentimiento, puede revocarlo en cualquier momento sin que ello afecte a la licitud del tratamiento anterior.
+
+Para ejercer cualquiera de estos derechos, envíe una solicitud a: ${data.partyB || "privacidad@empresa.com"}, identificándose debidamente. Responderemos en el plazo legal aplicable (generalmente 30 días).
+
+Si considera que sus derechos no han sido atendidos, tiene derecho a presentar una reclamación ante la autoridad de protección de datos competente en su país.
+
+7. SEGURIDAD DE LOS DATOS
+
+Implementamos medidas técnicas y organizativas apropiadas para proteger sus datos personales frente al acceso no autorizado, alteración, divulgación o destrucción, incluyendo:
+• Cifrado de datos en tránsito (TLS/SSL) y en reposo.
+• Control de acceso basado en roles y principio de mínimo privilegio.
+• Monitoreo continuo de la seguridad y gestión de vulnerabilidades.
+• Procedimientos de respuesta a incidentes de seguridad.
+• Capacitación periódica del personal en protección de datos.
+
+En caso de una brecha de seguridad que afecte a sus datos, le notificaremos conforme a los plazos y requisitos establecidos por la normativa aplicable.
+
+8. COOKIES Y TECNOLOGÍAS DE SEGUIMIENTO
+
+Utilizamos cookies y tecnologías similares para mejorar la funcionalidad del servicio, analizar el uso y personalizar la experiencia. Las categorías de cookies que utilizamos son:
+
+a) Cookies estrictamente necesarias: imprescindibles para el funcionamiento del servicio (sesión, seguridad). No requieren su consentimiento.
+b) Cookies de preferencias: recuerdan sus configuraciones y preferencias. Requieren su consentimiento.
+c) Cookies analíticas: nos permiten entender cómo se utiliza el servicio para mejorarlo. Requieren su consentimiento.
+d) Cookies de marketing: utilizadas para mostrarle contenido relevante. Requieren su consentimiento explícito.
+
+Puede gestionar sus preferencias de cookies a través del panel de configuración de cookies del servicio o de la configuración de su navegador. Tenga en cuenta que deshabilitar ciertas cookies puede afectar al funcionamiento del servicio.
+
+9. MENORES DE EDAD
+
+El servicio no está dirigido a menores de 14 años (o la edad mínima que establezca la legislación local aplicable). No recopilamos conscientemente datos personales de menores sin el consentimiento verificable de sus padres o tutores legales. Si detectamos que hemos recopilado datos de un menor sin el consentimiento requerido, procederemos a eliminarlos de forma inmediata.
+
+10. CAMBIOS EN LA POLÍTICA DE PRIVACIDAD
+
+Podemos actualizar esta Política de Privacidad periódicamente para reflejar cambios legales, técnicos o en nuestras prácticas de tratamiento. Le notificaremos los cambios sustanciales con al menos treinta (30) días de antelación por correo electrónico o mediante aviso destacado en el servicio. Le recomendamos revisar esta Política periódicamente.
+
+11. CONTACTO Y DELEGADO DE PROTECCIÓN DE DATOS
+
+Para cualquier consulta, solicitud de ejercicio de derechos o reclamación relacionada con el tratamiento de sus datos personales, puede contactarnos en:
+
+Responsable: ${data.partyA || "el titular del servicio"}
+Email: ${data.partyB || "privacidad@empresa.com"}
+Dirección: ${data.city || "la dirección física de la empresa"}
+
+${data.additionalClauses ? `12. INFORMACIÓN ADICIONAL\n\n${data.additionalClauses}` : ""}
+`.trim(),
+
+  consulting: (data) => `
+═══════════════════════════════════════════════════════════════
+               CONTRATO DE CONSULTORÍA
+═══════════════════════════════════════════════════════════════
+
+En ${data.city || "la ciudad acordada"}, a ${data.date || formatDate()}
+
+                              REUNIDOS
+
+De una parte, ${data.partyA || "el consultor"}, profesional con amplia experiencia en su campo, en adelante "EL CONSULTOR".
+
+De otra parte, ${data.partyB || "la empresa cliente"}, debidamente constituida, en adelante "LA EMPRESA".
+
+Ambas partes se reconocen mutuamente la capacidad legal necesaria para la firma del presente contrato, y
+
+                              EXPONEN
+
+I. Que LA EMPRESA requiere servicios de consultoría especializada para abordar retos estratégicos específicos de su organización.
+
+II. Que EL CONSULTOR cuenta con la experiencia, conocimientos, metodología y criterio independiente necesarios para prestar dichos servicios con el nivel de calidad requerido.
+
+III. Que ambas partes han negociado libremente las condiciones del presente contrato y acuerdan celebrarlo como partes independientes, sin que exista relación laboral ni de exclusividad salvo pacto expreso en contrario.
+
+Por lo anterior, ambas partes acuerdan celebrar el presente CONTRATO DE CONSULTORÍA, que se regirá por las siguientes:
+
+                             CLÁUSULAS
+
+PRIMERA.- OBJETO DE LA CONSULTORÍA
+EL CONSULTOR prestará a LA EMPRESA los siguientes servicios de consultoría especializada:
+
+${data.description || "Análisis estratégico, diagnóstico organizacional, identificación de oportunidades de mejora y elaboración de recomendaciones accionables para los retos específicos identificados por LA EMPRESA. El alcance detallado, los entregables específicos y los criterios de éxito quedarán formalizados en el Plan de Trabajo que forma parte integral del presente contrato."}
+
+EL CONSULTOR actuará como experto independiente, sin sujeción a las instrucciones de gestión diaria de LA EMPRESA, aunque colaborará estrechamente con los equipos designados por esta para el desarrollo de los trabajos.
+
+SEGUNDA.- DURACIÓN Y FASES DEL PROYECTO
+La consultoría tendrá una duración de ${data.duration || "el período necesario para completar el alcance acordado"}, organizada en las siguientes fases:
+
+• Fase 1 — Diagnóstico y análisis: comprensión profunda de la situación actual, recopilación de datos e identificación de problemas y oportunidades.
+• Fase 2 — Desarrollo de propuestas: elaboración de recomendaciones estratégicas, modelos alternativos y plan de implementación.
+• Fase 3 — Presentación y validación: exposición de conclusiones a los stakeholders y ajuste de recomendaciones según feedback.
+• Fase 4 — Soporte a la implementación (si aplica): acompañamiento durante la ejecución de las recomendaciones acordadas.
+
+Cualquier extensión del plazo requerirá acuerdo escrito entre las partes.
+
+TERCERA.- HONORARIOS Y FORMA DE PAGO
+LA EMPRESA abonará a EL CONSULTOR los siguientes honorarios por los servicios prestados: ${data.amount || "la cantidad acordada entre las partes, pagadera conforme al calendario de pagos acordado"}.
+
+Estructura de pagos:
+a) 30% a la firma del presente contrato, como anticipo de inicio de trabajos.
+b) 40% a la entrega del informe de diagnóstico y recomendaciones (Fase 2).
+c) 30% restante a la entrega del informe final y cierre del proyecto.
+
+Los honorarios son fijos y no se verán afectados por el número de horas invertidas, salvo que las partes acuerden por escrito la facturación por tiempo y materiales (time & materials) para fases específicas.
+
+El pago deberá realizarse dentro de los quince (15) días siguientes a la recepción de cada factura. En caso de mora, se aplicará un interés del 1.5% mensual sobre el importe vencido.
+
+CUARTA.- GASTOS REEMBOLSABLES
+Los gastos de viaje, alojamiento, materiales especializados y otros costos directamente incurridos para la prestación de los servicios serán reembolsados por LA EMPRESA, previa presentación de justificantes y dentro de un presupuesto máximo acordado previamente. Los gastos que superen dicho presupuesto requerirán autorización previa de LA EMPRESA.
+
+QUINTA.- INDEPENDENCIA Y METODOLOGÍA
+EL CONSULTOR prestará sus servicios como profesional independiente, aplicando su propio criterio metodológico y profesional. LA EMPRESA reconoce que EL CONSULTOR es un proveedor externo y no un empleado, por lo que:
+a) EL CONSULTOR no tendrá exclusividad y podrá prestar servicios a otras organizaciones que no compitan directamente con LA EMPRESA.
+b) EL CONSULTOR gestionará su propio tiempo de forma autónoma, con el fin de cumplir los entregables acordados.
+c) EL CONSULTOR será responsable del cumplimiento de sus obligaciones fiscales y de seguridad social propias.
+
+SEXTA.- CONFIDENCIALIDAD
+EL CONSULTOR se compromete a mantener estricta confidencialidad sobre toda la información estratégica, financiera, comercial, técnica y organizacional de LA EMPRESA a la que tenga acceso durante la prestación de los servicios, durante la vigencia del contrato y por un período de tres (3) años posteriores a su terminación.
+
+Esta obligación se extiende a los integrantes del equipo de EL CONSULTOR que participen en el proyecto, quienes deberán suscribir compromisos individuales de confidencialidad.
+
+LA EMPRESA, por su parte, mantendrá confidencialidad sobre las metodologías propietarias y know-how de EL CONSULTOR que pudiera conocer durante el desarrollo de los trabajos.
+
+SÉPTIMA.- PROPIEDAD INTELECTUAL DE LOS ENTREGABLES
+Los informes, análisis, presentaciones, modelos y demás entregables desarrollados específicamente para este proyecto y pagados íntegramente por LA EMPRESA pertenecerán a LA EMPRESA para su uso interno.
+
+EL CONSULTOR retiene la titularidad sobre:
+a) Sus metodologías, marcos de análisis, herramientas y know-how preexistente.
+b) Los elementos de uso genérico incorporados a los entregables.
+c) El derecho a utilizar el conocimiento y la experiencia adquirida en el proyecto para trabajos futuros, sin revelar información confidencial de LA EMPRESA.
+
+EL CONSULTOR podrá referenciar el hecho de haber trabajado con LA EMPRESA como referencia de cliente, salvo solicitud expresa en contrario.
+
+OCTAVA.- OBLIGACIONES DE LA EMPRESA
+LA EMPRESA se compromete a:
+a) Designar un interlocutor con autoridad y disponibilidad suficiente para facilitar el trabajo de EL CONSULTOR.
+b) Proporcionar acceso a la información, datos, sistemas y personas necesarias para el desarrollo del proyecto en los plazos acordados.
+c) Tomar decisiones en los plazos necesarios para no bloquear el avance del proyecto.
+d) Garantizar un entorno de trabajo adecuado y respetuoso para EL CONSULTOR y su equipo.
+
+NOVENA.- LIMITACIÓN DE RESPONSABILIDAD
+Las recomendaciones de EL CONSULTOR son de carácter asesor e informativo. LA EMPRESA es libre de implementarlas o no, siendo la única responsable de las decisiones de negocio que adopte. EL CONSULTOR no será responsable de los resultados de negocio derivados de la implementación o no implementación de sus recomendaciones.
+
+La responsabilidad total de EL CONSULTOR frente a LA EMPRESA, por cualquier causa, no excederá el total de los honorarios efectivamente cobrados en el marco del presente contrato.
+
+DÉCIMA.- RESOLUCIÓN ANTICIPADA
+Cualquiera de las partes podrá resolver el contrato con un preaviso de quince (15) días. En caso de resolución anticipada:
+a) Por decisión de LA EMPRESA: se abonarán los honorarios proporcionales al trabajo realizado hasta la fecha de resolución, más una compensación equivalente al 20% de los honorarios pendientes.
+b) Por decisión de EL CONSULTOR: se reembolsará la parte proporcional del anticipo no devengada por el trabajo realizado.
+
+${data.additionalClauses ? `DECIMOPRIMERA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}DECIMOPR${data.additionalClauses ? "IMERA (CONT.)" : "IMERA"}.- LEGISLACIÓN Y JURISDICCIÓN
+El presente contrato se regirá por la legislación vigente en ${data.city || "la ciudad de firma"}. Las controversias se someterán a los tribunales de ${data.city || "la ciudad de firma"}.
+
+Y en prueba de conformidad, firman el presente contrato por duplicado y a un solo efecto.
+
+
+_____________________________              _____________________________
+        EL CONSULTOR                           LA EMPRESA
+    ${data.partyA || "_______________"}                    ${data.partyB || "_______________"}
+
+
+DNI/NIF/RFC: _______________              DNI/NIF/RFC: _______________
+`.trim(),
+
+  saas: (data) => `
+═══════════════════════════════════════════════════════════════
+          CONTRATO DE SUSCRIPCIÓN DE SOFTWARE (SaaS)
+═══════════════════════════════════════════════════════════════
+
+En ${data.city || "la ciudad acordada"}, a ${data.date || formatDate()}
+
+                              REUNIDOS
+
+De una parte, ${data.partyA || "el proveedor del software"}, en calidad de titular y proveedor del Software como Servicio, en adelante "EL PROVEEDOR".
+
+De otra parte, ${data.partyB || "el cliente suscriptor"}, en adelante "EL CLIENTE".
+
+Ambas partes se reconocen mutuamente capacidad legal para celebrar el presente contrato, y
+
+                              EXPONEN
+
+I. Que EL PROVEEDOR ha desarrollado y opera una plataforma de Software como Servicio (SaaS) accesible a través de internet.
+
+II. Que EL CLIENTE desea suscribirse al acceso y uso de dicha plataforma en los términos aquí establecidos.
+
+Por lo anterior, acuerdan celebrar el presente CONTRATO DE SUSCRIPCIÓN SaaS, bajo las siguientes:
+
+                             CLÁUSULAS
+
+PRIMERA.- DESCRIPCIÓN DEL SERVICIO
+EL PROVEEDOR otorga a EL CLIENTE acceso a la siguiente plataforma SaaS:
+
+${data.description || "Plataforma de software accesible vía web, con las funcionalidades, límites de uso y niveles de servicio descritos en el Anexo Técnico de Servicio (SLA) que forma parte integral del presente contrato."}
+
+EL PROVEEDOR se reserva el derecho de actualizar, mejorar o modificar el software con el fin de mejorar la experiencia del usuario, notificando cambios sustanciales con al menos treinta (30) días de antelación.
+
+SEGUNDA.- LICENCIA DE USO
+EL PROVEEDOR concede a EL CLIENTE una licencia de uso no exclusiva, no transferible, limitada y revocable para acceder y utilizar el Software durante la vigencia del presente contrato, exclusivamente para los fines internos legítimos del negocio de EL CLIENTE.
+
+Queda expresamente prohibido:
+a) Sublicenciar, revender, alquilar o compartir el acceso al Software con terceros no autorizados.
+b) Realizar ingeniería inversa o intentar obtener el código fuente del Software.
+c) Utilizar el Software para desarrollar productos o servicios competidores.
+d) Superar los límites de usuarios, almacenamiento o uso establecidos en el plan contratado.
+
+TERCERA.- DURACIÓN Y RENOVACIÓN
+La suscripción tendrá una duración inicial de ${data.duration || "un (1) año"}. Al término de dicho período, la suscripción se renovará automáticamente por períodos iguales, salvo que cualquiera de las partes notifique su voluntad de no renovar con al menos treinta (30) días de antelación al vencimiento.
+
+CUARTA.- PRECIO Y FORMA DE PAGO
+El precio de la suscripción es de ${data.amount || "la tarifa correspondiente al plan contratado"}, pagadera de forma mensual o anual según el plan seleccionado por EL CLIENTE.
+
+a) Los pagos se realizarán mediante tarjeta de crédito/débito, transferencia bancaria u otro medio acordado.
+b) Las facturas se emitirán al inicio de cada período de facturación.
+c) El impago de cualquier factura dentro de los diez (10) días de su vencimiento dará derecho a EL PROVEEDOR a suspender el acceso al servicio sin responsabilidad frente a EL CLIENTE.
+d) Los precios podrán ser actualizados al inicio de cada período de renovación, con notificación de al menos treinta (30) días.
+
+QUINTA.- NIVEL DE SERVICIO (SLA)
+EL PROVEEDOR garantiza los siguientes niveles mínimos de disponibilidad del servicio:
+• Disponibilidad garantizada: 99.5% mensual (excluyendo mantenimientos programados notificados con al menos 48 horas de antelación y causas de fuerza mayor).
+• Tiempo de respuesta a incidencias críticas: máximo 4 horas hábiles.
+• Tiempo de resolución de incidencias críticas: máximo 24 horas hábiles.
+
+En caso de incumplimiento del SLA, EL CLIENTE tendrá derecho a créditos de servicio conforme a la tabla de compensación establecida en el Anexo SLA.
+
+SEXTA.- DATOS DEL CLIENTE Y PRIVACIDAD
+Los datos que EL CLIENTE almacena o procesa en la plataforma son de su exclusiva propiedad. EL PROVEEDOR actuará como encargado del tratamiento conforme a la normativa aplicable y:
+a) Solo accederá a los datos de EL CLIENTE para prestar el servicio contratado o por imperativo legal.
+b) No venderá, alquilará ni divulgará los datos de EL CLIENTE a terceros.
+c) Implementará medidas de seguridad técnicas y organizativas adecuadas.
+d) Colaborará con EL CLIENTE en el cumplimiento de sus obligaciones como responsable del tratamiento.
+
+EL PROVEEDOR entregará a EL CLIENTE una copia de sus datos en formato exportable dentro de los treinta (30) días siguientes a la terminación del contrato, tras lo cual procederá a eliminarlos de sus sistemas.
+
+SÉPTIMA.- SEGURIDAD Y ACCESO
+EL PROVEEDOR implementará medidas de seguridad razonables para proteger la integridad y confidencialidad de los datos almacenados. EL CLIENTE es responsable de mantener la seguridad de sus credenciales de acceso y de gestionar los permisos de sus usuarios.
+
+OCTAVA.- SOPORTE Y MANTENIMIENTO
+EL PROVEEDOR prestará soporte técnico conforme al plan contratado:
+a) Canales de soporte: correo electrónico, chat en la plataforma o teléfono según el plan.
+b) Horario de soporte: según el plan contratado (ej: días hábiles de 9h a 18h, o 24/7 para planes enterprise).
+c) Actualizaciones y mejoras del software: incluidas en la suscripción sin costo adicional.
+
+NOVENA.- LIMITACIÓN DE RESPONSABILIDAD
+La responsabilidad total de EL PROVEEDOR frente a EL CLIENTE por cualquier causa no excederá el importe de la suscripción abonada en los tres (3) meses anteriores al evento que generó la reclamación. EL PROVEEDOR no será responsable por pérdidas de datos derivadas de un uso incorrecto del servicio por parte de EL CLIENTE, ni por daños indirectos o consecuentes.
+
+DÉCIMA.- TERMINACIÓN
+Cualquiera de las partes podrá resolver el contrato por incumplimiento material de la otra parte, previa notificación y plazo de subsanación de quince (15) días. EL CLIENTE podrá cancelar su suscripción antes del período de renovación sin derecho a reembolso de las cuotas ya abonadas.
+
+${data.additionalClauses ? `DECIMOPRIMERA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}DECIMOPR${data.additionalClauses ? "IMERA (CONT.)" : "IMERA"}.- LEY APLICABLE
+Este contrato se rige por las leyes de ${data.city || "la jurisdicción del proveedor"}. Las controversias se someterán a los tribunales de ${data.city || "dicha jurisdicción"}.
+
+Y en prueba de conformidad, firman el presente contrato por duplicado.
+
+
+_____________________________              _____________________________
+        EL PROVEEDOR                           EL CLIENTE
+    ${data.partyA || "_______________"}                    ${data.partyB || "_______________"}
+
+
+DNI/NIF/RFC: _______________              DNI/NIF/RFC: _______________
+`.trim(),
+
+  agency: (data) => `
+═══════════════════════════════════════════════════════════════
+              CONTRATO DE AGENCIA COMERCIAL
+═══════════════════════════════════════════════════════════════
+
+En ${data.city || "la ciudad acordada"}, a ${data.date || formatDate()}
+
+                              REUNIDOS
+
+De una parte, ${data.partyA || "el empresario principal"}, en adelante "EL PRINCIPAL".
+
+De otra parte, ${data.partyB || "el agente comercial"}, profesional independiente con experiencia en representación comercial, en adelante "EL AGENTE".
+
+Ambas partes se reconocen mutuamente la capacidad legal para contratar, y
+
+                              EXPONEN
+
+I. Que EL PRINCIPAL necesita ampliar su red de ventas y representación comercial en determinados territorios o segmentos de mercado.
+
+II. Que EL AGENTE tiene la experiencia, la red de contactos y los medios necesarios para actuar como representante comercial independiente de EL PRINCIPAL.
+
+Por lo anterior, acuerdan celebrar el presente CONTRATO DE AGENCIA COMERCIAL, bajo las siguientes:
+
+                             CLÁUSULAS
+
+PRIMERA.- OBJETO
+EL AGENTE se compromete a promover, de forma estable y continuada, la comercialización de los productos y/o servicios de EL PRINCIPAL, actuando como agente independiente por cuenta de este último:
+
+${data.description || "Productos y/o servicios cuyas características, condiciones comerciales y materiales de apoyo serán facilitados por EL PRINCIPAL al inicio de la relación y actualizados periódicamente."}
+
+EL AGENTE no podrá comprometer ni vincular a EL PRINCIPAL sin autorización expresa, ni actuar fuera de las condiciones comerciales aprobadas.
+
+SEGUNDA.- TERRITORIO Y EXCLUSIVIDAD
+EL AGENTE tendrá asignado el siguiente territorio de actuación: ${data.city || "el territorio acordado por las partes"}.
+
+La asignación de territorio ${data.additionalClauses?.includes("exclusiv") ? "es exclusiva" : "no es exclusiva salvo pacto expreso en contrario"}.
+
+TERCERA.- DURACIÓN
+El presente contrato tendrá una duración de ${data.duration || "un (1) año"}, renovable automáticamente por períodos iguales, salvo preaviso de treinta (30) días antes del vencimiento.
+
+CUARTA.- COMISIONES Y REMUNERACIÓN
+EL PRINCIPAL abonará a EL AGENTE una comisión sobre las ventas efectivamente cerradas y cobradas gracias a la gestión de EL AGENTE, conforme a la siguiente estructura:
+
+Comisión sobre ventas: ${data.amount || "el porcentaje acordado sobre el valor neto de cada operación cerrada y cobrada"}.
+
+Las comisiones se liquidarán mensualmente, dentro de los primeros quince (15) días del mes siguiente al cobro de la operación correspondiente. EL PRINCIPAL facilitará a EL AGENTE un informe mensual detallado de las operaciones atribuidas a su gestión.
+
+En caso de resolución del contrato, EL AGENTE tendrá derecho a las comisiones de las operaciones iniciadas durante la vigencia del contrato aunque se concreten con posterioridad, siempre dentro de los tres (3) meses siguientes a la terminación.
+
+QUINTA.- OBLIGACIONES DEL AGENTE
+EL AGENTE se compromete a:
+a) Promover activamente los productos/servicios de EL PRINCIPAL con la diligencia de un profesional del sector.
+b) Informar a EL PRINCIPAL mensualmente sobre las actividades realizadas, el estado del mercado y las oportunidades identificadas.
+c) No representar ni actuar en nombre de empresas competidoras de EL PRINCIPAL en el territorio asignado sin su consentimiento previo y escrito.
+d) Cumplir las condiciones comerciales, precios y políticas de descuento establecidas por EL PRINCIPAL.
+e) Guardar confidencialidad sobre la información comercial y estratégica de EL PRINCIPAL.
+
+SEXTA.- OBLIGACIONES DEL PRINCIPAL
+EL PRINCIPAL se compromete a:
+a) Facilitar a EL AGENTE la información, catálogos, materiales de marketing y muestras necesarias para su actividad.
+b) Informar con antelación razonable de cualquier cambio en precios, condiciones o catálogo de productos.
+c) Liquidar las comisiones devengadas en los plazos establecidos y proporcionar información transparente sobre las operaciones atribuidas.
+d) No actuar directamente en el territorio asignado a EL AGENTE de forma que perjudique su actividad, salvo acuerdo expreso.
+
+SÉPTIMA.- INDEPENDENCIA
+EL AGENTE actúa como empresario independiente, siendo responsable de sus propios gastos operativos, impuestos y seguridad social. El presente contrato no crea relación laboral, de exclusividad laboral ni vínculo societario entre las partes.
+
+OCTAVA.- INDEMNIZACIÓN POR CLIENTELA
+A la terminación del contrato por causa no imputable a EL AGENTE, este tendrá derecho a una indemnización por clientela conforme a la legislación aplicable, en reconocimiento de los clientes aportados que sigan generando beneficios para EL PRINCIPAL.
+
+${data.additionalClauses ? `NOVENA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}NOVEN${data.additionalClauses ? "A (CONT.)" : "A"}.- LEY APLICABLE
+Este contrato se rige por la legislación de agencia comercial vigente en ${data.city || "la jurisdicción acordada"}.
+
+Y en prueba de conformidad, firman el presente contrato.
+
+
+_____________________________              _____________________________
+         EL PRINCIPAL                           EL AGENTE
+    ${data.partyA || "_______________"}                    ${data.partyB || "_______________"}
+
+
+DNI/NIF/RFC: _______________              DNI/NIF/RFC: _______________
+`.trim(),
+
+  joboffer: (data) => `
+═══════════════════════════════════════════════════════════════
+                    CARTA DE OFERTA LABORAL
+═══════════════════════════════════════════════════════════════
+
+${data.city || "Ciudad"}, ${data.date || formatDate()}
+
+Estimado/a ${data.partyB || "candidato/a seleccionado/a"}:
+
+En nombre de ${data.partyA || "la empresa"}, nos complace extenderle la presente oferta formal de empleo para incorporarse a nuestro equipo en los términos que a continuación se detallan.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DETALLES DE LA OFERTA
+
+1. PUESTO Y DESCRIPCIÓN DE FUNCIONES
+Posición ofrecida: ${data.description || "el cargo acordado durante el proceso de selección, con las responsabilidades y funciones detalladas en el Anexo de Descripción del Puesto adjunto a esta oferta."}
+
+Área / Departamento: a determinar conforme a la estructura organizacional de ${data.partyA || "la empresa"}.
+
+Reporta a: [nombre y cargo del superior directo]
+
+2. FECHA DE INCORPORACIÓN
+Se propone como fecha de inicio: ${data.duration || "la fecha acordada entre las partes"}.
+
+3. MODALIDAD DE TRABAJO
+La posición se desarrollará en modalidad [presencial / remota / híbrida], en [ubicación / ciudad / plataforma remota].
+
+4. RETRIBUCIÓN
+Salario bruto [mensual / anual]: ${data.amount || "la cantidad acordada durante el proceso de selección"}.
+
+La retribución se abonará mediante transferencia bancaria en los primeros [5] días hábiles de cada mes. Esta compensación estará sujeta a las deducciones fiscales y de seguridad social que correspondan conforme a la legislación vigente.
+
+5. BENEFICIOS Y COMPENSACIÓN ADICIONAL
+Adicionalmente al salario base, el candidato tendrá derecho a:
+• Vacaciones: [15/20/30] días hábiles anuales conforme a la política de la empresa y la legislación laboral.
+• Seguro médico: [sí / no — plan familiar / individual].
+• Bono de desempeño: [descripción de esquema de bonos, si aplica].
+• Acciones / opciones sobre acciones (stock options): [descripción, si aplica].
+• Beneficios adicionales: [formación, transporte, comedor, otros].
+• Período de adaptación remunerado: [si aplica].
+
+6. PERÍODO DE PRUEBA
+La incorporación estará sujeta a un período de prueba de [30/60/90] días, durante el cual cualquiera de las partes podrá resolver la relación laboral sin indemnización, salvo el pago de los días trabajados. Superado satisfactoriamente el período de prueba, el candidato adquirirá la condición de empleado con todos los derechos y garantías laborales.
+
+7. CONFIDENCIALIDAD Y PROPIEDAD INTELECTUAL
+Como condición de su incorporación, el candidato deberá suscribir el Acuerdo de Confidencialidad y Propiedad Intelectual de la empresa, por el cual se compromete a mantener la confidencialidad de la información de la empresa y a ceder a esta los derechos sobre los desarrollos y creaciones realizados en el ejercicio de sus funciones.
+
+8. CONDICIONES ADICIONALES
+${data.additionalClauses || "La presente oferta está condicionada a la verificación de referencias, antecedentes y, cuando aplique, títulos académicos y certificaciones profesionales declaradas durante el proceso de selección."}
+
+9. ACEPTACIÓN DE LA OFERTA
+Esta oferta es válida hasta [fecha límite de respuesta]. Para aceptarla, el candidato deberá firmar y devolver una copia del presente documento antes de dicha fecha. La oferta quedará sin efecto si no se recibe respuesta en el plazo indicado.
+
+Al aceptar esta oferta, el candidato declara que toda la información proporcionada durante el proceso de selección es veraz y que no tiene impedimentos legales para incorporarse en las condiciones descritas.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Esperamos contar con su incorporación al equipo de ${data.partyA || "la empresa"}. No dude en contactarnos si tiene alguna consulta sobre los términos de esta oferta.
+
+Atentamente,
+
+
+_____________________________
+${data.partyA || "LA EMPRESA"}
+[Nombre y cargo del firmante]
+[Email de contacto]
+[Teléfono]
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ACEPTACIÓN DEL CANDIDATO
+
+Yo, ${data.partyB || "el candidato"}, declaro haber leído y comprendido la presente oferta y acepto sus términos en su totalidad.
+
+Firma: _____________________________
+
+Fecha de aceptación: ________________
+
+DNI/RFC/CC: _______________________
+`.trim(),
+
+  distribution: (data) => `
+═══════════════════════════════════════════════════════════════
+              CONTRATO DE DISTRIBUCIÓN
+═══════════════════════════════════════════════════════════════
+
+En ${data.city || "la ciudad acordada"}, a ${data.date || formatDate()}
+
+                              REUNIDOS
+
+De una parte, ${data.partyA || "el fabricante / proveedor"}, en adelante "EL FABRICANTE".
+
+De otra parte, ${data.partyB || "el distribuidor"}, en adelante "EL DISTRIBUIDOR".
+
+Ambas partes se reconocen mutuamente capacidad legal para contratar, y
+
+                              EXPONEN
+
+I. Que EL FABRICANTE produce y/o comercializa los productos objeto del presente contrato y tiene interés en ampliar su distribución a través de terceros especializados.
+
+II. Que EL DISTRIBUIDOR cuenta con la infraestructura, red comercial y experiencia necesarias para distribuir dichos productos en el territorio acordado.
+
+Por lo anterior, acuerdan celebrar el presente CONTRATO DE DISTRIBUCIÓN, bajo las siguientes:
+
+                             CLÁUSULAS
+
+PRIMERA.- OBJETO Y PRODUCTOS
+EL FABRICANTE designa a EL DISTRIBUIDOR como distribuidor de los siguientes productos:
+
+${data.description || "Productos cuyas especificaciones, referencias, precios de compra y condiciones de venta se detallan en el Catálogo de Productos y Lista de Precios anexos, que forman parte integral del presente contrato y podrán ser actualizados periódicamente por EL FABRICANTE con un preaviso razonable."}
+
+SEGUNDA.- TERRITORIO Y EXCLUSIVIDAD
+EL DISTRIBUIDOR tendrá derecho a distribuir los productos en el siguiente territorio: ${data.city || "el territorio geográfico acordado"}.
+
+La distribución ${data.additionalClauses?.includes("exclusiv") ? "tendrá carácter EXCLUSIVO en el territorio indicado" : "no tendrá carácter exclusivo salvo acuerdo escrito específico"}.
+
+Queda prohibido a EL DISTRIBUIDOR vender los productos fuera del territorio asignado o a través de canales no autorizados por EL FABRICANTE.
+
+TERCERA.- DURACIÓN
+El presente contrato tendrá una duración de ${data.duration || "un (1) año"}, renovable automáticamente por períodos iguales, salvo preaviso de treinta (30) días antes del vencimiento.
+
+CUARTA.- PRECIOS Y CONDICIONES DE COMPRA
+EL DISTRIBUIDOR adquirirá los productos de EL FABRICANTE al precio mayorista acordado: ${data.amount || "los precios establecidos en la Lista de Precios vigente en cada momento, sujetos a revisión periódica con preaviso de treinta (30) días"}.
+
+Condiciones de pago:
+a) Pago a [30/60] días desde la recepción de la mercancía o la emisión de la factura, lo que ocurra antes.
+b) Descuentos por pronto pago: [X]% si el pago se realiza dentro de los 10 días.
+c) EL FABRICANTE podrá establecer un límite de crédito y exigir garantías adicionales si el historial de pagos de EL DISTRIBUIDOR así lo justifica.
+
+QUINTA.- OBJETIVOS DE VENTAS
+EL DISTRIBUIDOR se compromete a alcanzar los siguientes objetivos mínimos de compra / venta:
+• Primer año: [volumen mínimo acordado].
+• Años sucesivos: [revisable anualmente].
+
+El incumplimiento reiterado de los objetivos mínimos (dos períodos consecutivos) dará derecho a EL FABRICANTE a revocar la exclusividad (si la hubiera) o resolver el contrato con preaviso de treinta (30) días.
+
+SEXTA.- OBLIGACIONES DEL DISTRIBUIDOR
+EL DISTRIBUIDOR se compromete a:
+a) Promover y vender activamente los productos en el territorio asignado, destinando los recursos humanos y materiales necesarios.
+b) Mantener un stock mínimo suficiente para atender la demanda habitual del mercado sin interrupciones.
+c) Preservar la imagen de marca de EL FABRICANTE, utilizando sus materiales de marketing conforme a las directrices de marca.
+d) Proporcionar a EL FABRICANTE reportes mensuales de ventas, inventario y actividad comercial.
+e) No distribuir productos competidores sin autorización escrita de EL FABRICANTE.
+f) Gestionar posventa, garantías y reclamaciones de los clientes finales conforme a los estándares de EL FABRICANTE.
+
+SÉPTIMA.- OBLIGACIONES DEL FABRICANTE
+EL FABRICANTE se compromete a:
+a) Suministrar los productos en los plazos, calidades y condiciones acordados.
+b) Proporcionar materiales de marketing, formación sobre los productos y soporte técnico.
+c) Mantener la cadena de suministro necesaria para atender los pedidos de EL DISTRIBUIDOR.
+d) No vender directamente a los clientes finales del territorio asignado (si la distribución es exclusiva), salvo acuerdo expreso.
+
+OCTAVA.- PROPIEDAD INTELECTUAL Y MARCA
+EL FABRICANTE concede a EL DISTRIBUIDOR una licencia limitada, no exclusiva y revocable para utilizar sus marcas, logotipos y materiales de marketing únicamente para la promoción de los productos en el territorio acordado. Esta licencia terminará con el contrato.
+
+EL DISTRIBUIDOR no podrá registrar marcas similares a las de EL FABRICANTE ni utilizar su imagen de marca fuera del contexto de distribución autorizado.
+
+NOVENA.- POLÍTICA DE DEVOLUCIONES Y GARANTÍAS
+Los productos defectuosos o que no cumplan las especificaciones acordadas podrán ser devueltos a EL FABRICANTE dentro de los treinta (30) días siguientes a su recepción, quien los reemplazará o emitirá el correspondiente abono. Las condiciones detalladas de garantía y devolución se establecen en el Anexo de Garantías.
+
+DÉCIMA.- TERMINACIÓN
+En caso de terminación del contrato por cualquier causa:
+a) EL DISTRIBUIDOR deberá cesar inmediatamente el uso de las marcas de EL FABRICANTE.
+b) EL FABRICANTE tendrá la opción de recomprar el inventario que EL DISTRIBUIDOR tenga en existencias al precio de adquisición.
+c) Las obligaciones de confidencialidad se extenderán por tres (3) años tras la terminación.
+
+${data.additionalClauses ? `DECIMOPRIMERA.- CLÁUSULAS ADICIONALES\n${data.additionalClauses}\n\n` : ""}DECIMOPR${data.additionalClauses ? "IMERA (CONT.)" : "IMERA"}.- LEY APLICABLE
+Este contrato se rige por las leyes de ${data.city || "la jurisdicción de las partes"}.
+
+Y en prueba de conformidad, firman el presente contrato.
+
+
+_____________________________              _____________________________
+        EL FABRICANTE                          EL DISTRIBUIDOR
+    ${data.partyA || "_______________"}                    ${data.partyB || "_______________"}
+
+
+DNI/NIF/RFC: _______________              DNI/NIF/RFC: _______________
 `.trim(),
 };
 
