@@ -19,17 +19,21 @@ import {
   Trash2,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 
-export default function ContractsPage() {
+function ContractsPageContent() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Handle sidebar filter links (?filter=signed / ?filter=expiring)
+  const sidebarFilter = searchParams.get("filter");
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -137,6 +141,15 @@ export default function ContractsPage() {
       (contract.partyAName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       (contract.partyBName || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterType === "all" || contract.type === filterType;
+
+    // Sidebar filter overrides
+    if (sidebarFilter === "signed") return contract.status === "signed";
+    if (sidebarFilter === "expiring") {
+      if (!contract.expiresAt) return false;
+      const days = Math.ceil((new Date(contract.expiresAt).getTime() - Date.now()) / 86400000);
+      return days <= 60;
+    }
+
     return matchesSearch && matchesFilter;
   });
 
@@ -397,5 +410,17 @@ export default function ContractsPage() {
         )}
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function ContractsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <ContractsPageContent />
+    </Suspense>
   );
 }

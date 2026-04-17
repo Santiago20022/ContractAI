@@ -4,14 +4,20 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
 import {
+  BarChart2,
+  CalendarClock,
   ChevronLeft,
   ChevronRight,
+  Code2,
   FileText,
   FolderOpen,
   Home,
   LogOut,
+  PenLine,
   Plus,
   Search,
+  Settings,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -27,12 +33,40 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const navigation = [
-    { name: "Inicio", href: "/dashboard", icon: Home },
-    { name: "Contratos", href: "/dashboard/contracts", icon: FolderOpen },
-    { name: "Generar", href: "/generate", icon: Plus },
-    { name: "Analizar", href: "/analyze", icon: Search },
+  const navSections = [
+    {
+      label: null,
+      items: [
+        { name: "Inicio", href: "/dashboard", icon: Home },
+        { name: "Mis Contratos", href: "/dashboard/contracts", icon: FolderOpen },
+      ],
+    },
+    {
+      label: "Acciones",
+      items: [
+        { name: "Generar contrato", href: "/generate", icon: Plus },
+        { name: "Analizar contrato", href: "/analyze", icon: Search },
+        { name: "Estadísticas", href: "/dashboard", icon: BarChart2 },
+      ],
+    },
+    {
+      label: "Gestión",
+      items: [
+        { name: "Firmas", href: "/dashboard/contracts?filter=signed", icon: PenLine },
+        { name: "Vencimientos", href: "/dashboard/contracts?filter=expiring", icon: CalendarClock },
+        { name: "Plantillas IA", href: "/generate", icon: Sparkles },
+      ],
+    },
+    {
+      label: "Cuenta",
+      items: [
+        { name: "API & Docs", href: "/developers", icon: Code2 },
+        { name: "Configuración", href: "/dashboard/settings", icon: Settings },
+      ],
+    },
   ];
+
+  const navigation = navSections.flatMap((s) => s.items);
 
   const handleLogout = () => {
     logout();
@@ -78,26 +112,41 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-2 flex-1">
-          {navigation.map((item) => {
-            const isActive =
-              pathname === item.href || pathname.startsWith(item.href + "/");
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-                  isActive
-                    ? "bg-indigo-50 text-indigo-600"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                )}
-              >
-                <item.icon className="w-5 h-5 flex-shrink-0" />
-                {isSidebarOpen && <span>{item.name}</span>}
-              </Link>
-            );
-          })}
+        <nav className="p-3 flex-1 overflow-y-auto space-y-1">
+          {navSections.map((section) => (
+            <div key={section.label ?? "main"} className="mb-1">
+              {section.label && isSidebarOpen && (
+                <p className="px-4 pt-3 pb-1 text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
+                  {section.label}
+                </p>
+              )}
+              {section.label && !isSidebarOpen && (
+                <div className="mx-4 my-2 h-px bg-slate-100" />
+              )}
+              {section.items.map((item) => {
+                const isActive =
+                  pathname === item.href ||
+                  (item.href !== "/dashboard" && pathname.startsWith(item.href.split("?")[0] + "/")) ||
+                  (item.href !== "/dashboard" && pathname === item.href.split("?")[0]);
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+                      isActive
+                        ? "bg-indigo-50 text-indigo-600"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    )}
+                    title={!isSidebarOpen ? item.name : undefined}
+                  >
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    {isSidebarOpen && <span>{item.name}</span>}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
         {/* Bottom section */}
