@@ -188,3 +188,17 @@ export function updatePassword(
   saveUsers(users);
   return { success: true };
 }
+
+export function updateUserName(userId: string, newName: string): boolean {
+  const users = getUsers();
+  const index = users.findIndex((u) => u.id === userId);
+  if (index === -1) return false;
+  users[index] = { ...users[index], name: newName.trim() };
+  saveUsers(users);
+  // Update current session
+  const current = getCurrentUser();
+  if (current?.id === userId) {
+    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify({ ...current, name: newName.trim() }));
+  }
+  return true;
+}
