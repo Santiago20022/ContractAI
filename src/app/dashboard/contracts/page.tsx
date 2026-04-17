@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { DashboardLayout } from "@/components/shared/DashboardLayout";
 import { useAuth } from "@/context/AuthContext";
-import { getUserContracts, deleteContract, Contract } from "@/lib/contracts-storage";
+import { getUserContracts, deleteContract, addContract, Contract } from "@/lib/contracts-storage";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Copy,
@@ -12,6 +12,7 @@ import {
   Eye,
   FileCheck,
   FileText,
+  Link2,
   MoreVertical,
   Plus,
   Search,
@@ -28,6 +29,7 @@ export default function ContractsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -68,6 +70,39 @@ export default function ContractsPage() {
     setOpenMenu(null);
   };
 
+  const handleShare = async (contract: Contract) => {
+    setOpenMenu(null);
+    const { encodeShareToken } = await import("@/lib/share-utils");
+    const token = await encodeShareToken({
+      title: contract.title,
+      partyA: contract.partyAName ?? "",
+      partyB: contract.partyBName ?? "",
+      type: contract.type,
+      content: contract.content,
+    });
+    const shareUrl = `${window.location.origin}/share?token=${token}`;
+    await navigator.clipboard.writeText(shareUrl);
+    setCopiedId(contract.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleClone = (contract: Contract) => {
+    if (!user) return;
+    setOpenMenu(null);
+    const cloned = addContract(user.id, {
+      title: `Copia de ${contract.title}`,
+      type: contract.type,
+      content: contract.content,
+      status: "draft",
+      riskScore: contract.riskScore,
+      partyAName: contract.partyAName,
+      partyBName: contract.partyBName,
+      expiresAt: contract.expiresAt,
+    });
+    setContracts((prev) => [cloned, ...prev]);
+    router.push(`/dashboard/contracts/${cloned.id}`);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -87,12 +122,20 @@ export default function ContractsPage() {
     sale: "Compraventa",
     terms: "Términos",
     privacy: "Privacidad",
+    consulting: "Consultoría",
+    saas: "SaaS",
+    agency: "Agencia",
+    joboffer: "Oferta Trabajo",
+    distribution: "Distribución",
+    analyzed: "Analizado",
   };
 
   const filteredContracts = contracts.filter((contract) => {
     const matchesSearch =
       contract.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contract.type.toLowerCase().includes(searchTerm.toLowerCase());
+      contract.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (contract.partyAName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (contract.partyBName || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterType === "all" || contract.type === filterType;
     return matchesSearch && matchesFilter;
   });
@@ -105,6 +148,42 @@ export default function ContractsPage() {
     });
   };
 
+  const getExpiryBadge = (expiresAt: string | undefined) => {
+    if (!expiresAt) return null;
+    const now = new Date();
+    const expiry = new Date(expiresAt);
+    const daysLeft = Math.ceil(
+      (expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (daysLeft <= 0) {
+      return (
+        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+          Expirado
+        </span>
+      );
+    }
+    if (daysLeft <= 7) {
+      return (
+        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+          Vence en {daysLeft}d
+        </span>
+      );
+    }
+    if (daysLeft <= 30) {
+      return (
+        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+          Vence en {daysLeft}d
+        </span>
+      );
+    }
+    return (
+      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+        Vence en {daysLeft}d
+      </span>
+    );
+  };
+
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto space-y-6">
@@ -113,7 +192,8 @@ export default function ContractsPage() {
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Mis Contratos</h1>
             <p className="text-slate-600">
-              {contracts.length} {contracts.length === 1 ? "contrato" : "contratos"} en total
+              {contracts.length}{" "}
+              {contracts.length === 1 ? "contrato" : "contratos"} en total
             </p>
           </div>
           <Link href="/generate">
@@ -171,7 +251,7 @@ export default function ContractsPage() {
                         <h3 className="font-semibold text-slate-900 truncate">
                           {contract.title}
                         </h3>
-                        <div className="flex items-center gap-3 text-sm text-slate-500">
+                        <div className="flex items-center gap-2 flex-wrap text-sm text-slate-500">
                           <span className="bg-slate-100 px-2 py-0.5 rounded">
                             {contractTypeNames[contract.type] || contract.type}
                           </span>
@@ -189,6 +269,7 @@ export default function ContractsPage() {
                               Score: {contract.riskScore}%
                             </span>
                           )}
+                          {getExpiryBadge(contract.expiresAt)}
                         </div>
                       </div>
 
@@ -199,6 +280,8 @@ export default function ContractsPage() {
                               ? "bg-green-500"
                               : contract.status === "analyzed"
                               ? "bg-blue-500"
+                              : contract.status === "signed"
+                              ? "bg-indigo-500"
                               : "bg-amber-500"
                           }`}
                         />
@@ -207,6 +290,8 @@ export default function ContractsPage() {
                             ? "Completado"
                             : contract.status === "analyzed"
                             ? "Analizado"
+                            : contract.status === "signed"
+                            ? "Firmado"
                             : "Borrador"}
                         </span>
                       </div>
@@ -214,7 +299,11 @@ export default function ContractsPage() {
                       {/* Actions menu */}
                       <div className="relative">
                         <button
-                          onClick={() => setOpenMenu(openMenu === contract.id ? null : contract.id)}
+                          onClick={() =>
+                            setOpenMenu(
+                              openMenu === contract.id ? null : contract.id
+                            )
+                          }
                           className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
                         >
                           <MoreVertical className="w-5 h-5 text-slate-400" />
@@ -224,7 +313,7 @@ export default function ContractsPage() {
                           <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-10"
+                            className="absolute right-0 top-full mt-1 w-52 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-10"
                           >
                             <Link
                               href={`/dashboard/contracts/${contract.id}`}
@@ -248,7 +337,24 @@ export default function ContractsPage() {
                               <Download className="w-4 h-4" />
                               Descargar
                             </button>
-                            <hr className="my-2 border-slate-100" />
+                            <hr className="my-1 border-slate-100" />
+                            <button
+                              onClick={() => handleShare(contract)}
+                              className="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 text-slate-700 w-full"
+                            >
+                              <Link2 className="w-4 h-4" />
+                              {copiedId === contract.id
+                                ? "¡Copiado!"
+                                : "Compartir link"}
+                            </button>
+                            <button
+                              onClick={() => handleClone(contract)}
+                              className="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 text-slate-700 w-full"
+                            >
+                              <FileText className="w-4 h-4" />
+                              Clonar
+                            </button>
+                            <hr className="my-1 border-slate-100" />
                             <button
                               onClick={() => handleDelete(contract.id)}
                               className="flex items-center gap-3 px-4 py-2 hover:bg-red-50 text-red-600 w-full"

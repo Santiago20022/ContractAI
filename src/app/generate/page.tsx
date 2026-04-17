@@ -324,6 +324,8 @@ export default function GeneratePage() {
         type: selectedType!,
         content: contract,
         status: "completed",
+        partyAName: formData.partyA,
+        partyBName: formData.partyB,
       });
     }
   };

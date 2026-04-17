@@ -1,5 +1,11 @@
 // Contract storage using LocalStorage (no API key needed)
 
+export type Signature = {
+  role: "A" | "B";
+  name: string;
+  signedAt: string;
+};
+
 export type Contract = {
   id: string;
   userId: string;
@@ -7,8 +13,12 @@ export type Contract = {
   type: string;
   content: string;
   createdAt: string;
-  status: "draft" | "completed" | "analyzed";
+  status: "draft" | "completed" | "analyzed" | "signed";
   riskScore?: number;
+  expiresAt?: string;        // ISO date string for contract expiry
+  signatures?: Signature[];  // who has signed
+  partyAName?: string;       // stored separately for PDF generation
+  partyBName?: string;
 };
 
 const CONTRACTS_KEY = "contractai_contracts";
@@ -41,7 +51,16 @@ export function getContract(id: string, userId: string): Contract | undefined {
 // Add a new contract
 export function addContract(
   userId: string,
-  data: { title: string; type: string; content: string; status?: Contract["status"]; riskScore?: number }
+  data: {
+    title: string;
+    type: string;
+    content: string;
+    status?: Contract["status"];
+    riskScore?: number;
+    partyAName?: string;
+    partyBName?: string;
+    expiresAt?: string;
+  }
 ): Contract {
   const contracts = getAllContracts();
 
@@ -54,6 +73,9 @@ export function addContract(
     status: data.status || "completed",
     riskScore: data.riskScore,
     createdAt: new Date().toISOString(),
+    partyAName: data.partyAName,
+    partyBName: data.partyBName,
+    expiresAt: data.expiresAt,
   };
 
   contracts.push(newContract);
@@ -88,6 +110,28 @@ export function deleteContract(id: string, userId: string): boolean {
   return true;
 }
 
+// Sign a contract — finds by id+userId, appends signature, marks "signed" when both parties have signed
+export function signContract(id: string, userId: string, sig: Signature): Contract | undefined {
+  const contracts = getAllContracts();
+  const index = contracts.findIndex((c) => c.id === id && c.userId === userId);
+
+  if (index === -1) return undefined;
+
+  const contract = contracts[index];
+  const existing = contract.signatures ?? [];
+  existing.push(sig);
+  const hasBoth = existing.some((s) => s.role === "A") && existing.some((s) => s.role === "B");
+
+  contracts[index] = {
+    ...contract,
+    signatures: existing,
+    status: hasBoth ? "signed" : contract.status,
+  };
+
+  saveContracts(contracts);
+  return contracts[index];
+}
+
 // Get stats for a user
 export function getUserStats(userId: string) {
   const contracts = getUserContracts(userId);
@@ -97,5 +141,6 @@ export function getUserStats(userId: string) {
     completedContracts: contracts.filter((c) => c.status === "completed").length,
     analyzedContracts: contracts.filter((c) => c.status === "analyzed").length,
     draftContracts: contracts.filter((c) => c.status === "draft").length,
+    signedContracts: contracts.filter((c) => c.status === "signed").length,
   };
 }

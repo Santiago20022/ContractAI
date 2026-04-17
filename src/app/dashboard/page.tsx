@@ -6,9 +6,11 @@ import { useAuth } from "@/context/AuthContext";
 import { getUserContracts, getUserStats } from "@/lib/contracts-storage";
 import { motion } from "framer-motion";
 import {
+  AlertTriangle,
   ArrowRight,
   ArrowUpRight,
   Check,
+  CheckCircle2,
   Clock,
   FileCheck,
   FileText,
@@ -26,7 +28,13 @@ export default function DashboardPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const [contracts, setContracts] = useState<any[]>([]);
-  const [stats, setStats] = useState({ totalContracts: 0, completedContracts: 0, analyzedContracts: 0, draftContracts: 0 });
+  const [stats, setStats] = useState({
+    totalContracts: 0,
+    completedContracts: 0,
+    analyzedContracts: 0,
+    draftContracts: 0,
+    signedContracts: 0,
+  });
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -37,7 +45,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (user) {
       const userContracts = getUserContracts(user.id);
-      setContracts(userContracts.slice(0, 5));
+      setContracts(userContracts); // load ALL contracts for expiry check
       setStats(getUserStats(user.id));
     }
   }, [user]);
@@ -51,6 +59,37 @@ export default function DashboardPage() {
   }
 
   if (!user) return null;
+
+  // Expiry logic — contracts expiring within 60 days (or already expired)
+  const now = new Date();
+  const expiringContracts = contracts.filter((c) => {
+    if (!c.expiresAt) return false;
+    const expiry = new Date(c.expiresAt);
+    const daysLeft = Math.ceil(
+      (expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return daysLeft <= 60;
+  });
+
+  const getDaysLeft = (expiresAt: string) => {
+    const expiry = new Date(expiresAt);
+    return Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  };
+
+  const getExpiryLabel = (daysLeft: number) => {
+    if (daysLeft <= 0) return `Expiró hace ${Math.abs(daysLeft)} días`;
+    if (daysLeft === 0) return "Vence hoy";
+    return `Vence en ${daysLeft} días`;
+  };
+
+  const getExpiryColorClass = (daysLeft: number) => {
+    if (daysLeft <= 0) return "text-red-600 bg-red-50";
+    if (daysLeft <= 7) return "text-red-600 bg-red-50";
+    if (daysLeft <= 30) return "text-amber-600 bg-amber-50";
+    return "text-green-600 bg-green-50";
+  };
+
+  const signedContracts = stats.signedContracts ?? 0;
 
   const statsData = [
     {
@@ -74,13 +113,25 @@ export default function DashboardPage() {
       icon: Shield,
       color: "amber",
     },
-    {
-      label: "Tiempo ahorrado",
-      value: `${stats.totalContracts * 2}h`,
-      change: "estimado",
-      icon: Clock,
-      color: "green",
-    },
+    ...(signedContracts > 0
+      ? [
+          {
+            label: "Firmados",
+            value: signedContracts.toString(),
+            change: "contratos firmados",
+            icon: CheckCircle2,
+            color: "green",
+          },
+        ]
+      : [
+          {
+            label: "Tiempo ahorrado",
+            value: `${stats.totalContracts * 2}h`,
+            change: "estimado",
+            icon: Clock,
+            color: "green",
+          },
+        ]),
   ];
 
   const quickActions = [
@@ -109,7 +160,6 @@ export default function DashboardPage() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
@@ -128,7 +178,16 @@ export default function DashboardPage() {
     sale: "Compraventa",
     terms: "Términos",
     privacy: "Privacidad",
+    consulting: "Consultoría",
+    saas: "SaaS",
+    agency: "Agencia",
+    joboffer: "Oferta Trabajo",
+    distribution: "Distribución",
+    analyzed: "Analizado",
   };
+
+  // Only show last 5 in recent list
+  const recentContracts = contracts.slice(0, 5);
 
   return (
     <DashboardLayout>
@@ -178,7 +237,9 @@ export default function DashboardPage() {
                   >
                     <stat.icon className="w-6 h-6" />
                   </div>
-                  {parseInt(stat.value) > 0 && <TrendingUp className="w-5 h-5 text-green-500" />}
+                  {parseInt(stat.value) > 0 && (
+                    <TrendingUp className="w-5 h-5 text-green-500" />
+                  )}
                 </div>
                 <div className="mt-4">
                   <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
@@ -189,6 +250,60 @@ export default function DashboardPage() {
             </motion.div>
           ))}
         </div>
+
+        {/* Expiry alerts */}
+        {expiringContracts.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+          >
+            <Card className="border-amber-200 bg-amber-50/40">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-slate-900">
+                    Contratos próximos a vencer
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    {expiringContracts.length}{" "}
+                    {expiringContracts.length === 1
+                      ? "contrato requiere atención"
+                      : "contratos requieren atención"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {expiringContracts.map((contract) => {
+                  const daysLeft = getDaysLeft(contract.expiresAt);
+                  const colorClass = getExpiryColorClass(daysLeft);
+                  return (
+                    <Link
+                      key={contract.id}
+                      href={`/dashboard/contracts/${contract.id}`}
+                      className="flex items-center justify-between gap-4 p-3 bg-white rounded-xl border border-slate-100 hover:border-amber-200 hover:shadow-sm transition-all"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <FileCheck className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <span className="text-sm font-medium text-slate-800 truncate">
+                          {contract.title}
+                        </span>
+                      </div>
+                      <span
+                        className={`text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${colorClass}`}
+                      >
+                        {getExpiryLabel(daysLeft)}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Quick actions */}
         <div className="grid md:grid-cols-2 gap-4">
@@ -245,9 +360,9 @@ export default function DashboardPage() {
               </Link>
             </div>
 
-            {contracts.length > 0 ? (
+            {recentContracts.length > 0 ? (
               <div className="space-y-4">
-                {contracts.map((contract) => (
+                {recentContracts.map((contract) => (
                   <Link
                     key={contract.id}
                     href={`/dashboard/contracts/${contract.id}`}
@@ -261,7 +376,8 @@ export default function DashboardPage() {
                         {contract.title}
                       </p>
                       <p className="text-sm text-slate-500">
-                        {contractTypeNames[contract.type] || contract.type} · {formatDate(contract.createdAt)}
+                        {contractTypeNames[contract.type] || contract.type} ·{" "}
+                        {formatDate(contract.createdAt)}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -271,6 +387,8 @@ export default function DashboardPage() {
                             ? "bg-green-500"
                             : contract.status === "analyzed"
                             ? "bg-blue-500"
+                            : contract.status === "signed"
+                            ? "bg-indigo-500"
                             : "bg-amber-500"
                         }`}
                       />
@@ -279,6 +397,8 @@ export default function DashboardPage() {
                           ? "Completado"
                           : contract.status === "analyzed"
                           ? "Analizado"
+                          : contract.status === "signed"
+                          ? "Firmado"
                           : "Borrador"}
                       </span>
                     </div>
@@ -296,14 +416,21 @@ export default function DashboardPage() {
                     Crea tu primer contrato en 2 minutos
                   </h3>
                   <p className="text-slate-600 text-sm mb-6 max-w-sm mx-auto">
-                    ContractAI genera contratos profesionales personalizados para tu situación específica.
+                    ContractAI genera contratos profesionales personalizados para
+                    tu situación específica.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                    <Link href="/generate" className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg hover:shadow-indigo-500/25 transition-all">
+                    <Link
+                      href="/generate"
+                      className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg hover:shadow-indigo-500/25 transition-all"
+                    >
                       <Sparkles className="w-4 h-4" />
                       Generar contrato
                     </Link>
-                    <Link href="/analyze" className="inline-flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-6 py-3 rounded-xl font-medium hover:border-indigo-300 transition-all">
+                    <Link
+                      href="/analyze"
+                      className="inline-flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-6 py-3 rounded-xl font-medium hover:border-indigo-300 transition-all"
+                    >
                       <Search className="w-4 h-4" />
                       Analizar un contrato
                     </Link>
@@ -312,23 +439,55 @@ export default function DashboardPage() {
 
                 {/* Getting started checklist */}
                 <div className="space-y-3">
-                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Primeros pasos</p>
+                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
+                    Primeros pasos
+                  </p>
                   {[
                     { done: true, label: "Crear tu cuenta", href: null },
-                    { done: false, label: "Generar tu primer contrato", href: "/generate" },
-                    { done: false, label: "Analizar un contrato existente", href: "/analyze" },
-                    { done: false, label: "Explorar la API pública", href: "/developers" },
+                    {
+                      done: false,
+                      label: "Generar tu primer contrato",
+                      href: "/generate",
+                    },
+                    {
+                      done: false,
+                      label: "Analizar un contrato existente",
+                      href: "/analyze",
+                    },
+                    {
+                      done: false,
+                      label: "Explorar la API pública",
+                      href: "/developers",
+                    },
                   ].map((item) => (
-                    <div key={item.label} className={`flex items-center gap-3 p-3 rounded-xl ${item.done ? "bg-green-50" : "bg-white border border-slate-100"}`}>
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${item.done ? "bg-green-500" : "bg-slate-100"}`}>
-                        {item.done ? <Check className="w-3.5 h-3.5 text-white" /> : <div className="w-2 h-2 rounded-full bg-slate-300" />}
+                    <div
+                      key={item.label}
+                      className={`flex items-center gap-3 p-3 rounded-xl ${
+                        item.done ? "bg-green-50" : "bg-white border border-slate-100"
+                      }`}
+                    >
+                      <div
+                        className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          item.done ? "bg-green-500" : "bg-slate-100"
+                        }`}
+                      >
+                        {item.done ? (
+                          <Check className="w-3.5 h-3.5 text-white" />
+                        ) : (
+                          <div className="w-2 h-2 rounded-full bg-slate-300" />
+                        )}
                       </div>
                       {item.href ? (
-                        <Link href={item.href} className="text-sm text-slate-700 hover:text-indigo-600 font-medium transition-colors flex-1">
+                        <Link
+                          href={item.href}
+                          className="text-sm text-slate-700 hover:text-indigo-600 font-medium transition-colors flex-1"
+                        >
                           {item.label} &rarr;
                         </Link>
                       ) : (
-                        <span className="text-sm text-slate-500 flex-1">{item.label}</span>
+                        <span className="text-sm text-slate-500 flex-1">
+                          {item.label}
+                        </span>
                       )}
                     </div>
                   ))}
