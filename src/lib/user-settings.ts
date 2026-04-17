@@ -10,6 +10,7 @@ export type UserSettings = {
   signatureName: string;
   // Appearance
   accentColor: string;
+  theme: "light" | "dark" | "system";
   // Notifications
   notifExpiry: boolean;
   notifSigned: boolean;
@@ -33,6 +34,7 @@ const DEFAULTS: UserSettings = {
   defaultJurisdiction: "Colombia",
   signatureName: "",
   accentColor: "indigo",
+  theme: "light",
   notifExpiry: true,
   notifSigned: true,
   notifWeeklyReport: false,
