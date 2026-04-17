@@ -4,6 +4,7 @@ export type Signature = {
   role: "A" | "B";
   name: string;
   signedAt: string;
+  signatureImage?: string;
 };
 
 export type Contract = {

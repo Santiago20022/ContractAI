@@ -6,6 +6,7 @@ import {
   Text,
   View,
   StyleSheet,
+  Image,
 } from "@react-pdf/renderer";
 
 const C = {
@@ -367,9 +368,11 @@ export interface ContractPDFProps {
   contractTitle: string;
   partyA: string;
   partyB: string;
+  signatureA?: { name: string; signedAt: string; image?: string };
+  signatureB?: { name: string; signedAt: string; image?: string };
 }
 
-export function ContractPDF({ contractText, contractTitle, partyA, partyB }: ContractPDFProps) {
+export function ContractPDF({ contractText, contractTitle, partyA, partyB, signatureA, signatureB }: ContractPDFProps) {
   const today = new Date().toLocaleDateString("es-ES", {
     year: "numeric",
     month: "long",
@@ -422,18 +425,30 @@ export function ContractPDF({ contractText, contractTitle, partyA, partyB }: Con
               <View style={s.sigCol}>
                 <View style={s.sigLine} />
                 <Text style={s.sigRole}>PRIMERA PARTE</Text>
-                <Text style={s.sigName}>{partyA || "_______________"}</Text>
-                <Text style={s.sigField}>Firma: ________________________</Text>
+                <Text style={s.sigName}>{signatureA?.name || partyA || "_______________"}</Text>
+                {signatureA?.image ? (
+                  <Image src={signatureA.image} style={{ width: 100, height: 35, objectFit: "contain" }} />
+                ) : (
+                  <Text style={s.sigField}>Firma: ________________________</Text>
+                )}
                 <Text style={s.sigField}>Cédula / DNI / RFC: ____________</Text>
-                <Text style={s.sigField}>Fecha: _________________________</Text>
+                <Text style={s.sigField}>
+                  Fecha: {signatureA?.signedAt ? new Date(signatureA.signedAt).toLocaleDateString("es-ES") : "_________________________"}
+                </Text>
               </View>
               <View style={s.sigCol}>
                 <View style={s.sigLine} />
                 <Text style={s.sigRole}>SEGUNDA PARTE</Text>
-                <Text style={s.sigName}>{partyB || "_______________"}</Text>
-                <Text style={s.sigField}>Firma: ________________________</Text>
+                <Text style={s.sigName}>{signatureB?.name || partyB || "_______________"}</Text>
+                {signatureB?.image ? (
+                  <Image src={signatureB.image} style={{ width: 100, height: 35, objectFit: "contain" }} />
+                ) : (
+                  <Text style={s.sigField}>Firma: ________________________</Text>
+                )}
                 <Text style={s.sigField}>Cédula / DNI / RFC: ____________</Text>
-                <Text style={s.sigField}>Fecha: _________________________</Text>
+                <Text style={s.sigField}>
+                  Fecha: {signatureB?.signedAt ? new Date(signatureB.signedAt).toLocaleDateString("es-ES") : "_________________________"}
+                </Text>
               </View>
             </View>
           </View>

@@ -13,7 +13,11 @@ import {
   Contract,
   Signature,
 } from "@/lib/contracts-storage";
+import { getSavedSignatures, saveSignature, deleteSignature, SavedSignature } from "@/lib/saved-signatures";
 import { motion, AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
+
+const SignatureCanvas = dynamic(() => import("@/components/shared/SignatureCanvas"), { ssr: false });
 import {
   ArrowLeft,
   Calendar,
@@ -103,6 +107,11 @@ export default function ContractDetailPage() {
   const [sigRole, setSigRole] = useState<"A" | "B">("A");
   const [sigName, setSigName] = useState("");
   const [isSigning, setIsSigning] = useState(false);
+  const [sigMode, setSigMode] = useState<"text" | "draw" | "saved">("text");
+  const [sigImageBase64, setSigImageBase64] = useState<string | null>(null);
+  const [savedSigs, setSavedSigs] = useState<SavedSignature[]>([]);
+  const [saveLabel, setSaveLabel] = useState("");
+  const [showSaveForm, setShowSaveForm] = useState(false);
 
   // Chat state
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -221,16 +230,23 @@ export default function ContractDetailPage() {
   const openSignModal = (role: "A" | "B") => {
     setSigRole(role);
     setSigName("");
+    setSavedSigs(getSavedSignatures());
+    setSigMode("text");
+    setSigImageBase64(null);
+    setSaveLabel("");
+    setShowSaveForm(false);
     setShowSignModal(true);
   };
 
   const handleSign = async () => {
     if (!contract || !user || !sigName.trim()) return;
+    if ((sigMode === "draw" || sigMode === "saved") && !sigImageBase64) return;
     setIsSigning(true);
     const sig: Signature = {
       role: sigRole,
       name: sigName.trim(),
       signedAt: new Date().toISOString(),
+      ...(sigImageBase64 ? { signatureImage: sigImageBase64 } : {}),
     };
     const updated = signContract(contract.id, user.id, sig);
     if (updated) setContract(updated);
@@ -595,6 +611,13 @@ export default function ContractDetailPage() {
                           </div>
                           <span className="text-sm font-semibold text-slate-800">{sig.name}</span>
                         </div>
+                        {sig.signatureImage && (
+                          <img
+                            src={sig.signatureImage}
+                            alt="Firma"
+                            className="h-10 max-w-[160px] object-contain mt-1 rounded"
+                          />
+                        )}
                         <p className="text-xs text-slate-500">
                           {formatDate(sig.signedAt)} a las{" "}
                           {new Date(sig.signedAt).toLocaleTimeString("es-ES", {
@@ -783,24 +806,122 @@ export default function ContractDetailPage() {
                 <span className="font-semibold text-indigo-600">Parte {sigRole}</span>
               </p>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Tu nombre completo
-                </label>
-                <input
-                  type="text"
-                  value={sigName}
-                  onChange={(e) => setSigName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleSign();
-                  }}
-                  placeholder="Ej: Juan García López"
-                  autoFocus
-                  className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent"
-                />
+              <div className="space-y-4">
+                <div className="flex gap-1 bg-slate-100 rounded-xl p-1">
+                  {[
+                    { id: "text", label: "Escribir" },
+                    { id: "draw", label: "Dibujar" },
+                    { id: "saved", label: `Guardadas (${savedSigs.length})` },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => { setSigMode(tab.id as "text" | "draw" | "saved"); setSigImageBase64(null); }}
+                      className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-all ${
+                        sigMode === tab.id ? "bg-white shadow text-indigo-600" : "text-slate-500 hover:text-slate-700"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-slate-700">Nombre del firmante *</label>
+                  <input
+                    value={sigName}
+                    onChange={(e) => setSigName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleSign(); }}
+                    placeholder="Tu nombre completo"
+                    autoFocus
+                    className="mt-1 w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400"
+                  />
+                </div>
+
+                {sigMode === "text" && (
+                  <p className="text-xs text-slate-500 text-center">
+                    Tu nombre escrito arriba servirá como firma electrónica
+                  </p>
+                )}
+
+                {sigMode === "draw" && (
+                  <div className="space-y-3">
+                    <SignatureCanvas onChange={setSigImageBase64} height={150} />
+                    {sigImageBase64 && (
+                      <div className="space-y-2">
+                        {!showSaveForm ? (
+                          <button
+                            onClick={() => setShowSaveForm(true)}
+                            className="text-xs text-indigo-600 hover:text-indigo-700 underline"
+                          >
+                            + Guardar esta firma para futuros contratos
+                          </button>
+                        ) : (
+                          <div className="flex gap-2">
+                            <input
+                              value={saveLabel}
+                              onChange={(e) => setSaveLabel(e.target.value)}
+                              placeholder='Nombre, ej: "Mi firma habitual"'
+                              className="flex-1 px-2 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-400"
+                            />
+                            <button
+                              onClick={() => {
+                                if (saveLabel.trim() && sigImageBase64) {
+                                  saveSignature(saveLabel.trim(), sigImageBase64);
+                                  setSavedSigs(getSavedSignatures());
+                                  setShowSaveForm(false);
+                                  setSaveLabel("");
+                                }
+                              }}
+                              className="px-3 py-1.5 bg-indigo-600 text-white text-xs rounded-lg hover:bg-indigo-700"
+                            >
+                              Guardar
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {sigMode === "saved" && (
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {savedSigs.length === 0 ? (
+                      <p className="text-sm text-slate-400 text-center py-6">
+                        Aún no tienes firmas guardadas.<br />
+                        <span className="text-xs">Dibuja una y guárdala para reutilizarla.</span>
+                      </p>
+                    ) : (
+                      savedSigs.map((s) => (
+                        <div
+                          key={s.id}
+                          onClick={() => setSigImageBase64(s.imageData)}
+                          className={`flex items-center gap-3 p-2 rounded-xl border-2 cursor-pointer transition-all ${
+                            sigImageBase64 === s.imageData
+                              ? "border-indigo-500 bg-indigo-50"
+                              : "border-slate-200 hover:border-indigo-300"
+                          }`}
+                        >
+                          <img src={s.imageData} alt={s.label} className="h-10 w-32 object-contain bg-white rounded border border-slate-100" />
+                          <span className="flex-1 text-sm font-medium text-slate-700">{s.label}</span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteSignature(s.id);
+                              setSavedSigs(getSavedSignatures());
+                              if (sigImageBase64 === s.imageData) setSigImageBase64(null);
+                            }}
+                            className="p-1 text-slate-400 hover:text-red-500 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
 
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-5">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-4 mb-5">
                 <p className="text-xs text-amber-700 leading-relaxed">
                   Al firmar confirmas que has leído el contrato completo y aceptas todos sus términos y condiciones.
                 </p>
@@ -819,7 +940,11 @@ export default function ContractDetailPage() {
                   variant="primary"
                   size="sm"
                   onClick={handleSign}
-                  disabled={isSigning || !sigName.trim()}
+                  disabled={
+                    isSigning ||
+                    !sigName.trim() ||
+                    ((sigMode === "draw" || sigMode === "saved") && !sigImageBase64)
+                  }
                   className="flex-1"
                 >
                   {isSigning ? (
