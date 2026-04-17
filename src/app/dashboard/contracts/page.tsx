@@ -7,6 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import { getUserContracts, deleteContract, addContract, Contract } from "@/lib/contracts-storage";
 import { motion, AnimatePresence } from "framer-motion";
 import {
+  CheckCircle2,
+  Clock,
   Copy,
   Download,
   Eye,
@@ -14,6 +16,7 @@ import {
   FileText,
   Link2,
   MoreVertical,
+  PenLine,
   Plus,
   Search,
   Trash2,
@@ -143,7 +146,7 @@ function ContractsPageContent() {
     const matchesFilter = filterType === "all" || contract.type === filterType;
 
     // Sidebar filter overrides
-    if (sidebarFilter === "signed") return contract.status === "signed";
+    if (sidebarFilter === "signed") return true; // show all — signature column handles the view
     if (sidebarFilter === "expiring") {
       if (!contract.expiresAt) return false;
       const days = Math.ceil((new Date(contract.expiresAt).getTime() - Date.now()) / 86400000);
@@ -203,10 +206,15 @@ function ContractsPageContent() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Mis Contratos</h1>
+            <h1 className="text-2xl font-bold text-slate-900">
+              {sidebarFilter === "signed" ? "Firmas" : sidebarFilter === "expiring" ? "Vencimientos" : "Mis Contratos"}
+            </h1>
             <p className="text-slate-600">
-              {contracts.length}{" "}
-              {contracts.length === 1 ? "contrato" : "contratos"} en total
+              {sidebarFilter === "signed"
+                ? "Gestiona las firmas electrónicas de tus contratos"
+                : sidebarFilter === "expiring"
+                ? "Contratos próximos a vencer en los próximos 60 días"
+                : `${contracts.length} ${contracts.length === 1 ? "contrato" : "contratos"} en total`}
             </p>
           </div>
           <Link href="/generate">
@@ -215,6 +223,19 @@ function ContractsPageContent() {
             </Button>
           </Link>
         </div>
+
+        {/* Signatures banner */}
+        {sidebarFilter === "signed" && (
+          <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-5 py-4 flex items-start gap-3">
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+              <PenLine className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <p className="font-semibold text-indigo-900 text-sm">Firma electrónica</p>
+              <p className="text-indigo-700 text-sm">Abre cualquier contrato y usa la sección "Firma electrónica" para que Parte A y Parte B firmen digitalmente con nombre y fecha.</p>
+            </div>
+          </div>
+        )}
 
         {/* Filters */}
         <Card className="flex flex-col sm:flex-row gap-4">
@@ -286,28 +307,50 @@ function ContractsPageContent() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`w-2 h-2 rounded-full ${
-                            contract.status === "completed"
-                              ? "bg-green-500"
+                      {sidebarFilter === "signed" ? (
+                        /* Signature status badge */
+                        <div className="flex items-center gap-1.5">
+                          {contract.status === "signed" ? (
+                            <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-700 rounded-full">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              Firmado
+                            </span>
+                          ) : (contract.signatures?.length ?? 0) > 0 ? (
+                            <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 bg-amber-100 text-amber-700 rounded-full">
+                              <Clock className="w-3.5 h-3.5" />
+                              {contract.signatures!.length}/2 firmas
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full">
+                              <PenLine className="w-3.5 h-3.5" />
+                              Sin firmar
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`w-2 h-2 rounded-full ${
+                              contract.status === "completed"
+                                ? "bg-green-500"
+                                : contract.status === "analyzed"
+                                ? "bg-blue-500"
+                                : contract.status === "signed"
+                                ? "bg-indigo-500"
+                                : "bg-amber-500"
+                            }`}
+                          />
+                          <span className="text-sm text-slate-500 hidden sm:block">
+                            {contract.status === "completed"
+                              ? "Completado"
                               : contract.status === "analyzed"
-                              ? "bg-blue-500"
+                              ? "Analizado"
                               : contract.status === "signed"
-                              ? "bg-indigo-500"
-                              : "bg-amber-500"
-                          }`}
-                        />
-                        <span className="text-sm text-slate-500 hidden sm:block">
-                          {contract.status === "completed"
-                            ? "Completado"
-                            : contract.status === "analyzed"
-                            ? "Analizado"
-                            : contract.status === "signed"
-                            ? "Firmado"
-                            : "Borrador"}
-                        </span>
-                      </div>
+                              ? "Firmado"
+                              : "Borrador"}
+                          </span>
+                        </div>
+                      )}
 
                       {/* Actions menu */}
                       <div className="relative">
@@ -390,7 +433,9 @@ function ContractsPageContent() {
               <FileText className="w-8 h-8 text-slate-400" />
             </div>
             <h3 className="text-lg font-semibold text-slate-900 mb-2">
-              {searchTerm || filterType !== "all"
+              {sidebarFilter === "expiring"
+                ? "Sin vencimientos próximos"
+                : searchTerm || filterType !== "all"
                 ? "No se encontraron contratos"
                 : "No tienes contratos aún"}
             </h3>
