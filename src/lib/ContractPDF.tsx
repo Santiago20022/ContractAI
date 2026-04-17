@@ -8,7 +8,6 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 
-/* ── Color tokens ───────────────────────────────── */
 const C = {
   indigo:      "#4f46e5",
   indigoDark:  "#3730a3",
@@ -17,83 +16,146 @@ const C = {
   slate800:    "#1e293b",
   slate700:    "#334155",
   slate600:    "#475569",
+  slate500:    "#64748b",
   slate400:    "#94a3b8",
+  slate300:    "#cbd5e1",
   slate200:    "#e2e8f0",
   slate100:    "#f1f5f9",
+  slate50:     "#f8fafc",
   white:       "#ffffff",
 };
 
-/* ── Styles ─────────────────────────────────────── */
+const MH = 44;   // margin horizontal
+const HDR = 28;  // slim header height
+const FTR = 30;  // footer height
+
 const s = StyleSheet.create({
   page: {
     backgroundColor: C.white,
     fontFamily: "Helvetica",
-    color: C.slate700,
-    paddingBottom: 54,
+    paddingTop: HDR,
+    paddingBottom: FTR,
   },
 
-  /* Header */
-  header: {
-    backgroundColor: C.indigo,
-    paddingTop: 28,
-    paddingBottom: 22,
-    paddingHorizontal: 48,
-  },
-  headerRow: {
+  /* ── Slim header — fixed on ALL pages ─────── */
+  slimHeader: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: HDR,
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 14,
+    paddingHorizontal: MH,
+    backgroundColor: C.white,
+    borderBottomWidth: 1.5,
+    borderBottomColor: C.indigo,
   },
-  brand: {
-    fontSize: 13,
+  slimBrand: {
+    fontSize: 9,
     fontFamily: "Helvetica-Bold",
-    color: C.white,
-    letterSpacing: 0.3,
+    color: C.slate900,
+    letterSpacing: 0.2,
   },
-  brandAI: { color: C.indigoLight },
-  headerDate: { fontSize: 8, color: C.indigoLight, marginTop: 2 },
-  headerRule: { height: 0.5, backgroundColor: "rgba(255,255,255,0.25)", marginBottom: 12 },
+  slimAI: { color: C.indigo },
+  slimMeta: { fontSize: 7.5, color: C.slate400 },
+
+  /* ── Title block — page 1 ONLY (not fixed) ── */
+  titleBlock: {
+    backgroundColor: C.indigo,
+    paddingTop: 22,
+    paddingBottom: 20,
+    paddingHorizontal: MH,
+  },
   docKind: {
-    fontSize: 7.5,
+    fontSize: 7,
+    fontFamily: "Helvetica-Bold",
     color: C.indigoLight,
-    letterSpacing: 2.5,
-    marginBottom: 5,
+    letterSpacing: 2.8,
+    marginBottom: 6,
   },
   docTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontFamily: "Helvetica-Bold",
     color: C.white,
+    lineHeight: 1.2,
   },
 
-  /* Body */
+  /* ── Body ────────────────────────────────── */
   body: {
-    paddingHorizontal: 48,
-    paddingTop: 24,
+    paddingHorizontal: MH,
+    paddingTop: 16,
   },
 
-  /* Section elements */
+  /* ── Parties card ────────────────────────── */
+  partiesCard: {
+    flexDirection: "row",
+    borderWidth: 1,
+    borderColor: C.slate200,
+    borderRadius: 4,
+    overflow: "hidden",
+    marginBottom: 20,
+  },
+  partyA: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: C.slate50,
+  },
+  partyB: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: C.white,
+    borderLeftWidth: 1,
+    borderLeftColor: C.slate200,
+  },
+  partyLabel: {
+    fontSize: 6.5,
+    fontFamily: "Helvetica-Bold",
+    color: C.indigo,
+    letterSpacing: 1.5,
+    marginBottom: 4,
+  },
+  partyName: {
+    fontSize: 9.5,
+    fontFamily: "Helvetica-Bold",
+    color: C.slate900,
+  },
+
+  /* ── Content elements ────────────────────── */
   divider: {
     height: 0.75,
     backgroundColor: C.slate200,
-    marginVertical: 10,
+    marginVertical: 8,
   },
   sectionLabel: {
-    fontSize: 8,
+    fontSize: 7.5,
     fontFamily: "Helvetica-Bold",
     color: C.indigo,
-    letterSpacing: 3,
-    marginTop: 10,
+    letterSpacing: 2.5,
+    marginTop: 14,
+    marginBottom: 4,
+  },
+  clauseRow: {
+    flexDirection: "row",
+    alignItems: "stretch",
+    marginTop: 16,
     marginBottom: 6,
   },
-  clauseHeaderWrap: {
-    backgroundColor: C.slate100,
-    borderLeftWidth: 2.5,
-    borderLeftColor: C.indigo,
-    paddingVertical: 4,
+  clauseBar: {
+    width: 3,
+    backgroundColor: C.indigo,
+    borderRadius: 1.5,
+    marginRight: 8,
+  },
+  clauseBox: {
+    flex: 1,
+    backgroundColor: C.slate50,
+    borderRadius: 3,
+    paddingVertical: 5,
     paddingHorizontal: 8,
-    marginTop: 14,
-    marginBottom: 5,
   },
   clauseHeader: {
     fontSize: 9.5,
@@ -102,17 +164,17 @@ const s = StyleSheet.create({
   },
   para: {
     fontSize: 10,
-    lineHeight: 1.7,
+    lineHeight: 1.75,
     marginBottom: 6,
     color: C.slate700,
   },
   listRow: {
     flexDirection: "row",
-    marginBottom: 4,
-    paddingLeft: 8,
+    marginBottom: 5,
+    paddingLeft: 10,
   },
   bullet: {
-    width: 20,
+    width: 22,
     fontSize: 10,
     color: C.indigo,
     fontFamily: "Helvetica-Bold",
@@ -120,79 +182,72 @@ const s = StyleSheet.create({
   listPara: {
     flex: 1,
     fontSize: 10,
-    lineHeight: 1.65,
+    lineHeight: 1.68,
     color: C.slate700,
   },
 
-  /* Parties info card */
-  partiesCard: {
-    flexDirection: "row",
-    backgroundColor: C.slate100,
-    borderRadius: 4,
-    padding: 12,
-    marginTop: 8,
-    marginBottom: 12,
-    gap: 12,
-  },
-  partyBlock: { flex: 1 },
-  partyRole: {
+  /* ── Signature block ─────────────────────── */
+  sigSection: { marginTop: 36 },
+  sigRule: { height: 0.75, backgroundColor: C.slate300, marginBottom: 22 },
+  sigTitle: {
     fontSize: 7.5,
     fontFamily: "Helvetica-Bold",
-    color: C.indigo,
+    color: C.slate500,
     letterSpacing: 1.5,
-    marginBottom: 3,
-  },
-  partyName: {
-    fontSize: 10,
-    fontFamily: "Helvetica-Bold",
-    color: C.slate900,
-  },
-  partyDivider: { width: 0.75, backgroundColor: C.slate200 },
-
-  /* Signatures */
-  sigSection: { marginTop: 30 },
-  sigRule: {
-    height: 0.75,
-    backgroundColor: C.slate200,
-    marginBottom: 16,
+    textAlign: "center",
+    marginBottom: 18,
   },
   sigRow: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 0,
+    justifyContent: "space-between",
   },
-  sigCol: { width: "42%", alignItems: "center" },
-  sigLine: { height: 0.75, backgroundColor: C.slate800, width: "100%", marginBottom: 6 },
-  sigRole: { fontSize: 8, fontFamily: "Helvetica-Bold", color: C.slate900, marginBottom: 2 },
-  sigName: { fontSize: 9, color: C.slate600, marginBottom: 8 },
-  sigDNI: {
+  sigCol: { width: "44%" },
+  sigLine: {
+    height: 0.75,
+    backgroundColor: C.slate800,
+    width: "100%",
+    marginBottom: 8,
+  },
+  sigRole: {
+    fontSize: 8,
+    fontFamily: "Helvetica-Bold",
+    color: C.slate900,
+    marginBottom: 2,
+  },
+  sigName: {
+    fontSize: 9.5,
+    color: C.slate700,
+    marginBottom: 14,
+  },
+  sigField: {
     fontSize: 8,
     color: C.slate400,
     borderTopWidth: 0.5,
     borderTopColor: C.slate200,
-    paddingTop: 4,
-    width: "100%",
-    textAlign: "center",
+    paddingTop: 5,
+    marginBottom: 7,
   },
 
-  /* Footer (fixed) */
+  /* ── Footer — fixed on ALL pages ─────────── */
   footer: {
     position: "absolute",
-    bottom: 18,
-    left: 48,
-    right: 48,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: FTR,
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 6,
+    justifyContent: "space-between",
+    paddingHorizontal: MH,
     borderTopWidth: 0.5,
     borderTopColor: C.slate200,
+    backgroundColor: C.white,
   },
-  footerLeft: { fontSize: 7.5, color: C.slate400 },
+  footerLeft:  { fontSize: 7.5, color: C.slate400 },
   footerRight: { fontSize: 7.5, color: C.slate400 },
 });
 
-/* ── Parser ─────────────────────────────────────── */
+/* ── Parser ─────────────────────────────────── */
 type El =
   | { type: "divider" }
   | { type: "space"; h: number }
@@ -202,7 +257,7 @@ type El =
   | { type: "listItem"; bullet: string; text: string };
 
 const CLAUSE_RE =
-  /^(PRIMERA|SEGUNDA|TERCERA|CUARTA|QUINTA|SEXTA|SÉPTIMA|OCTAVA|NOVENA|DÉCIMA|UNDÉCIMA|DUODÉCIMA|DECIMOPRIMERA|DECIMOSEGUNDA|DECIMOTERCERA|DECIMOCUARTA|DECIMOQUINTA|DECIMOSEXTA|DECIMOSÉPTIMA|DECIMOCTAVA|DECIMONOVENA|VIGÉSIMA)\s*\.-/i;
+  /^(PRIMERA|SEGUNDA|TERCERA|CUARTA|QUINTA|SEXTA|SÉPTIMA|OCTAVA|NOVENA|DÉCIMA|UNDÉCIMA|DUODÉCIMA|DECIMOPRIMERA|DECIMOSEGUNDA|DECIMOTERCERA|DECIMOCUARTA|DECIMOQUINTA|DECIMOSEXTA|DECIMOSÉPTIMA|DECIMOCTAVA|DECIMONOVENA|VIGÉSIMA)\s*[\.\-]/i;
 
 const SECTION_RE = /^(REUNIDOS|EXPONEN|CLÁUSULAS|ESTIPULACIONES|CONSIDERACIONES|ANTECEDENTES|PARTES)$/i;
 
@@ -217,7 +272,6 @@ function parseContract(text: string): El[] {
     const raw = lines[i].trimEnd();
     const t = raw.trim();
 
-    /* Empty line */
     if (!t) {
       if (!prevWasSpace && els.length > 0) {
         els.push({ type: "space", h: 4 });
@@ -227,13 +281,11 @@ function parseContract(text: string): El[] {
     }
     prevWasSpace = false;
 
-    /* ═══ dividers — render as thin line */
     if (/^[═─=]{5,}/.test(t.replace(/\s/g, ""))) {
       els.push({ type: "divider" });
       continue;
     }
 
-    /* Skip all-caps title line right after divider (it goes in the header) */
     if (
       els.length > 0 &&
       els[els.length - 1].type === "divider" &&
@@ -243,52 +295,44 @@ function parseContract(text: string): El[] {
       continue;
     }
 
-    /* Section labels */
     if (SECTION_RE.test(t)) {
       els.push({ type: "sectionLabel", text: t.toUpperCase() });
       continue;
     }
 
-    /* Clause headers */
     if (CLAUSE_RE.test(t)) {
       els.push({ type: "clauseHeader", text: t });
       continue;
     }
 
-    /* Signature intro line — include it then stop (we render custom sig block) */
     if (/^Y en prueba de conformidad/i.test(t)) {
       els.push({ type: "para", text: t });
       skipRest = true;
       continue;
     }
 
-    /* List: a) b) c)... */
     if (/^[a-z]\)\s/.test(t)) {
       els.push({ type: "listItem", bullet: t.slice(0, 2), text: t.slice(2).trim() });
       continue;
     }
 
-    /* List: 1. 2. 3. */
     const numMatch = t.match(/^(\d+)\.\s(.+)$/);
     if (numMatch) {
       els.push({ type: "listItem", bullet: numMatch[1] + ".", text: numMatch[2] });
       continue;
     }
 
-    /* Bullet: • */
     if (t.startsWith("• ") || t.startsWith("•")) {
       els.push({ type: "listItem", bullet: "•", text: t.replace(/^•\s*/, "") });
       continue;
     }
 
-    /* Default paragraph */
     els.push({ type: "para", text: t });
   }
 
   return els;
 }
 
-/* ── Render helpers ─────────────────────────────── */
 function renderEl(el: El, idx: number) {
   switch (el.type) {
     case "divider":
@@ -299,8 +343,11 @@ function renderEl(el: El, idx: number) {
       return <Text key={idx} style={s.sectionLabel}>{el.text}</Text>;
     case "clauseHeader":
       return (
-        <View key={idx} style={s.clauseHeaderWrap}>
-          <Text style={s.clauseHeader}>{el.text}</Text>
+        <View key={idx} style={s.clauseRow}>
+          <View style={s.clauseBar} />
+          <View style={s.clauseBox}>
+            <Text style={s.clauseHeader}>{el.text}</Text>
+          </View>
         </View>
       );
     case "listItem":
@@ -315,7 +362,6 @@ function renderEl(el: El, idx: number) {
   }
 }
 
-/* ── Props ──────────────────────────────────────── */
 export interface ContractPDFProps {
   contractText: string;
   contractTitle: string;
@@ -323,7 +369,6 @@ export interface ContractPDFProps {
   partyB: string;
 }
 
-/* ── Document ───────────────────────────────────── */
 export function ContractPDF({ contractText, contractTitle, partyA, partyB }: ContractPDFProps) {
   const today = new Date().toLocaleDateString("es-ES", {
     year: "numeric",
@@ -334,65 +379,70 @@ export function ContractPDF({ contractText, contractTitle, partyA, partyB }: Con
   const elements = parseContract(contractText);
 
   return (
-    <Document
-      title={contractTitle}
-      author="ContractAI"
-      creator="ContractAI — contractai.app"
-    >
+    <Document title={contractTitle} author="ContractAI" creator="ContractAI — contractai.app">
       <Page size="A4" style={s.page}>
-        {/* ── HEADER ── */}
-        <View style={s.header} fixed>
-          <View style={s.headerRow}>
-            <Text style={s.brand}>
-              Contract<Text style={s.brandAI}>AI</Text>
-            </Text>
-            <Text style={s.headerDate}>{today}</Text>
-          </View>
-          <View style={s.headerRule} />
+
+        {/* ── Slim header (all pages) ── */}
+        <View style={s.slimHeader} fixed>
+          <Text style={s.slimBrand}>
+            Contract<Text style={s.slimAI}>AI</Text>
+          </Text>
+          <Text style={s.slimMeta}>{contractTitle} · {today}</Text>
+        </View>
+
+        {/* ── Title block (page 1 only — not fixed) ── */}
+        <View style={s.titleBlock}>
           <Text style={s.docKind}>DOCUMENTO LEGAL</Text>
           <Text style={s.docTitle}>{contractTitle}</Text>
         </View>
 
-        {/* ── PARTIES CARD ── */}
+        {/* ── Body ── */}
         <View style={s.body}>
+
+          {/* Parties card */}
           <View style={s.partiesCard}>
-            <View style={s.partyBlock}>
-              <Text style={s.partyRole}>PARTE A — PRESTADOR / PRIMERA PARTE</Text>
+            <View style={s.partyA}>
+              <Text style={s.partyLabel}>PRIMERA PARTE</Text>
               <Text style={s.partyName}>{partyA || "—"}</Text>
             </View>
-            <View style={s.partyDivider} />
-            <View style={s.partyBlock}>
-              <Text style={s.partyRole}>PARTE B — CLIENTE / SEGUNDA PARTE</Text>
+            <View style={s.partyB}>
+              <Text style={s.partyLabel}>SEGUNDA PARTE</Text>
               <Text style={s.partyName}>{partyB || "—"}</Text>
             </View>
           </View>
 
-          {/* ── BODY CONTENT ── */}
+          {/* Contract content */}
           {elements.map((el, idx) => renderEl(el, idx))}
 
-          {/* ── SIGNATURE BLOCK ── */}
+          {/* Signature block */}
           <View style={s.sigSection}>
             <View style={s.sigRule} />
+            <Text style={s.sigTitle}>FIRMAS DE CONFORMIDAD</Text>
             <View style={s.sigRow}>
               <View style={s.sigCol}>
                 <View style={s.sigLine} />
-                <Text style={s.sigRole}>PARTE A</Text>
-                <Text style={s.sigName}>{partyA || "___________________"}</Text>
-                <Text style={s.sigDNI}>DNI / NIF / RFC: ___________________</Text>
+                <Text style={s.sigRole}>PRIMERA PARTE</Text>
+                <Text style={s.sigName}>{partyA || "_______________"}</Text>
+                <Text style={s.sigField}>Firma: ________________________</Text>
+                <Text style={s.sigField}>Cédula / DNI / RFC: ____________</Text>
+                <Text style={s.sigField}>Fecha: _________________________</Text>
               </View>
               <View style={s.sigCol}>
                 <View style={s.sigLine} />
-                <Text style={s.sigRole}>PARTE B</Text>
-                <Text style={s.sigName}>{partyB || "___________________"}</Text>
-                <Text style={s.sigDNI}>DNI / NIF / RFC: ___________________</Text>
+                <Text style={s.sigRole}>SEGUNDA PARTE</Text>
+                <Text style={s.sigName}>{partyB || "_______________"}</Text>
+                <Text style={s.sigField}>Firma: ________________________</Text>
+                <Text style={s.sigField}>Cédula / DNI / RFC: ____________</Text>
+                <Text style={s.sigField}>Fecha: _________________________</Text>
               </View>
             </View>
           </View>
+
         </View>
 
-        {/* ── FOOTER (per page) ── */}
+        {/* ── Footer (all pages) ── */}
         <View style={s.footer} fixed>
-          <Text style={s.footerLeft}>contractai.app</Text>
+          <Text style={s.footerLeft}>Generado por ContractAI · contractai.app</Text>
           <Text
             style={s.footerRight}
             render={({ pageNumber, totalPages }) =>
@@ -400,6 +450,7 @@ export function ContractPDF({ contractText, contractTitle, partyA, partyB }: Con
             }
           />
         </View>
+
       </Page>
     </Document>
   );
