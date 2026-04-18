@@ -17,7 +17,6 @@ import {
   Plus,
   Search,
   Settings,
-  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -54,7 +53,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       items: [
         { name: "Firmas", href: "/dashboard/contracts?filter=signed", icon: PenLine },
         { name: "Vencimientos", href: "/dashboard/contracts?filter=expiring", icon: CalendarClock },
-        { name: "Plantillas IA", href: "/generate", icon: Sparkles },
       ],
     },
     {
