@@ -68,7 +68,15 @@ export default function SignatureCanvas({ onChange, height = 160 }: Props) {
     lastPos.current = null;
     if (!isEmpty) {
       const canvas = canvasRef.current!;
-      onChange(canvas.toDataURL("image/jpeg", 0.8));
+      // Composite stroke over white background so JPEG has no black fill
+      const offscreen = document.createElement("canvas");
+      offscreen.width = canvas.width;
+      offscreen.height = canvas.height;
+      const ctx2 = offscreen.getContext("2d")!;
+      ctx2.fillStyle = "#ffffff";
+      ctx2.fillRect(0, 0, offscreen.width, offscreen.height);
+      ctx2.drawImage(canvas, 0, 0);
+      onChange(offscreen.toDataURL("image/jpeg", 0.85));
     }
   };
 

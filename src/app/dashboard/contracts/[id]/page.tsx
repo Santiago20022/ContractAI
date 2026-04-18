@@ -615,7 +615,7 @@ export default function ContractDetailPage() {
                           <img
                             src={sig.signatureImage}
                             alt="Firma"
-                            className="h-10 max-w-[160px] object-contain mt-1 rounded"
+                            className="h-10 max-w-[160px] object-contain mt-1 rounded bg-white border border-slate-100 p-1"
                           />
                         )}
                         <p className="text-xs text-slate-500">
