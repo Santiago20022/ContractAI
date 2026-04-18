@@ -97,6 +97,10 @@ export default function ContractDetailPage() {
   // Core state
   const [contract, setContract] = useState<Contract | null>(null);
 
+  // Delete confirm modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [sigRoleToRemove, setSigRoleToRemove] = useState<"A" | "B" | null>(null);
+
   // Action state
   const [copied, setCopied] = useState(false);
   const [shareLink, setShareLink] = useState("");
@@ -218,12 +222,20 @@ export default function ContractDetailPage() {
     router.push(`/dashboard/contracts/${cloned.id}`);
   };
 
-  const handleDelete = () => {
+  const handleDelete = () => setShowDeleteModal(true);
+
+  const confirmDelete = () => {
     if (!contract || !user) return;
-    if (confirm("¿Estás seguro de que quieres eliminar este contrato?")) {
-      deleteContract(contract.id, user.id);
-      router.push("/dashboard/contracts");
-    }
+    deleteContract(contract.id, user.id);
+    router.push("/dashboard/contracts");
+  };
+
+  const confirmRemoveSignature = () => {
+    if (!contract || !user || !sigRoleToRemove) return;
+    const newSignatures = (contract.signatures || []).filter((s) => s.role !== sigRoleToRemove);
+    const result = updateContract(contract.id, user.id, { signatures: newSignatures, status: "draft" });
+    if (result) setContract(result);
+    setSigRoleToRemove(null);
   };
 
   // ── Signature handlers ─────────────────────────────────────────────────────
@@ -597,10 +609,19 @@ export default function ContractDetailPage() {
                         Parte {role}
                       </span>
                       {sig && (
-                        <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          Firmado
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Firmado
+                          </span>
+                          <button
+                            onClick={() => setSigRoleToRemove(role)}
+                            className="p-1 text-slate-300 hover:text-red-400 transition-colors rounded"
+                            title="Eliminar firma"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       )}
                     </div>
 
@@ -998,6 +1019,102 @@ export default function ContractDetailPage() {
               <CheckCircle2 className="w-4 h-4 text-green-400" />
               ¡Link copiado al portapapeles!
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Modal: confirmar eliminación de contrato ───────────────────── */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowDeleteModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                  <Trash2 className="w-5 h-5 text-red-500" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-900">Eliminar contrato</h3>
+                  <p className="text-sm text-slate-500">Esta acción no se puede deshacer</p>
+                </div>
+              </div>
+              <p className="text-sm text-slate-600 mb-6">
+                ¿Estás seguro de que quieres eliminar <span className="font-medium text-slate-800">"{contract?.title}"</span>? Se perderán todas las firmas y datos asociados.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 px-4 py-2.5 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600 transition-colors"
+                >
+                  Sí, eliminar
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Modal: confirmar eliminación de firma ──────────────────────── */}
+      <AnimatePresence>
+        {sigRoleToRemove && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            onClick={() => setSigRoleToRemove(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+                  <PenLine className="w-5 h-5 text-amber-500" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-900">Eliminar firma</h3>
+                  <p className="text-sm text-slate-500">Parte {sigRoleToRemove}</p>
+                </div>
+              </div>
+              <p className="text-sm text-slate-600 mb-6">
+                ¿Quieres eliminar la firma de la <span className="font-medium text-slate-800">Parte {sigRoleToRemove}</span>? El contrato volverá a estado borrador.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setSigRoleToRemove(null)}
+                  className="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmRemoveSignature}
+                  className="flex-1 px-4 py-2.5 bg-amber-500 text-white rounded-xl text-sm font-medium hover:bg-amber-600 transition-colors"
+                >
+                  Sí, eliminar firma
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
