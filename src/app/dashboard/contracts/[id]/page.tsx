@@ -112,6 +112,7 @@ export default function ContractDetailPage() {
   const [savedSigs, setSavedSigs] = useState<SavedSignature[]>([]);
   const [saveLabel, setSaveLabel] = useState("");
   const [showSaveForm, setShowSaveForm] = useState(false);
+  const [sigToDelete, setSigToDelete] = useState<SavedSignature | null>(null);
 
   // Chat state
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -903,17 +904,35 @@ export default function ContractDetailPage() {
                         >
                           <img src={s.imageData} alt={s.label} className="h-10 w-32 object-contain bg-white rounded border border-slate-100" />
                           <span className="flex-1 text-sm font-medium text-slate-700">{s.label}</span>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteSignature(s.id);
-                              setSavedSigs(getSavedSignatures());
-                              if (sigImageBase64 === s.imageData) setSigImageBase64(null);
-                            }}
-                            className="p-1 text-slate-400 hover:text-red-500 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {sigToDelete?.id === s.id ? (
+                            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                              <span className="text-xs text-slate-500">¿Eliminar?</span>
+                              <button
+                                onClick={() => {
+                                  deleteSignature(s.id);
+                                  setSavedSigs(getSavedSignatures());
+                                  if (sigImageBase64 === s.imageData) setSigImageBase64(null);
+                                  setSigToDelete(null);
+                                }}
+                                className="px-2 py-0.5 text-xs bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                              >
+                                Sí
+                              </button>
+                              <button
+                                onClick={() => setSigToDelete(null)}
+                                className="px-2 py-0.5 text-xs bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300 transition-colors"
+                              >
+                                No
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setSigToDelete(s); }}
+                              className="p-1 text-slate-400 hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       ))
                     )}
