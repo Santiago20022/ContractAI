@@ -32,7 +32,7 @@ import {
   User,
   Zap,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const SECTIONS = [
@@ -99,7 +99,9 @@ function FieldRow({ label, desc, children }: { label: string; desc?: string; chi
 export default function SettingsPage() {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
-  const [activeSection, setActiveSection] = useState("perfil");
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get("tab") ?? "perfil";
+  const [activeSection, setActiveSection] = useState(initialTab);
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [savedSection, setSavedSection] = useState<string | null>(null);
 

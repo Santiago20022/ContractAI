@@ -212,24 +212,17 @@ function ContractsPageContent() {
     <DashboardLayout>
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">
-              {sidebarFilter === "signed" ? "Firmas" : sidebarFilter === "expiring" ? "Vencimientos" : "Mis Contratos"}
-            </h1>
-            <p className="text-slate-600">
-              {sidebarFilter === "signed"
-                ? "Gestiona las firmas electrónicas de tus contratos"
-                : sidebarFilter === "expiring"
-                ? "Contratos próximos a vencer en los próximos 60 días"
-                : `${contracts.length} ${contracts.length === 1 ? "contrato" : "contratos"} en total`}
-            </p>
-          </div>
-          <Link href="/generate">
-            <Button variant="primary" icon={<Plus className="w-4 h-4" />}>
-              Nuevo contrato
-            </Button>
-          </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">
+            {sidebarFilter === "signed" ? "Firmas" : sidebarFilter === "expiring" ? "Vencimientos" : "Mis Contratos"}
+          </h1>
+          <p className="text-slate-600">
+            {sidebarFilter === "signed"
+              ? "Gestiona las firmas electrónicas de tus contratos"
+              : sidebarFilter === "expiring"
+              ? "Contratos próximos a vencer en los próximos 60 días"
+              : `${contracts.length} ${contracts.length === 1 ? "contrato" : "contratos"} en total`}
+          </p>
         </div>
 
         {/* Signatures banner */}
