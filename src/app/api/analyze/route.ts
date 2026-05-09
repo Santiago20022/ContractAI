@@ -1,5 +1,5 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { analyzeContract } from "@/lib/contract-templates";
+import { completeGroqJSON, getGroqClient } from "@/lib/groq";
 
 export async function POST(request: Request) {
   let content = "";
@@ -28,16 +28,15 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.GEMINI_API_KEY) {
+  if (!getGroqClient()) {
     const { results, score } = analyzeContract(content);
     return Response.json({ results, score });
   }
 
   try {
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+    const systemPrompt = `Eres un analista legal experto que evalúa el riesgo de contratos en español. Devuelves ÚNICAMENTE un objeto JSON válido (sin markdown, sin explicaciones).`;
 
-    const prompt = `Analiza el siguiente contrato legal y devuelve ÚNICAMENTE un objeto JSON válido (sin markdown, sin explicaciones, solo el JSON) con esta estructura exacta:
+    const userPrompt = `Analiza el siguiente contrato legal y devuelve un objeto JSON con esta estructura exacta:
 {
   "riskScore": número entre 0 y 100 (100 = totalmente seguro, 0 = muy peligroso),
   "summary": "resumen ejecutivo de riesgos en 1-2 oraciones",
@@ -87,26 +86,19 @@ Si no hay problemas, devuelve risks: [] y riskScore: 90-100.
 CONTRATO A ANALIZAR:
 ${content}`;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
+    const parsed = await completeGroqJSON<unknown>([
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ]);
 
-    // Strip possible markdown code fences before parsing
-    const cleaned = responseText
-      .replace(/^```(?:json)?\s*/i, "")
-      .replace(/\s*```$/, "")
-      .trim();
-
-    try {
-      const parsed = JSON.parse(cleaned);
+    if (parsed) {
       return Response.json(parsed);
-    } catch {
-      // JSON parse failed — fall back to local analysis
-      const { results, score } = analyzeContract(content);
-      return Response.json({ results, score });
     }
+
+    const { results, score } = analyzeContract(content);
+    return Response.json({ results, score });
   } catch (err) {
-    console.error("[/api/analyze] Gemini error:", err);
-    // Gemini call failed — fall back to local analysis
+    console.error("[/api/analyze] Groq error:", err);
     const { results, score } = analyzeContract(content);
     return Response.json({ results, score });
   }
