@@ -17,17 +17,29 @@ export async function POST(request: Request) {
   }
 
   try {
-    const systemPrompt = `Eres un experto en derecho contractual latinoamericano. Recibes un contrato existente y una instrucción de modificación. Devuelves el contrato COMPLETO con la modificación aplicada. Mantienes el mismo formato, estructura y estilo del contrato original. Solo aplicas el cambio solicitado sin alterar el resto. Empiezas directamente con el texto del contrato, sin explicaciones previas.`;
+    const systemPrompt = `Eres un editor experto de contratos legales latinoamericanos. Tu única tarea es aplicar la instrucción del usuario sobre el contrato dado y devolver el contrato COMPLETO actualizado.
+
+REGLAS ESTRICTAS:
+1. Devuelves SIEMPRE el contrato completo, no fragmentos.
+2. Mantienes el formato, estilo, numeración y redacción de las cláusulas que NO se mencionan en la instrucción.
+3. Si la instrucción es vaga o usa palabras sueltas (ej: "hola", "ok"), NO inventes cláusulas: devuelves el contrato sin cambios.
+4. Si añades una cláusula nueva, redáctala con el mismo nivel de formalidad jurídica del resto del contrato (mínimo 2-3 oraciones, no menos).
+5. Numeras correctamente las cláusulas en orden (PRIMERA, SEGUNDA, TERCERA, etc.).
+6. NO incluyes explicaciones, comentarios, ni texto fuera del contrato. NO uses markdown. NO uses bloques de código.
+7. Empiezas directamente con el encabezado del contrato.`;
 
     const userPrompt = `INSTRUCCIÓN DEL USUARIO: ${instruction}
 
 CONTRATO ACTUAL:
 ${contractText}`;
 
-    return await streamGroqText([
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ]);
+    return await streamGroqText(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      { temperature: 0.2 },
+    );
   } catch (err) {
     console.error("[/api/modify] Groq error:", err);
     return Response.json({ fallback: true });

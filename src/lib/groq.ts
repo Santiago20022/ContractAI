@@ -17,7 +17,10 @@ type ChatMessage = {
   content: string;
 };
 
-export async function streamGroqText(messages: ChatMessage[]): Promise<Response> {
+export async function streamGroqText(
+  messages: ChatMessage[],
+  options: { temperature?: number } = {},
+): Promise<Response> {
   const groq = getGroqClient();
   if (!groq) {
     return Response.json({ fallback: true });
@@ -27,7 +30,7 @@ export async function streamGroqText(messages: ChatMessage[]): Promise<Response>
     model: GROQ_MODEL,
     messages,
     stream: true,
-    temperature: 0.7,
+    temperature: options.temperature ?? 0.7,
   });
 
   const readable = new ReadableStream({
