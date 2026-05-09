@@ -33,7 +33,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 const SECTIONS = [
   { id: "perfil", label: "Perfil", icon: User },
@@ -96,7 +96,7 @@ function FieldRow({ label, desc, children }: { label: string; desc?: string; chi
   );
 }
 
-export default function SettingsPage() {
+function SettingsPageContent() {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -699,5 +699,17 @@ export default function SettingsPage() {
         </div>
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <SettingsPageContent />
+    </Suspense>
   );
 }
