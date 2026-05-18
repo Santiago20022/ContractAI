@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ContractAI — Ingeniería de Requisitos | Entregas 1 y 2</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #1a1a2e; background: #f4f6fb; padding: 40px 20px; }
+    .container { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 48px 56px; }
+
+    /* HEADER */
+    .header { border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 32px; }
+    .header h1 { font-size: 26px; color: #1e3a8a; margin-bottom: 10px; }
+    .header-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; font-size: 13px; color: #475569; }
+    .header-meta span strong { color: #1e3a8a; }
+
+    /* CONTEXTO BOX */
+    .context-box { background: #f0f7ff; border: 1px solid #bfdbfe; border-left: 5px solid #2563eb; border-radius: 8px; padding: 20px 24px; margin-bottom: 24px; }
+    .context-box .box-title { font-size: 15px; font-weight: 700; color: #1e3a8a; margin-bottom: 10px; }
+    .context-box p { color: #374151; line-height: 1.7; margin-bottom: 10px; font-size: 13.5px; }
+    .context-box p:last-child { margin-bottom: 0; }
+    .context-box blockquote { border-left: 3px solid #2563eb; padding-left: 14px; color: #1e40af; font-style: italic; font-size: 13.5px; margin: 10px 0; }
+
+    /* RESUMEN ENTREGAS */
+    .entregas-resumen { margin-bottom: 24px; }
+    .entregas-resumen .box-title { font-size: 15px; font-weight: 700; color: #1e3a8a; margin-bottom: 12px; }
+    .badge-done { background: #dcfce7; color: #166534; border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .badge-prog { background: #fef9c3; color: #854d0e; border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+
+    /* TOC */
+    .toc-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px 24px; margin-bottom: 32px; }
+    .toc-box .box-title { font-size: 15px; font-weight: 700; color: #1e3a8a; margin-bottom: 14px; }
+    .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .toc-section-title { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #2563eb; margin-bottom: 8px; border-bottom: 1px solid #bfdbfe; padding-bottom: 4px; }
+    .toc-section a { display: block; color: #374151; text-decoration: none; font-size: 13px; padding: 3px 0; border-bottom: 1px dotted #e2e8f0; }
+    .toc-section a:hover { color: #2563eb; }
+    .toc-section a:last-child { border-bottom: none; }
+
+    /* HEADINGS */
+    h2 { font-size: 18px; color: #1e3a8a; border-left: 4px solid #2563eb; padding-left: 12px; margin: 40px 0 16px; }
+    h3 { font-size: 14px; color: #1d4ed8; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 7px 14px; margin: 24px 0 12px; }
+
+    p { line-height: 1.7; color: #374151; margin-bottom: 12px; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 36px 0; }
+    ul, ol { padding-left: 22px; margin-bottom: 14px; color: #374151; line-height: 1.9; }
+
+    /* BADGES STACK */
+    .stack { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 20px; }
+    .badge { background: #1e3a8a; color: #fff; border-radius: 20px; padding: 3px 12px; font-size: 12px; font-weight: 600; }
+
+    /* STEPS */
+    .steps { counter-reset: step; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .step { display: flex; gap: 14px; align-items: flex-start; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; }
+    .step-num { min-width: 32px; height: 32px; background: #1e3a8a; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+    .step-body strong { display: block; color: #1e3a8a; margin-bottom: 4px; font-size: 13.5px; }
+    .step-body p { margin: 0; font-size: 13px; }
+    .step-body code { display: inline-block; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; padding: 2px 8px; font-size: 12px; color: #1d4ed8; margin-top: 6px; font-family: monospace; }
+
+    /* GLOSARIO */
+    .glosario-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .glosario-card { border-radius: 8px; padding: 14px 16px; border-left: 4px solid; }
+    .glosario-card.hu  { background: #eff6ff; border-color: #2563eb; }
+    .glosario-card.rf  { background: #f0fdf4; border-color: #16a34a; }
+    .glosario-card.rnf { background: #fff7ed; border-color: #ea580c; }
+    .glosario-card.rn  { background: #fdf4ff; border-color: #9333ea; }
+    .glosario-card .sigla { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+    .glosario-card.hu  .sigla { color: #2563eb; }
+    .glosario-card.rf  .sigla { color: #16a34a; }
+    .glosario-card.rnf .sigla { color: #ea580c; }
+    .glosario-card.rn  .sigla { color: #9333ea; }
+    .glosario-card .nombre { font-weight: 600; font-size: 13px; color: #1a1a2e; margin-bottom: 4px; }
+    .glosario-card .desc   { font-size: 12.5px; color: #475569; margin-bottom: 6px; }
+    .glosario-card .fmt    { font-family: monospace; font-size: 11.5px; background: rgba(0,0,0,0.06); border-radius: 4px; padding: 3px 7px; color: #374151; }
+
+    /* TABLAS */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13.5px; }
+    thead tr { background: #1e3a8a; color: #fff; }
+    thead th { padding: 10px 14px; text-align: left; font-weight: 600; letter-spacing: 0.3px; }
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    tbody tr:nth-child(odd)  { background: #fff; }
+    tbody tr:hover { background: #dbeafe; }
+    tbody td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; vertical-align: top; line-height: 1.55; }
+
+    /* CHIPS */
+    .chip { display: inline-block; padding: 2px 9px; border-radius: 12px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .chip-hu  { background: #dbeafe; color: #1d4ed8; }
+    .chip-rf  { background: #dcfce7; color: #15803d; }
+    .chip-rnf { background: #ffedd5; color: #c2410c; }
+    .chip-rn  { background: #f3e8ff; color: #7e22ce; }
+    .chip-cu  { background: #fce7f3; color: #be185d; }
+
+    .hu-table td:first-child { width: 80px; }
+    .hu-text { font-style: italic; color: #374151; }
+    .rf-table td:first-child { width: 80px; }
+    .rnf-table td:first-child { width: 80px; }
+
+    /* MATRIZ */
+    .matrix-table td { font-size: 12.5px; }
+    .matrix-table td:first-child { font-weight: 700; color: #1d4ed8; width: 60px; }
+    .chips-cell { display: flex; flex-wrap: wrap; gap: 4px; }
+
+    /* CONCLUSIONES */
+    .conclusiones { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .conclusion-item { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #2563eb; }
+    .conclusion-num { min-width: 26px; height: 26px; background: #2563eb; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+    .conclusion-item p { margin: 0; font-size: 13.5px; line-height: 1.6; }
+    .conclusion-item p strong { color: #1e3a8a; }
+
+    /* DIVIDER ENTREGAS */
+    .entrega-divider { display: flex; align-items: center; gap: 16px; margin: 48px 0 36px; }
+    .entrega-divider::before, .entrega-divider::after { content: ''; flex: 1; height: 2px; background: #2563eb; }
+    .entrega-divider span { background: #1e3a8a; color: #fff; padding: 6px 20px; border-radius: 20px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+
+    /* LABELS CU */
+    .label { font-weight: 600; color: #1e3a8a; margin: 16px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+    /* FOOTER */
+    .footer { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>ContractAI — Ingeniería de Requisitos | Entregas 1 y 2</h1>
+    <div class="header-meta">
+      <span><strong>Estudiante:</strong> Juan Fernando Martinez Aguirre &nbsp;·&nbsp; <strong>Cód.</strong> 100145688</span>
+      <span><strong>Estudiante:</strong> Santiago García Patiño</span>
+      <span><strong>Asignatura:</strong> Ingeniería de Requisitos</span>
+      <span><strong>Universidad:</strong> Uniremington · Facultad de Ingeniería</span>
+      <span><strong>Docente:</strong> Gloria Amparo Lora Patiño</span>
+      <span><strong>Fechas:</strong> 9 de mayo · 16 de mayo de 2026</span>
+    </div>
+  </div>
+
+  <!-- CONTEXTO ACADÉMICO -->
+  <div class="context-box">
+    <div class="box-title">📌 Contexto del Proyecto</div>
+    <p>
+      Este documento reúne las entregas de la asignatura <strong>Ingeniería de Requisitos</strong>, donde se aplica el proceso formal de identificar, documentar y gestionar las necesidades de un sistema de software antes de comenzar su desarrollo.
+    </p>
+    <p>La <strong>Ingeniería de Requisitos</strong> responde una pregunta fundamental antes de escribir código:</p>
+    <blockquote>¿Qué debe hacer el sistema, para quién, bajo qué condiciones y con qué restricciones?</blockquote>
+    <p>
+      El proyecto elegido es <strong>ContractAI</strong>, una aplicación web con inteligencia artificial que permite a freelancers, emprendedores y PYMEs hispanohablantes generar, analizar y firmar contratos legales sin necesidad de contratar un abogado. Los requisitos se documentaron siguiendo estándares de la industria: <strong>IEEE 830</strong>, <strong>ISO/IEC 25010</strong> y metodologías ágiles (<strong>Scrum</strong>).
+    </p>
+  </div>
+
+  <!-- RESUMEN DE ENTREGAS -->
+  <div class="entregas-resumen">
+    <div class="box-title">📁 Entregas incluidas en este documento</div>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Entrega</th><th>Fecha</th><th>Contenido</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1</strong></td>
+          <td><strong>Requisitos del Sistema</strong></td>
+          <td>9 mayo 2026</td>
+          <td>10 HU · 14 RF · 9 RNF · 10 RN · Matriz de Trazabilidad</td>
+          <td><span class="badge-done">✅ Entregado</span></td>
+        </tr>
+        <tr>
+          <td><strong>2</strong></td>
+          <td><strong>Casos de Uso y Escenarios</strong></td>
+          <td>16 mayo 2026</td>
+          <td>6 Casos de Uso (CU-01 al CU-06) con flujos principales, alternativos y trazabilidad HU→CU</td>
+          <td><span class="badge-done">✅ Entregado</span></td>
+        </tr>
+        <tr>
+          <td><strong>3</strong></td>
+          <td><strong>Diagramas y Diccionario de Datos</strong></td>
+          <td>23 mayo 2026</td>
+          <td>Diagramas de Actividad · Diagramas de Canal · Diccionario de Datos</td>
+          <td><span class="badge-prog">🔄 En progreso</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TABLA DE CONTENIDO -->
+  <div class="toc-box">
+    <div class="box-title">📋 Tabla de contenido</div>
+    <div class="toc-grid">
+      <div class="toc-section">
+        <div class="toc-section-title">Entrega 1 — Requisitos del Sistema</div>
+        <a href="#desc">1. Descripción del Proyecto</a>
+        <a href="#proceso">2. Proceso de Ingeniería de Requisitos</a>
+        <a href="#glosario">3. Glosario de Tipos de Requisito</a>
+        <a href="#hu">4. Historias de Usuario (10)</a>
+        <a href="#rf">5. Requisitos Funcionales (14)</a>
+        <a href="#rnf">6. Requisitos No Funcionales (9)</a>
+        <a href="#rn">7. Reglas de Negocio (10)</a>
+        <a href="#matriz">8. Matriz de Trazabilidad</a>
+        <a href="#conclusiones">9. Conclusiones</a>
+      </div>
+      <div class="toc-section">
+        <div class="toc-section-title">Entrega 2 — Casos de Uso y Escenarios</div>
+        <a href="#nexaservicios">10. Contexto: NexaServicios S.A.S.</a>
+        <a href="#actores">11. Actores del Sistema</a>
+        <a href="#cu01">CU-01: Registrar cuenta</a>
+        <a href="#cu02">CU-02: Iniciar sesión</a>
+        <a href="#cu03">CU-03: Generar contrato</a>
+        <a href="#cu04">CU-04: Analizar contrato existente</a>
+        <a href="#cu05">CU-05: Ver historial de contratos</a>
+        <a href="#cu06">CU-06: Cerrar sesión</a>
+        <a href="#traz-cu">13. Trazabilidad HU → Casos de Uso</a>
+      </div>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- 1. DESCRIPCIÓN -->
+  <h2 id="desc">1. Descripción del Proyecto</h2>
+  <p><strong>ContractAI</strong> es una aplicación web orientada a freelancers, emprendedores y PYMEs hispanohablantes que necesitan generar, analizar y firmar contratos legales sin contratar un abogado para cada documento.</p>
+  <ul>
+    <li>Generar contratos a partir de plantillas inteligentes (servicios, NDA, empleo, sociedad, arrendamiento, compraventa, términos y condiciones, política de privacidad).</li>
+    <li>Analizar el riesgo de cualquier contrato existente y obtener un puntaje de 0 a 100 con cláusulas problemáticas resaltadas.</li>
+    <li>Personalizar contratos con asistencia de IA (Groq + LLaMA 3.3 70B).</li>
+    <li>Firmar digitalmente y guardar firmas reutilizables.</li>
+    <li>Compartir contratos vía enlace seguro.</li>
+  </ul>
+  <p><strong>Stack tecnológico:</strong></p>
+  <div class="stack">
+    <span class="badge">Next.js 16 (App Router)</span>
+    <span class="badge">React 19</span>
+    <span class="badge">TypeScript</span>
+    <span class="badge">Tailwind v4</span>
+    <span class="badge">Groq AI · LLaMA 3.3 70B</span>
+    <span class="badge">localStorage</span>
+  </div>
+
+  <hr />
+
+  <!-- 2. PROCESO -->
+  <h2 id="proceso">2. Proceso de Ingeniería de Requisitos Aplicado</h2>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Identificación de actores</strong><p>Se definieron los roles que interactúan con el sistema: Freelancer / emprendedor, PYME, Cliente final y Usuario registrado.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Elicitación — recolección de necesidades</strong><p>Mediante observación del problema se redactaron las Historias de Usuario desde la perspectiva de cada rol.</p><code>Como [rol], quiero [acción], para [beneficio].</code></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Análisis y derivación de Requisitos Funcionales</strong><p>Cada HU se descompuso en capacidades concretas que el sistema debe ofrecer.</p><code>RF-NNN: El sistema debe [verbo] [objeto].</code></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Definición de atributos de calidad</strong><p>Se identificaron los atributos no funcionales (rendimiento, disponibilidad, usabilidad, seguridad) con métricas verificables.</p><code>RNF-NNN: El sistema debe [atributo medible].</code></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Identificación de Reglas de Negocio</strong><p>Se identificaron condiciones, restricciones y políticas que el sistema debe respetar.</p><code>RN-NNN: SI [condición] ENTONCES [acción / restricción].</code></div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-body"><strong>Trazabilidad</strong><p>Se construyó la matriz que conecta cada HU con los RF, RNF y RN correspondientes.</p></div></div>
+  </div>
+
+  <hr />
+
+  <!-- 3. GLOSARIO -->
+  <h2 id="glosario">3. Glosario de Tipos de Requisito</h2>
+  <div class="glosario-grid">
+    <div class="glosario-card hu"><div class="sigla">HU</div><div class="nombre">Historia de Usuario</div><div class="desc">Describe lo que un <strong>usuario real</strong> necesita y por qué. Es el punto de partida de todo requisito.</div><div class="fmt">Como [rol], quiero [acción], para [beneficio]</div></div>
+    <div class="glosario-card rf"><div class="sigla">RF</div><div class="nombre">Requisito Funcional</div><div class="desc">Describe lo que el <strong>sistema debe hacer</strong>: funcionalidades, comportamientos, operaciones.</div><div class="fmt">RF-NNN: El sistema debe [verbo] [cosa]</div></div>
+    <div class="glosario-card rnf"><div class="sigla">RNF</div><div class="nombre">Requisito No Funcional</div><div class="desc">Describe <strong>qué tan bien</strong> debe funcionar el sistema. Siempre con una métrica medible y verificable.</div><div class="fmt">RNF-NNN: El sistema debe [atributo medible]</div></div>
+    <div class="glosario-card rn"><div class="sigla">RN</div><div class="nombre">Regla de Negocio</div><div class="desc">Describe una <strong>restricción, condición o política</strong> que el sistema siempre debe cumplir.</div><div class="fmt">RN-NNN: SI [condición] ENTONCES [acción]</div></div>
+  </div>
+
+  <hr />
+
+  <!-- 4. HU -->
+  <h2 id="hu">4. Historias de Usuario</h2>
+  <table class="hu-table">
+    <thead><tr><th>ID</th><th>Rol</th><th>Quiero…</th><th>Para…</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip chip-hu">HU-01</span></td><td>Freelancer</td><td>generar un contrato de prestación de servicios a partir de una plantilla</td><td>formalizar mis acuerdos con clientes sin pagar un abogado</td></tr>
+      <tr><td><span class="chip chip-hu">HU-02</span></td><td>PYME</td><td>analizar el riesgo de un contrato antes de firmarlo</td><td>detectar cláusulas peligrosas o desfavorables</td></tr>
+      <tr><td><span class="chip chip-hu">HU-03</span></td><td>Usuario registrado</td><td>guardar mis contratos en la plataforma</td><td>consultarlos, editarlos y reutilizarlos en el futuro</td></tr>
+      <tr><td><span class="chip chip-hu">HU-04</span></td><td>Usuario nuevo</td><td>registrarme con correo y contraseña</td><td>que mis contratos queden privados y vinculados a mi cuenta</td></tr>
+      <tr><td><span class="chip chip-hu">HU-05</span></td><td>Usuario</td><td>firmar digitalmente un contrato dibujando mi firma</td><td>dejar constancia de mi aceptación sin imprimir el documento</td></tr>
+      <tr><td><span class="chip chip-hu">HU-06</span></td><td>Usuario</td><td>guardar firmas en una biblioteca personal</td><td>reutilizarlas en futuros contratos sin volver a dibujarlas</td></tr>
+      <tr><td><span class="chip chip-hu">HU-07</span></td><td>Usuario</td><td>compartir un contrato mediante un enlace</td><td>que la otra parte lo revise y firme desde su navegador</td></tr>
+      <tr><td><span class="chip chip-hu">HU-08</span></td><td>Usuario</td><td>ver un dashboard con mis estadísticas</td><td>conocer cuántos contratos tengo, su estado y su riesgo promedio</td></tr>
+      <tr><td><span class="chip chip-hu">HU-09</span></td><td>Usuario</td><td>modificar un contrato existente con una instrucción en lenguaje natural</td><td>ajustarlo sin reescribirlo desde cero</td></tr>
+      <tr><td><span class="chip chip-hu">HU-10</span></td><td>Usuario</td><td>descargar un contrato en PDF</td><td>imprimirlo o enviarlo por correo formal</td></tr>
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- 5. RF -->
+  <h2 id="rf">5. Requisitos Funcionales</h2>
+  <table class="rf-table">
+    <thead><tr><th>ID</th><th>El sistema debe…</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip chip-rf">RF-001</span></td><td>Permitir registrar nuevos usuarios con nombre, correo electrónico y contraseña.</td></tr>
+      <tr><td><span class="chip chip-rf">RF-002</span></td><td>Autenticar a los usuarios mediante correo y contraseña, manteniendo una sesión activa.</td></tr>
+      <tr><td><span class="chip chip-rf">RF-003</span></td><td>Permitir generar contratos a partir de 8 plantillas predefinidas: servicios, NDA, empleo, sociedad, arrendamiento, compraventa, términos y condiciones, y política de privacidad.</td></tr>
+      <tr><td><span class="chip chip-rf">RF-004</span></td><td>Permitir personalizar los datos del contrato (partes, objeto, valor, duración, ciudad, fecha) mediante un formulario por pasos.</td></tr>
+      <tr><td><span class="chip chip-rf">RF-005</span></td><td>Analizar el texto de un contrato y calcular un puntaje de riesgo numérico de 0 a 100.</td></tr>
+      <tr><td><span class="chip chip-rf">RF-006</span></td><td>Identificar y mostrar las cláusulas de riesgo encontradas, indicando nivel (alto, medio, bajo, informativo), título, descripción, cita textual y sugerencia.</td></tr>
+      <tr><td><span class="chip chip-rf">RF-007</span></td><td>Permitir guardar, editar y eliminar contratos asociados al usuario autenticado.</td></tr>
+      <tr><td><span class="chip chip-rf">RF-008</span></td><td>Permitir al usuario dibujar una firma digital y agregarla al contrato.</td></tr>
+      <tr><td><span class="chip chip-rf">RF-009</span></td><td>Permitir guardar firmas en una biblioteca personal reutilizable y eliminarlas.</td></tr>
+      <tr><td><span class="chip chip-rf">RF-010</span></td><td>Generar un enlace único para compartir un contrato con terceros en modo lectura.</td></tr>
+      <tr><td><span class="chip chip-rf">RF-011</span></td><td>Permitir descargar cualquier contrato en formato PDF.</td></tr>
+      <tr><td><span class="chip chip-rf">RF-012</span></td><td>Mostrar un dashboard con el total de contratos, riesgo promedio y los últimos contratos creados.</td></tr>
+      <tr><td><span class="chip chip-rf">RF-013</span></td><td>Permitir modificar un contrato existente enviando una instrucción en lenguaje natural a la IA.</td></tr>
+      <tr><td><span class="chip chip-rf">RF-014</span></td><td>Permitir consultar al asistente IA preguntas sobre un contrato cargado.</td></tr>
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- 6. RNF -->
+  <h2 id="rnf">6. Requisitos No Funcionales</h2>
+  <table class="rnf-table">
+    <thead><tr><th>ID</th><th>Categoría</th><th>El sistema debe…</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip chip-rnf">RNF-001</span></td><td>⚡ Rendimiento</td><td>Responder a cualquier acción del usuario en menos de <strong>2 segundos</strong> bajo condiciones normales de operación.</td></tr>
+      <tr><td><span class="chip chip-rnf">RNF-002</span></td><td>🟢 Disponibilidad</td><td>Estar disponible al menos el <strong>99%</strong> del tiempo medido mensualmente.</td></tr>
+      <tr><td><span class="chip chip-rnf">RNF-003</span></td><td>📱 Responsividad</td><td>Ser responsivo y funcionar correctamente en pantallas desde <strong>320px</strong> (móvil) hasta <strong>1920px</strong> (escritorio).</td></tr>
+      <tr><td><span class="chip chip-rnf">RNF-004</span></td><td>🔒 Seguridad</td><td>Almacenar las contraseñas de usuario de forma <strong>hasheada</strong>, nunca en texto plano.</td></tr>
+      <tr><td><span class="chip chip-rnf">RNF-005</span></td><td>🌐 Compatibilidad</td><td>Ser compatible con las versiones más recientes de <strong>Chrome, Firefox, Safari y Edge</strong>.</td></tr>
+      <tr><td><span class="chip chip-rnf">RNF-006</span></td><td>💬 Usabilidad</td><td>Presentar la interfaz en <strong>español</strong> con lenguaje claro, sin requerir conocimientos técnicos legales.</td></tr>
+      <tr><td><span class="chip chip-rnf">RNF-007</span></td><td>📴 Offline</td><td>Permitir consultar contratos guardados <strong>sin conexión a internet</strong>.</td></tr>
+      <tr><td><span class="chip chip-rnf">RNF-008</span></td><td>📄 Calidad doc.</td><td>Generar contratos con un mínimo de <strong>900 palabras</strong> y al menos <strong>10 cláusulas numeradas</strong>.</td></tr>
+      <tr><td><span class="chip chip-rnf">RNF-009</span></td><td>🌊 Streaming</td><td>Transmitir el contenido generado por IA mediante <strong>streaming</strong>, mostrando el texto progresivamente sin esperar a que termine.</td></tr>
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- 7. RN -->
+  <h2 id="rn">7. Reglas de Negocio</h2>
+  <table>
+    <thead><tr><th>ID</th><th>SI… (condición)</th><th>ENTONCES… (acción / restricción)</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip chip-rn">RN-001</span></td><td>el usuario no ha iniciado sesión</td><td>no puede generar, guardar ni acceder a sus contratos</td></tr>
+      <tr><td><span class="chip chip-rn">RN-002</span></td><td>el puntaje de riesgo de un contrato es <strong>mayor a 70</strong></td><td>el sistema debe alertar visualmente al usuario antes de guardar</td></tr>
+      <tr><td><span class="chip chip-rn">RN-003</span></td><td>el usuario intenta eliminar un contrato <strong>firmado</strong></td><td>el sistema debe solicitar confirmación explícita</td></tr>
+      <tr><td><span class="chip chip-rn">RN-004</span></td><td>el usuario intenta eliminar una firma guardada</td><td>el sistema debe pedir confirmación antes de borrarla</td></tr>
+      <tr><td><span class="chip chip-rn">RN-005</span></td><td>un contrato es compartido mediante enlace</td><td>cualquier persona con el enlace puede verlo en <strong>modo lectura</strong>, sin poder editarlo</td></tr>
+      <tr><td><span class="chip chip-rn">RN-006</span></td><td>un correo electrónico ya está registrado</td><td>el sistema debe rechazar el nuevo registro y notificar el conflicto</td></tr>
+      <tr><td><span class="chip chip-rn">RN-007</span></td><td>el análisis de riesgo detecta cláusulas peligrosas</td><td>estas deben mostrarse resaltadas con su nivel de riesgo y sugerencia de mejora</td></tr>
+      <tr><td><span class="chip chip-rn">RN-008</span></td><td>el contenido del contrato a analizar supera los <strong>50.000 caracteres</strong></td><td>el sistema debe rechazar el análisis e informar el límite</td></tr>
+      <tr><td><span class="chip chip-rn">RN-009</span></td><td>la API de IA no está disponible</td><td>el sistema debe usar las plantillas locales como respaldo y notificar al usuario</td></tr>
+      <tr><td><span class="chip chip-rn">RN-010</span></td><td>un usuario desea recuperar su contraseña</td><td>debe solicitarlo por correo y recibir un enlace temporal único</td></tr>
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- 8. MATRIZ -->
+  <h2 id="matriz">8. Matriz de Trazabilidad</h2>
+  <p>Conexión entre Historias de Usuario, Requisitos Funcionales, No Funcionales y Reglas de Negocio:</p>
+  <table class="matrix-table">
+    <thead><tr><th>HU</th><th>RF asociados</th><th>RNF aplicables</th><th>RN aplicables</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip chip-hu">HU-01</span></td><td><div class="chips-cell"><span class="chip chip-rf">RF-003</span><span class="chip chip-rf">RF-004</span></div></td><td><div class="chips-cell"><span class="chip chip-rnf">RNF-001</span><span class="chip chip-rnf">RNF-008</span><span class="chip chip-rnf">RNF-009</span></div></td><td><div class="chips-cell"><span class="chip chip-rn">RN-001</span><span class="chip chip-rn">RN-009</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-02</span></td><td><div class="chips-cell"><span class="chip chip-rf">RF-005</span><span class="chip chip-rf">RF-006</span></div></td><td><div class="chips-cell"><span class="chip chip-rnf">RNF-001</span><span class="chip chip-rnf">RNF-006</span></div></td><td><div class="chips-cell"><span class="chip chip-rn">RN-002</span><span class="chip chip-rn">RN-007</span><span class="chip chip-rn">RN-008</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-03</span></td><td><div class="chips-cell"><span class="chip chip-rf">RF-007</span></div></td><td><div class="chips-cell"><span class="chip chip-rnf">RNF-004</span><span class="chip chip-rnf">RNF-007</span></div></td><td><div class="chips-cell"><span class="chip chip-rn">RN-001</span><span class="chip chip-rn">RN-003</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-04</span></td><td><div class="chips-cell"><span class="chip chip-rf">RF-001</span><span class="chip chip-rf">RF-002</span></div></td><td><div class="chips-cell"><span class="chip chip-rnf">RNF-004</span></div></td><td><div class="chips-cell"><span class="chip chip-rn">RN-006</span><span class="chip chip-rn">RN-010</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-05</span></td><td><div class="chips-cell"><span class="chip chip-rf">RF-008</span></div></td><td><div class="chips-cell"><span class="chip chip-rnf">RNF-001</span><span class="chip chip-rnf">RNF-003</span></div></td><td><div class="chips-cell"><span class="chip chip-rn">RN-003</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-06</span></td><td><div class="chips-cell"><span class="chip chip-rf">RF-009</span></div></td><td><div class="chips-cell"><span class="chip chip-rnf">RNF-007</span></div></td><td><div class="chips-cell"><span class="chip chip-rn">RN-004</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-07</span></td><td><div class="chips-cell"><span class="chip chip-rf">RF-010</span></div></td><td><div class="chips-cell"><span class="chip chip-rnf">RNF-002</span><span class="chip chip-rnf">RNF-005</span></div></td><td><div class="chips-cell"><span class="chip chip-rn">RN-005</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-08</span></td><td><div class="chips-cell"><span class="chip chip-rf">RF-012</span></div></td><td><div class="chips-cell"><span class="chip chip-rnf">RNF-001</span><span class="chip chip-rnf">RNF-003</span></div></td><td><div class="chips-cell"><span class="chip chip-rn">RN-001</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-09</span></td><td><div class="chips-cell"><span class="chip chip-rf">RF-013</span></div></td><td><div class="chips-cell"><span class="chip chip-rnf">RNF-001</span><span class="chip chip-rnf">RNF-009</span></div></td><td><div class="chips-cell"><span class="chip chip-rn">RN-001</span><span class="chip chip-rn">RN-009</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-10</span></td><td><div class="chips-cell"><span class="chip chip-rf">RF-011</span></div></td><td><div class="chips-cell"><span class="chip chip-rnf">RNF-005</span></div></td><td><div class="chips-cell">—</div></td></tr>
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- 9. CONCLUSIONES -->
+  <h2 id="conclusiones">9. Conclusiones</h2>
+  <div class="conclusiones">
+    <div class="conclusion-item"><div class="conclusion-num">1</div><p><strong>Clarificación del alcance:</strong> La IR permitió separar lo imprescindible del MVP (generación, análisis, autenticación, firma) de lo opcional (chat IA, biblioteca de firmas, dashboard).</p></div>
+    <div class="conclusion-item"><div class="conclusion-num">2</div><p><strong>Restricciones técnicas identificadas:</strong> Desde el inicio se documentó el almacenamiento local en <code>localStorage</code> (RNF-007) y el uso de IA externa con fallback local (RN-009).</p></div>
+    <div class="conclusion-item"><div class="conclusion-num">3</div><p><strong>Métricas verificables:</strong> Los RNF incluyen valores concretos (tiempos de respuesta, tamaños mínimos, compatibilidad) que permiten probar el sistema objetivamente.</p></div>
+    <div class="conclusion-item"><div class="conclusion-num">4</div><p><strong>Anticipación de reglas críticas:</strong> El límite de 50.000 caracteres (RN-008) y el bloqueo de funcionalidades sin sesión (RN-001) se identificaron antes de implementar, evitando rediseños posteriores.</p></div>
+  </div>
+
+  <!-- ═══════════════════════════════════ ENTREGA 2 ═══════════════════════════════════ -->
+  <div class="entrega-divider"><span>ENTREGA 2 — Casos de Uso · 16 de mayo de 2026</span></div>
+
+  <!-- 10. CONTEXTO -->
+  <h2 id="nexaservicios">10. Contexto: NexaServicios S.A.S.</h2>
+  <p><strong>NexaServicios S.A.S.</strong> es la empresa cliente que implementará ContractAI para gestionar sus contratos comerciales internos. Actualmente elabora sus documentos en Microsoft Word sin plantillas estandarizadas, los distribuye por correo o WhatsApp, carece de control de versiones y el proceso de aprobación y firma es completamente manual.</p>
+  <p>Esta situación genera reprocesos, pérdida de información y falta de trazabilidad. ContractAI resuelve esta problemática ofreciendo una plataforma web que permite generar y analizar contratos de forma ágil, segura y centralizada.</p>
+
+  <hr />
+
+  <!-- 11. ACTORES -->
+  <h2 id="actores">11. Actores del Sistema</h2>
+  <table>
+    <thead><tr><th>Actor</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Empleado</strong></td><td>Persona de NexaServicios S.A.S. que necesita crear, revisar o gestionar contratos. Tiene acceso a todas las funcionalidades del sistema una vez autenticado.</td></tr>
+      <tr><td><strong>Coordinador</strong></td><td>Persona con responsabilidad de supervisión sobre los contratos. Comparte las mismas funcionalidades que el Empleado.</td></tr>
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- 12. CASOS DE USO -->
+  <h2 id="cu">12. Casos de Uso</h2>
+
+  <!-- CU-01 -->
+  <h3 id="cu01">CU-01: Registrar cuenta</h3>
+  <table><thead><tr><th>Campo</th><th>Detalle</th></tr></thead><tbody>
+    <tr><td><strong>Actor principal</strong></td><td>Empleado / Coordinador de NexaServicios S.A.S.</td></tr>
+    <tr><td><strong>Descripción</strong></td><td>El usuario crea una cuenta en ContractAI con sus datos básicos para poder acceder a las funcionalidades del sistema.</td></tr>
+  </tbody></table>
+  <div class="label">Precondiciones</div>
+  <ul><li>El usuario no posee una cuenta registrada en el sistema.</li><li>El usuario dispone de un correo electrónico válido.</li><li>El sistema se encuentra disponible y operativo.</li></ul>
+  <div class="label">Flujo principal</div>
+  <table><thead><tr><th>Paso</th><th>Actor</th><th>Acción</th></tr></thead><tbody>
+    <tr><td>1</td><td>Usuario</td><td>Ingresa a la plataforma y selecciona <em>Registrarse</em>.</td></tr>
+    <tr><td>2</td><td>Sistema</td><td>Presenta el formulario con: nombre, correo electrónico y contraseña.</td></tr>
+    <tr><td>3</td><td>Usuario</td><td>Completa el formulario y confirma el registro.</td></tr>
+    <tr><td>4</td><td>Sistema</td><td>Valida los datos y verifica que el correo no esté registrado previamente.</td></tr>
+    <tr><td>5</td><td>Sistema</td><td>Crea la cuenta y redirige al usuario a la pantalla de inicio de sesión.</td></tr>
+  </tbody></table>
+  <div class="label">Flujos alternativos</div>
+  <table><thead><tr><th>ID</th><th>Condición</th><th>Respuesta del sistema</th></tr></thead><tbody>
+    <tr><td><span class="chip chip-cu">FA-01</span></td><td>El correo ya está registrado</td><td>Muestra: <em>"Este correo ya tiene una cuenta asociada"</em> y sugiere iniciar sesión.</td></tr>
+    <tr><td><span class="chip chip-cu">FA-02</span></td><td>Campos vacíos o con formato inválido</td><td>Resalta los campos con error e impide continuar hasta corregirlos.</td></tr>
+  </tbody></table>
+  <div class="label">Postcondiciones</div>
+  <ul><li>La cuenta queda creada y activa en el sistema.</li><li>El usuario puede iniciar sesión con las credenciales registradas.</li></ul>
+
+  <hr />
+
+  <!-- CU-02 -->
+  <h3 id="cu02">CU-02: Iniciar sesión</h3>
+  <table><thead><tr><th>Campo</th><th>Detalle</th></tr></thead><tbody>
+    <tr><td><strong>Actor principal</strong></td><td>Empleado / Coordinador de NexaServicios S.A.S.</td></tr>
+    <tr><td><strong>Descripción</strong></td><td>El usuario ingresa sus credenciales para autenticarse y acceder a las funcionalidades del sistema.</td></tr>
+  </tbody></table>
+  <div class="label">Precondiciones</div>
+  <ul><li>El usuario posee una cuenta registrada.</li><li>El sistema se encuentra disponible.</li></ul>
+  <div class="label">Flujo principal</div>
+  <table><thead><tr><th>Paso</th><th>Actor</th><th>Acción</th></tr></thead><tbody>
+    <tr><td>1</td><td>Usuario</td><td>Selecciona <em>Iniciar sesión</em>.</td></tr>
+    <tr><td>2</td><td>Sistema</td><td>Presenta el formulario con: correo electrónico y contraseña.</td></tr>
+    <tr><td>3</td><td>Usuario</td><td>Ingresa sus credenciales y confirma.</td></tr>
+    <tr><td>4</td><td>Sistema</td><td>Verifica las credenciales.</td></tr>
+    <tr><td>5</td><td>Sistema</td><td>Concede acceso y redirige al Dashboard principal.</td></tr>
+  </tbody></table>
+  <div class="label">Flujos alternativos</div>
+  <table><thead><tr><th>ID</th><th>Condición</th><th>Respuesta del sistema</th></tr></thead><tbody>
+    <tr><td><span class="chip chip-cu">FA-01</span></td><td>Credenciales incorrectas</td><td>Muestra: <em>"Correo o contraseña incorrectos"</em> y permite reintentar.</td></tr>
+    <tr><td><span class="chip chip-cu">FA-02</span></td><td>El usuario no tiene cuenta</td><td>Sugiere registrarse mediante un enlace visible.</td></tr>
+  </tbody></table>
+  <div class="label">Postcondiciones</div>
+  <ul><li>El usuario queda autenticado con acceso a todas las funcionalidades.</li></ul>
+
+  <hr />
+
+  <!-- CU-03 -->
+  <h3 id="cu03">CU-03: Generar contrato</h3>
+  <table><thead><tr><th>Campo</th><th>Detalle</th></tr></thead><tbody>
+    <tr><td><strong>Actor principal</strong></td><td>Empleado / Coordinador de NexaServicios S.A.S.</td></tr>
+    <tr><td><strong>Descripción</strong></td><td>El usuario selecciona el tipo de contrato, completa los datos y el sistema genera un documento legal profesional listo para descargar.</td></tr>
+  </tbody></table>
+  <div class="label">Precondiciones</div>
+  <ul><li>El usuario está autenticado.</li><li>Existe al menos una plantilla disponible.</li></ul>
+  <div class="label">Flujo principal</div>
+  <table><thead><tr><th>Paso</th><th>Actor</th><th>Acción</th></tr></thead><tbody>
+    <tr><td>1</td><td>Usuario</td><td>Accede al módulo <em>Generar Contrato</em>.</td></tr>
+    <tr><td>2</td><td>Sistema</td><td>Muestra los 8 tipos: Servicios, NDA, Trabajo, Socios, Alquiler, Compraventa, Términos y Condiciones, Política de Privacidad.</td></tr>
+    <tr><td>3</td><td>Usuario</td><td>Selecciona el tipo de contrato.</td></tr>
+    <tr><td>4</td><td>Sistema</td><td>Despliega el formulario con los campos: partes, montos, duración, cláusulas adicionales.</td></tr>
+    <tr><td>5</td><td>Usuario</td><td>Completa el formulario y confirma.</td></tr>
+    <tr><td>6</td><td>Sistema</td><td>Procesa la información y genera el documento legal.</td></tr>
+    <tr><td>7</td><td>Sistema</td><td>Presenta el contrato con opciones para copiarlo o descargarlo en PDF.</td></tr>
+    <tr><td>8</td><td>Sistema</td><td>Registra el contrato en el historial del usuario.</td></tr>
+  </tbody></table>
+  <div class="label">Flujos alternativos</div>
+  <table><thead><tr><th>ID</th><th>Condición</th><th>Respuesta del sistema</th></tr></thead><tbody>
+    <tr><td><span class="chip chip-cu">FA-01</span></td><td>Campos obligatorios vacíos</td><td>Resalta los campos pendientes y bloquea el avance.</td></tr>
+    <tr><td><span class="chip chip-cu">FA-02</span></td><td>Error en la generación</td><td>Notifica al usuario y conserva los datos ingresados.</td></tr>
+  </tbody></table>
+  <div class="label">Postcondiciones</div>
+  <ul><li>El contrato queda almacenado en el historial.</li><li>El documento está disponible para descargar, copiar o reutilizar.</li></ul>
+
+  <hr />
+
+  <!-- CU-04 -->
+  <h3 id="cu04">CU-04: Analizar contrato existente</h3>
+  <table><thead><tr><th>Campo</th><th>Detalle</th></tr></thead><tbody>
+    <tr><td><strong>Actor principal</strong></td><td>Empleado / Coordinador de NexaServicios S.A.S.</td></tr>
+    <tr><td><strong>Descripción</strong></td><td>El usuario pega el texto de un contrato y el sistema identifica cláusulas de riesgo, calcula un score de seguridad y entrega una explicación clara de cada hallazgo.</td></tr>
+  </tbody></table>
+  <div class="label">Precondiciones</div>
+  <ul><li>El usuario está autenticado.</li><li>El usuario dispone del texto del contrato a analizar.</li></ul>
+  <div class="label">Flujo principal</div>
+  <table><thead><tr><th>Paso</th><th>Actor</th><th>Acción</th></tr></thead><tbody>
+    <tr><td>1</td><td>Usuario</td><td>Accede al módulo <em>Analizar Contrato</em>.</td></tr>
+    <tr><td>2</td><td>Sistema</td><td>Presenta un campo para pegar el texto del contrato.</td></tr>
+    <tr><td>3</td><td>Usuario</td><td>Ingresa el texto y confirma el análisis.</td></tr>
+    <tr><td>4</td><td>Sistema</td><td>Examina el contenido en busca de cláusulas de riesgo legal o económico.</td></tr>
+    <tr><td>5</td><td>Sistema</td><td>Calcula el <strong>score de seguridad</strong> de 0 a 100 (100 = mayor seguridad).</td></tr>
+    <tr><td>6</td><td>Sistema</td><td>Presenta las cláusulas problemáticas con explicación en lenguaje simple y sugerencias.</td></tr>
+    <tr><td>7</td><td>Sistema</td><td>Registra el resultado en el historial del usuario.</td></tr>
+  </tbody></table>
+  <div class="label">Flujos alternativos</div>
+  <table><thead><tr><th>ID</th><th>Condición</th><th>Respuesta del sistema</th></tr></thead><tbody>
+    <tr><td><span class="chip chip-cu">FA-01</span></td><td>Campo de texto vacío</td><td>Solicita al usuario ingresar el texto antes de continuar.</td></tr>
+    <tr><td><span class="chip chip-cu">FA-02</span></td><td>No se identifican cláusulas de riesgo</td><td>Muestra: <em>"No se encontraron cláusulas problemáticas"</em> con un score alto.</td></tr>
+  </tbody></table>
+  <div class="label">Postcondiciones</div>
+  <ul><li>El análisis queda guardado en el historial.</li><li>El usuario tiene información suficiente para decidir sobre el contrato.</li></ul>
+
+  <hr />
+
+  <!-- CU-05 -->
+  <h3 id="cu05">CU-05: Ver historial de contratos</h3>
+  <table><thead><tr><th>Campo</th><th>Detalle</th></tr></thead><tbody>
+    <tr><td><strong>Actor principal</strong></td><td>Empleado / Coordinador de NexaServicios S.A.S.</td></tr>
+    <tr><td><strong>Descripción</strong></td><td>El usuario consulta el listado de contratos generados y análisis realizados, pudiendo acceder a cada uno para revisarlo o reutilizarlo.</td></tr>
+  </tbody></table>
+  <div class="label">Precondiciones</div>
+  <ul><li>El usuario está autenticado.</li><li>El usuario ha generado o analizado al menos un contrato.</li></ul>
+  <div class="label">Flujo principal</div>
+  <table><thead><tr><th>Paso</th><th>Actor</th><th>Acción</th></tr></thead><tbody>
+    <tr><td>1</td><td>Usuario</td><td>Accede al módulo <em>Historial</em>.</td></tr>
+    <tr><td>2</td><td>Sistema</td><td>Presenta el listado ordenado por fecha (más reciente primero).</td></tr>
+    <tr><td>3</td><td>Usuario</td><td>Selecciona un registro para ver su detalle.</td></tr>
+    <tr><td>4</td><td>Sistema</td><td>Muestra el contenido completo con opción de copiarlo o descargarlo.</td></tr>
+  </tbody></table>
+  <div class="label">Flujos alternativos</div>
+  <table><thead><tr><th>ID</th><th>Condición</th><th>Respuesta del sistema</th></tr></thead><tbody>
+    <tr><td><span class="chip chip-cu">FA-01</span></td><td>El historial está vacío</td><td>Muestra: <em>"Aún no has generado ni analizado ningún contrato"</em> con acceso directo a los módulos.</td></tr>
+  </tbody></table>
+  <div class="label">Postcondiciones</div>
+  <ul><li>El usuario puede consultar, copiar o descargar cualquier contrato de su historial.</li></ul>
+
+  <hr />
+
+  <!-- CU-06 -->
+  <h3 id="cu06">CU-06: Cerrar sesión</h3>
+  <table><thead><tr><th>Campo</th><th>Detalle</th></tr></thead><tbody>
+    <tr><td><strong>Actor principal</strong></td><td>Empleado / Coordinador de NexaServicios S.A.S.</td></tr>
+    <tr><td><strong>Descripción</strong></td><td>El usuario finaliza su sesión activa, impidiendo que personas no autorizadas accedan desde el mismo dispositivo.</td></tr>
+  </tbody></table>
+  <div class="label">Precondiciones</div>
+  <ul><li>El usuario está autenticado en el sistema.</li></ul>
+  <div class="label">Flujo principal</div>
+  <table><thead><tr><th>Paso</th><th>Actor</th><th>Acción</th></tr></thead><tbody>
+    <tr><td>1</td><td>Usuario</td><td>Selecciona <em>Cerrar sesión</em> desde el menú de usuario.</td></tr>
+    <tr><td>2</td><td>Sistema</td><td>Invalida la sesión activa.</td></tr>
+    <tr><td>3</td><td>Sistema</td><td>Redirige al usuario a la pantalla de inicio de sesión.</td></tr>
+  </tbody></table>
+  <div class="label">Postcondiciones</div>
+  <ul><li>La sesión queda cerrada; el usuario debe autenticarse nuevamente para acceder.</li></ul>
+
+  <hr />
+
+  <!-- 13. TRAZABILIDAD HU → CU -->
+  <h2 id="traz-cu">13. Trazabilidad HU → Casos de Uso</h2>
+  <p>Relación entre cada Historia de Usuario y los Casos de Uso que la implementan:</p>
+  <table class="matrix-table">
+    <thead><tr><th>HU</th><th>Casos de uso que la implementan</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip chip-hu">HU-01</span></td><td><div class="chips-cell"><span class="chip chip-cu">CU-03</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-02</span></td><td><div class="chips-cell"><span class="chip chip-cu">CU-04</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-03</span></td><td><div class="chips-cell"><span class="chip chip-cu">CU-05</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-04</span></td><td><div class="chips-cell"><span class="chip chip-cu">CU-01</span><span class="chip chip-cu">CU-02</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-05</span></td><td><div class="chips-cell"><span class="chip chip-cu">CU-03</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-06</span></td><td><div class="chips-cell"><span class="chip chip-cu">CU-03</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-07</span></td><td><div class="chips-cell"><span class="chip chip-cu">CU-03</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-08</span></td><td><div class="chips-cell"><span class="chip chip-cu">CU-05</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-09</span></td><td><div class="chips-cell"><span class="chip chip-cu">CU-03</span><span class="chip chip-cu">CU-04</span></div></td></tr>
+      <tr><td><span class="chip chip-hu">HU-10</span></td><td><div class="chips-cell"><span class="chip chip-cu">CU-03</span><span class="chip chip-cu">CU-05</span></div></td></tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    ContractAI — NexaServicios S.A.S. &nbsp;·&nbsp; Ingeniería de Requisitos · Uniremington 2026 &nbsp;|&nbsp; Próxima entrega: Diagramas de Actividad · 23 de mayo
+  </div>
+
+</div>
+</body>
+</html>
