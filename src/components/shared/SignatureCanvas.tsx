@@ -92,8 +92,8 @@ export default function SignatureCanvas({ onChange, height = 160 }: Props) {
     <div className="relative">
       <canvas
         ref={canvasRef}
-        style={{ height, touchAction: "none" }}
-        className="w-full border-2 border-dashed border-slate-300 rounded-xl bg-white cursor-crosshair"
+        style={{ height, touchAction: "none", backgroundColor: "#ffffff" }}
+        className="w-full border-2 border-dashed border-slate-300 rounded-xl cursor-crosshair"
         onMouseDown={startDraw}
         onMouseMove={draw}
         onMouseUp={endDraw}

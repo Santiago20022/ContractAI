@@ -1,5 +1,5 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { generateContract, ContractData } from "@/lib/contract-templates";
+import type { ContractData } from "@/lib/contract-templates";
+import { streamGroqText } from "@/lib/groq";
 
 const CONTRACT_TYPES_ES: Record<string, string> = {
   services: "Contrato de Prestación de Servicios",
@@ -30,36 +30,22 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { type, data } = body as { type: string; data: ContractData };
 
-    if (!process.env.GEMINI_API_KEY) {
-      return Response.json({ fallback: true });
-    }
+    const userPrompt = `Genera un ${CONTRACT_TYPES_ES[type] || type} con estos datos:
+PARTE A: ${data.partyA}
+PARTE B: ${data.partyB}
+Objeto: ${data.description}
+Valor: ${data.amount}
+Duración: ${data.duration}
+Ciudad: ${data.city || "Bogotá, Colombia"}
+Fecha: ${data.date || new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" })}
+${data.additionalClauses ? "Cláusulas adicionales: " + data.additionalClauses : ""}`;
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
-
-    const prompt = `${SYSTEM_PROMPT}\n\nGenera un ${CONTRACT_TYPES_ES[type] || type} con estos datos:\nPARTE A: ${data.partyA}\nPARTE B: ${data.partyB}\nObjeto: ${data.description}\nValor: ${data.amount}\nDuración: ${data.duration}\nCiudad: ${data.city || "Bogotá, Colombia"}\nFecha: ${data.date || new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" })}\n${data.additionalClauses ? "Cláusulas adicionales: " + data.additionalClauses : ""}`;
-
-    const result = await model.generateContentStream(prompt);
-
-    const readable = new ReadableStream({
-      async start(controller) {
-        for await (const chunk of result.stream) {
-          const text = chunk.text();
-          if (text) controller.enqueue(new TextEncoder().encode(text));
-        }
-        controller.close();
-      },
-    });
-
-    return new Response(readable, {
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-        "X-Accel-Buffering": "no",
-      },
-    });
+    return await streamGroqText([
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: userPrompt },
+    ]);
   } catch (err) {
-    console.error("[/api/generate] Gemini error:", err);
+    console.error("[/api/generate] Groq error:", err);
     return Response.json({ fallback: true });
   }
 }
-

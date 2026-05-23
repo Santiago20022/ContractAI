@@ -169,11 +169,19 @@ export default function ContractDetailPage() {
     if (!contract) return;
     try {
       const { generateContractPDF } = await import("@/lib/generateContractPDF");
+      const sigA = contract.signatures?.find((s) => s.role === "A");
+      const sigB = contract.signatures?.find((s) => s.role === "B");
       const blob = await generateContractPDF({
         contractTitle: contract.title,
         partyA: contract.partyAName || "",
         partyB: contract.partyBName || "",
         contractText: contract.content,
+        signatureA: sigA
+          ? { name: sigA.name, signedAt: sigA.signedAt, image: sigA.signatureImage }
+          : undefined,
+        signatureB: sigB
+          ? { name: sigB.name, signedAt: sigB.signedAt, image: sigB.signatureImage }
+          : undefined,
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");

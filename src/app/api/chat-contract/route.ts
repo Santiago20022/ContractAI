@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { streamGroqText, getGroqClient } from "@/lib/groq";
 
 export async function POST(request: Request) {
   let contractText = "", question = "";
@@ -14,40 +14,24 @@ export async function POST(request: Request) {
     return Response.json({ error: "contractText and question are required" }, { status: 400 });
   }
 
-  if (!process.env.GEMINI_API_KEY) {
-    return Response.json({ answer: "Para usar el chat necesitas configurar una API key de Gemini." });
+  if (!getGroqClient()) {
+    return Response.json({ answer: "Para usar el chat necesitas configurar GROQ_API_KEY en .env.local." });
   }
 
   try {
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+    const systemPrompt = `Eres un asesor legal experto en derecho contractual latinoamericano. Respondes preguntas sobre contratos de forma clara y concisa en 2-4 oraciones. Usas lenguaje accesible (no excesivamente técnico). Si la respuesta no puede deducirse del contrato, lo indicas. No incluyes saludos ni despedidas, vas directo al punto.`;
 
-    const prompt = `Eres un asesor legal experto en derecho contractual latinoamericano. El usuario tiene preguntas sobre el siguiente contrato.
-
-CONTRATO:
+    const userPrompt = `CONTRATO:
 ${contractText.slice(0, 20000)}
 
-PREGUNTA DEL USUARIO: ${question}
+PREGUNTA DEL USUARIO: ${question}`;
 
-Responde de forma clara y concisa en 2-4 oraciones. Usa lenguaje accesible (no excesivamente técnico). Si la respuesta no puede deducirse del contrato, indícalo. No incluyas saludos ni despedidas, ve directo al punto.`;
-
-    const result = await model.generateContentStream(prompt);
-
-    const readable = new ReadableStream({
-      async start(controller) {
-        for await (const chunk of result.stream) {
-          const text = chunk.text();
-          if (text) controller.enqueue(new TextEncoder().encode(text));
-        }
-        controller.close();
-      },
-    });
-
-    return new Response(readable, {
-      headers: { "Content-Type": "text/plain; charset=utf-8", "X-Accel-Buffering": "no" },
-    });
+    return await streamGroqText([
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ]);
   } catch (err) {
-    console.error("[/api/chat-contract] Gemini error:", err);
+    console.error("[/api/chat-contract] Groq error:", err);
     return Response.json({ answer: "No se pudo procesar la consulta. Intenta de nuevo." });
   }
 }

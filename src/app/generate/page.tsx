@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
-import { addContract } from "@/lib/contracts-storage";
+import { addContract, updateContract } from "@/lib/contracts-storage";
 import { generateContract, ContractData } from "@/lib/contract-templates";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -159,6 +159,7 @@ export default function GeneratePage() {
   const [chatMessages, setChatMessages] = useState<ChatMsg[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [isModifying, setIsModifying] = useState(false);
+  const [savedContractId, setSavedContractId] = useState<string | null>(null);
 
   const streamingRef = useRef<HTMLPreElement>(null);
   const chatBottomRef = useRef<HTMLDivElement>(null);
@@ -259,75 +260,93 @@ export default function GeneratePage() {
     const instruction = chatInput.trim();
     if (!instruction || !generatedContract || isModifying) return;
 
+    const previousContract = generatedContract;
     setChatInput("");
     setChatMessages((prev) => [...prev, { role: "user", content: instruction }]);
+    setChatMessages((prev) => [...prev, { role: "ai", content: "Modificando contrato…" }]);
     setIsModifying(true);
 
     try {
       const res = await fetch("/api/modify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contractText: generatedContract, instruction }),
+        body: JSON.stringify({ contractText: previousContract, instruction }),
       });
 
       const contentType = res.headers.get("Content-Type") || "";
 
       if (contentType.includes("application/json")) {
-        // Fallback — no Gemini
-        setChatMessages((prev) => [
-          ...prev,
-          { role: "ai", content: "No se pudo modificar con IA ahora. Intenta de nuevo más tarde." },
-        ]);
-      } else {
-        const reader = res.body?.getReader();
-        if (!reader) throw new Error("No stream");
-
-        const decoder = new TextDecoder();
-        let fullText = "";
-
-        // Add placeholder AI message
-        setChatMessages((prev) => [...prev, { role: "ai", content: "" }]);
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          fullText += chunk;
-          setChatMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1] = { role: "ai", content: "✓ Contrato actualizado" };
-            return updated;
-          });
-        }
-
-        if (fullText.trim()) {
-          setGeneratedContract(fullText);
-          setAiUsed(true);
-          saveToStorage(fullText);
-        }
+        setChatMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "ai", content: "No se pudo modificar con IA ahora. Intenta de nuevo más tarde." };
+          return updated;
+        });
+        return;
       }
+
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No stream");
+
+      const decoder = new TextDecoder();
+      let fullText = "";
+
+      // Stream straight into the contract panel so the user SEES it changing
+      setGeneratedContract("");
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        fullText += chunk;
+        setGeneratedContract(fullText);
+      }
+
+      if (!fullText.trim()) {
+        setGeneratedContract(previousContract);
+        setChatMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "ai", content: "La IA no devolvió contenido. Intenta de nuevo." };
+          return updated;
+        });
+        return;
+      }
+
+      setAiUsed(true);
+      setChatMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: "ai", content: "✓ Contrato actualizado" };
+        return updated;
+      });
+      saveToStorage(fullText);
     } catch {
-      setChatMessages((prev) => [
-        ...prev,
-        { role: "ai", content: "Ocurrió un error al modificar el contrato." },
-      ]);
+      setGeneratedContract(previousContract);
+      setChatMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: "ai", content: "Ocurrió un error al modificar el contrato." };
+        return updated;
+      });
     } finally {
       setIsModifying(false);
     }
   };
 
   const saveToStorage = (contract: string) => {
-    if (user) {
-      const selectedContractType = contractTypes.find((c) => c.id === selectedType);
-      addContract(user.id, {
-        title: `${selectedContractType?.title || "Contrato"} - ${formData.partyB || "Sin nombre"}`,
-        type: selectedType!,
-        content: contract,
-        status: "completed",
-        partyAName: formData.partyA,
-        partyBName: formData.partyB,
-      });
+    if (!user) return;
+
+    if (savedContractId) {
+      updateContract(savedContractId, user.id, { content: contract });
+      return;
     }
+
+    const selectedContractType = contractTypes.find((c) => c.id === selectedType);
+    const created = addContract(user.id, {
+      title: `${selectedContractType?.title || "Contrato"} - ${formData.partyB || "Sin nombre"}`,
+      type: selectedType!,
+      content: contract,
+      status: "completed",
+      partyAName: formData.partyA,
+      partyBName: formData.partyB,
+    });
+    setSavedContractId(created.id);
   };
 
   const copyToClipboard = () => {

@@ -35,6 +35,12 @@ function ContractsPageContent() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [menuOpenUp, setMenuOpenUp] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2400);
+  };
 
   // Handle sidebar filter links (?filter=signed / ?filter=expiring)
   const sidebarFilter = searchParams.get("filter");
@@ -72,10 +78,10 @@ function ContractsPageContent() {
     setOpenMenu(null);
   };
 
-  const handleCopy = (contract: Contract) => {
-    navigator.clipboard.writeText(contract.content);
-    alert("Contrato copiado al portapapeles");
+  const handleCopy = async (contract: Contract) => {
     setOpenMenu(null);
+    await navigator.clipboard.writeText(contract.content);
+    showToast("Contrato copiado al portapapeles");
   };
 
   const handleShare = async (contract: Contract) => {
@@ -88,10 +94,11 @@ function ContractsPageContent() {
       type: contract.type,
       content: contract.content,
     });
-    const shareUrl = `${window.location.origin}/share?token=${token}`;
+    const shareUrl = `${window.location.origin}/share?c=${token}`;
     await navigator.clipboard.writeText(shareUrl);
     setCopiedId(contract.id);
     setTimeout(() => setCopiedId(null), 2000);
+    showToast("Enlace de compartir copiado");
   };
 
   const handleClone = (contract: Contract) => {
@@ -205,24 +212,17 @@ function ContractsPageContent() {
     <DashboardLayout>
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">
-              {sidebarFilter === "signed" ? "Firmas" : sidebarFilter === "expiring" ? "Vencimientos" : "Mis Contratos"}
-            </h1>
-            <p className="text-slate-600">
-              {sidebarFilter === "signed"
-                ? "Gestiona las firmas electrónicas de tus contratos"
-                : sidebarFilter === "expiring"
-                ? "Contratos próximos a vencer en los próximos 60 días"
-                : `${contracts.length} ${contracts.length === 1 ? "contrato" : "contratos"} en total`}
-            </p>
-          </div>
-          <Link href="/generate">
-            <Button variant="primary" icon={<Plus className="w-4 h-4" />}>
-              Nuevo contrato
-            </Button>
-          </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">
+            {sidebarFilter === "signed" ? "Firmas" : sidebarFilter === "expiring" ? "Vencimientos" : "Mis Contratos"}
+          </h1>
+          <p className="text-slate-600">
+            {sidebarFilter === "signed"
+              ? "Gestiona las firmas electrónicas de tus contratos"
+              : sidebarFilter === "expiring"
+              ? "Contratos próximos a vencer en los próximos 60 días"
+              : `${contracts.length} ${contracts.length === 1 ? "contrato" : "contratos"} en total`}
+          </p>
         </div>
 
         {/* Signatures banner */}
@@ -460,6 +460,23 @@ function ContractsPageContent() {
           </Card>
         )}
       </div>
+
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+          >
+            <div className="flex items-center gap-2 bg-slate-900 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg border border-slate-700">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              {toast}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </DashboardLayout>
   );
 }

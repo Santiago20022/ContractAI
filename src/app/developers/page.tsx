@@ -19,7 +19,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { Key, ChevronRight } from "lucide-react";
 
 // ─── Syntax-highlighted code blocks ──────────────────────────────────────────
 
@@ -260,6 +262,7 @@ const endpoints = [
 
 export default function DevelopersPage() {
   const [activeTab, setActiveTab] = useState<"fetch" | "curl">("fetch");
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -475,26 +478,53 @@ export default function DevelopersPage() {
           viewport={{ once: true }}
           className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-12 text-center"
         >
-          <h2 className="text-3xl font-bold text-white mb-4">
-            ¿Listo para integrar?
-          </h2>
-          <p className="text-indigo-100 text-lg mb-8 max-w-xl mx-auto">
-            Regístrate gratis, obtén tu API key y empieza a generar contratos
-            en minutos desde tu propia aplicación.
-          </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link href="/register">
-              <Button variant="secondary" size="lg" icon={<ExternalLink className="w-5 h-5" />}>
-                Crear cuenta gratis
-              </Button>
-            </Link>
-            <Link
-              href="/"
-              className="text-white underline underline-offset-4 hover:text-indigo-100 transition-colors self-center text-sm"
-            >
-              Ver la plataforma →
-            </Link>
-          </div>
+          {user ? (
+            <>
+              <h2 className="text-3xl font-bold text-white mb-4">
+                Tu API key está lista
+              </h2>
+              <p className="text-indigo-100 text-lg mb-8 max-w-xl mx-auto">
+                Cópiala desde ajustes y empieza a generar contratos desde tu
+                propia aplicación en minutos.
+              </p>
+              <div className="flex gap-4 justify-center flex-wrap">
+                <Link href="/dashboard/settings?tab=api">
+                  <Button variant="secondary" size="lg" icon={<Key className="w-5 h-5" />}>
+                    Ver mi API key
+                  </Button>
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="text-white underline underline-offset-4 hover:text-indigo-100 transition-colors self-center text-sm inline-flex items-center gap-1"
+                >
+                  Ir al dashboard <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className="text-3xl font-bold text-white mb-4">
+                ¿Listo para integrar?
+              </h2>
+              <p className="text-indigo-100 text-lg mb-8 max-w-xl mx-auto">
+                Regístrate gratis, obtén tu API key y empieza a generar contratos
+                en minutos desde tu propia aplicación.
+              </p>
+              <div className="flex gap-4 justify-center flex-wrap">
+                <Link href="/register">
+                  <Button variant="secondary" size="lg" icon={<ExternalLink className="w-5 h-5" />}>
+                    Crear cuenta gratis
+                  </Button>
+                </Link>
+                <Link
+                  href="/"
+                  className="text-white underline underline-offset-4 hover:text-indigo-100 transition-colors self-center text-sm"
+                >
+                  Ver la plataforma →
+                </Link>
+              </div>
+            </>
+          )}
         </motion.div>
 
       </main>
