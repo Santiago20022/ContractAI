@@ -64,23 +64,36 @@ const s = StyleSheet.create({
 
   /* ── Title block — page 1 ONLY (not fixed) ── */
   titleBlock: {
-    backgroundColor: C.indigo,
-    paddingTop: 22,
-    paddingBottom: 20,
+    backgroundColor: C.white,
+    paddingTop: 28,
+    paddingBottom: 24,
     paddingHorizontal: MH,
+    borderBottomWidth: 0,
   },
   docKind: {
-    fontSize: 7,
+    fontSize: 8,
     fontFamily: "Helvetica-Bold",
-    color: C.indigoLight,
-    letterSpacing: 2.8,
-    marginBottom: 6,
+    color: C.indigo,
+    letterSpacing: 3,
+    marginBottom: 8,
+  },
+  docKindAccent: {
+    width: 36,
+    height: 2.5,
+    backgroundColor: "#b8860b",
+    marginBottom: 20,
+    borderRadius: 1,
   },
   docTitle: {
-    fontSize: 20,
+    fontSize: 28,
     fontFamily: "Helvetica-Bold",
-    color: C.white,
+    color: C.slate900,
     lineHeight: 1.2,
+    marginBottom: 10,
+  },
+  docDate: {
+    fontSize: 10,
+    color: C.slate400,
   },
 
   /* ── Body ────────────────────────────────── */
@@ -258,7 +271,7 @@ type El =
   | { type: "listItem"; bullet: string; text: string };
 
 const CLAUSE_RE =
-  /^(PRIMERA|SEGUNDA|TERCERA|CUARTA|QUINTA|SEXTA|SÉPTIMA|OCTAVA|NOVENA|DÉCIMA|UNDÉCIMA|DUODÉCIMA|DECIMOPRIMERA|DECIMOSEGUNDA|DECIMOTERCERA|DECIMOCUARTA|DECIMOQUINTA|DECIMOSEXTA|DECIMOSÉPTIMA|DECIMOCTAVA|DECIMONOVENA|VIGÉSIMA)\s*[\.\-]/i;
+  /^(CLÁUSULA\s+)?(PRIMERA|SEGUNDA|TERCERA|CUARTA|QUINTA|SEXTA|SÉPTIMA|OCTAVA|NOVENA|DÉCIMA|UNDÉCIMA|DUODÉCIMA|DECIMOPRIMERA|DECIMOSEGUNDA|DECIMOTERCERA|DECIMOCUARTA|DECIMOQUINTA|DECIMOSEXTA|DECIMOSÉPTIMA|DECIMOCTAVA|DECIMONOVENA|VIGÉSIMA)(\s+(PRIMERA|SEGUNDA|TERCERA|CUARTA|QUINTA|SEXTA|SÉPTIMA|OCTAVA|NOVENA))?\s*[\.\-:]/i;
 
 const SECTION_RE = /^(REUNIDOS|EXPONEN|CLÁUSULAS|ESTIPULACIONES|CONSIDERACIONES|ANTECEDENTES|PARTES)$/i;
 
@@ -344,7 +357,7 @@ function renderEl(el: El, idx: number) {
       return <Text key={idx} style={s.sectionLabel}>{el.text}</Text>;
     case "clauseHeader":
       return (
-        <View key={idx} style={s.clauseRow}>
+        <View key={idx} style={s.clauseRow} wrap={false}>
           <View style={s.clauseBar} />
           <View style={s.clauseBox}>
             <Text style={s.clauseHeader}>{el.text}</Text>
@@ -361,6 +374,35 @@ function renderEl(el: El, idx: number) {
     default:
       return <Text key={idx} style={s.para}>{el.text}</Text>;
   }
+}
+
+function renderElements(els: El[]): React.ReactNode[] {
+  const views: React.ReactNode[] = [];
+  let i = 0;
+  while (i < els.length) {
+    const el = els[i];
+    if (el.type === "clauseHeader") {
+      const group: El[] = [el];
+      let j = i + 1;
+      let contentCount = 0;
+      while (j < els.length && contentCount < 2) {
+        const next = els[j];
+        if (next.type === "space") { group.push(next); j++; continue; }
+        if (next.type === "para" || next.type === "listItem") { group.push(next); contentCount++; j++; }
+        else break;
+      }
+      views.push(
+        <View key={i} wrap={false}>
+          {group.map((e, k) => renderEl(e, i * 100 + k))}
+        </View>
+      );
+      i = j;
+    } else {
+      views.push(renderEl(el, i));
+      i++;
+    }
+  }
+  return views;
 }
 
 export interface ContractPDFProps {
@@ -400,18 +442,13 @@ export function ContractPDF({ contractText, contractTitle, partyA, partyB, party
 
         {/* ── Title block (page 1 only — not fixed) ── */}
         <View style={s.titleBlock}>
-          <Text style={s.docKind}>DOCUMENTO LEGAL</Text>
+          <Text style={s.docKind}>
+            DOCUMENTO LEGAL{showConfidentialBadge ? "  ·  CONFIDENCIAL" : ""}
+          </Text>
+          <View style={s.docKindAccent} />
           <Text style={s.docTitle}>{contractTitle}</Text>
+          <Text style={s.docDate}>Otorgado el {today}</Text>
         </View>
-
-        {/* ── Confidential badge ── */}
-        {showConfidentialBadge && (
-          <View style={{ alignItems: "center", paddingVertical: 6 }}>
-            <Text style={{ fontSize: 7, letterSpacing: 3, color: C.slate400 }}>
-              D O C U M E N T O   L E G A L   ·   C O N F I D E N C I A L
-            </Text>
-          </View>
-        )}
 
         {/* ── Body ── */}
         <View style={s.body}>
@@ -426,16 +463,10 @@ export function ContractPDF({ contractText, contractTitle, partyA, partyB, party
               <Text style={s.partyLabel}>SEGUNDA PARTE</Text>
               <Text style={s.partyName}>{partyB || "—"}</Text>
             </View>
-            {showCodudor && partyC && (
-              <View style={[s.partyB, { borderLeftWidth: 1, borderLeftColor: C.slate200 }]}>
-                <Text style={s.partyLabel}>CODEUDOR / COARRENDATARIO</Text>
-                <Text style={s.partyName}>{partyC}</Text>
-              </View>
-            )}
           </View>
 
           {/* Contract content */}
-          {elements.map((el, idx) => renderEl(el, idx))}
+          {renderElements(elements)}
 
           {/* Signature block */}
           <View style={s.sigSection}>

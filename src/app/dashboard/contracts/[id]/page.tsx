@@ -42,6 +42,7 @@ import {
   Plus,
   Pencil,
   Copy as CloneIcon,
+  Wand2,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
@@ -106,10 +107,12 @@ export default function ContractDetailPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sigRoleToRemove, setSigRoleToRemove] = useState<"A" | "B" | "C" | null>(null);
 
-  // Document options
-  const [showFingerprint, setShowFingerprint] = useState(false);
-  const [showConfidentialBadge, setShowConfidentialBadge] = useState(false);
-  const [showCodudor, setShowCodudor] = useState(false);
+  // Document options (persisted per contract in localStorage)
+  const [showFingerprint, setShowFingerprintRaw] = useState(false);
+  const [showConfidentialBadge, setShowConfidentialBadgeRaw] = useState(false);
+  const [showCodudor, setShowCodudorRaw] = useState(false);
+  const [codudorName, setCodudorNameRaw] = useState("");
+  const [optsLoaded, setOptsLoaded] = useState(false);
 
   // Action state
   const [copied, setCopied] = useState(false);
@@ -133,6 +136,12 @@ export default function ContractDetailPage() {
   const [chatInput, setChatInput] = useState("");
   const [isChatting, setIsChatting] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Modify (Editar con IA) state
+  const [showModifyPanel, setShowModifyPanel] = useState(false);
+  const [modifyInput, setModifyInput] = useState("");
+  const [isModifying, setIsModifying] = useState(false);
+  const [modifySuccess, setModifySuccess] = useState(false);
 
   // Expiry state
   const [expiryEditing, setExpiryEditing] = useState(false);
@@ -160,13 +169,51 @@ export default function ContractDetailPage() {
     }
   }, [contractId, user, router]);
 
-  // ── Auto-detect codeudor ───────────────────────────────────────────────────
+  // ── Load & save document options from localStorage ────────────────────────
 
   useEffect(() => {
-    if (contract?.signatures?.some((s) => s.role === "C")) {
-      setShowCodudor(true);
+    if (!contractId) return;
+    try {
+      const saved = localStorage.getItem(`contractai_opts_${contractId}`);
+      if (saved) {
+        const o = JSON.parse(saved) as Record<string, unknown>;
+        if (typeof o.fingerprint === "boolean") setShowFingerprintRaw(o.fingerprint);
+        if (typeof o.confidential === "boolean") setShowConfidentialBadgeRaw(o.confidential);
+        if (typeof o.codeudor === "boolean") setShowCodudorRaw(o.codeudor);
+        if (typeof o.codudorName === "string") setCodudorNameRaw(o.codudorName);
+      }
+    } catch { /* ignore */ }
+    setOptsLoaded(true);
+  }, [contractId]);
+
+  useEffect(() => {
+    if (!optsLoaded || !contractId) return;
+    localStorage.setItem(`contractai_opts_${contractId}`, JSON.stringify({
+      fingerprint: showFingerprint,
+      confidential: showConfidentialBadge,
+      codeudor: showCodudor,
+      codudorName,
+    }));
+  }, [showFingerprint, showConfidentialBadge, showCodudor, codudorName, contractId, optsLoaded]);
+
+  const setShowFingerprint = (v: boolean | ((p: boolean) => boolean)) =>
+    setShowFingerprintRaw((p) => typeof v === "function" ? v(p) : v);
+  const setShowConfidentialBadge = (v: boolean | ((p: boolean) => boolean)) =>
+    setShowConfidentialBadgeRaw((p) => typeof v === "function" ? v(p) : v);
+  const setShowCodudor = (v: boolean | ((p: boolean) => boolean)) =>
+    setShowCodudorRaw((p) => typeof v === "function" ? v(p) : v);
+  const setCodudorName = (v: string) => setCodudorNameRaw(v);
+
+  // ── Auto-detect codeudor from existing signature ───────────────────────────
+
+  useEffect(() => {
+    if (!optsLoaded) return;
+    const sigC = contract?.signatures?.find((s) => s.role === "C");
+    if (sigC) {
+      setShowCodudorRaw(true);
+      setCodudorNameRaw((prev) => prev || sigC.name);
     }
-  }, [contract]);
+  }, [contract, optsLoaded]);
 
   // ── Scroll chat to bottom ──────────────────────────────────────────────────
 
@@ -192,7 +239,7 @@ export default function ContractDetailPage() {
         contractTitle: contract.title,
         partyA: contract.partyAName || "",
         partyB: contract.partyBName || "",
-        partyC: sigC?.name,
+        partyC: codudorName || sigC?.name,
         contractText: contract.content,
         showFingerprint,
         showConfidentialBadge,
@@ -222,7 +269,7 @@ export default function ContractDetailPage() {
       contractTitle: contract.title,
       partyA: contract.partyAName || "",
       partyB: contract.partyBName || "",
-      partyC: sigC?.name,
+      partyC: codudorName || sigC?.name,
       contractText: contract.content,
       showConfidentialBadge,
       showFingerprint,
@@ -377,6 +424,47 @@ export default function ContractDetailPage() {
       });
     } finally {
       setIsChatting(false);
+    }
+  };
+
+  // ── Modify (Editar con IA) handler ────────────────────────────────────────
+
+  const handleModify = async () => {
+    if (!contract || !user || !modifyInput.trim() || isModifying) return;
+    const instruction = modifyInput.trim();
+    const previousContent = contract.content;
+    setModifyInput("");
+    setIsModifying(true);
+    setModifySuccess(false);
+    try {
+      const res = await fetch("/api/modify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contractText: previousContent, instruction }),
+      });
+      if (res.headers.get("Content-Type")?.includes("application/json")) { setIsModifying(false); return; }
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No stream");
+      const decoder = new TextDecoder();
+      let fullText = "";
+      setContract((prev) => prev ? { ...prev, content: "" } : prev);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        fullText += decoder.decode(value, { stream: true });
+        setContract((prev) => prev ? { ...prev, content: fullText } : prev);
+      }
+      if (!fullText.trim()) {
+        setContract((prev) => prev ? { ...prev, content: previousContent } : prev);
+      } else {
+        updateContract(contract.id, user.id, { content: fullText });
+        setModifySuccess(true);
+        setTimeout(() => setModifySuccess(false), 3000);
+      }
+    } catch {
+      setContract((prev) => prev ? { ...prev, content: previousContent } : prev);
+    } finally {
+      setIsModifying(false);
     }
   };
 
@@ -579,6 +667,16 @@ export default function ContractDetailPage() {
                 )}
               </Button>
 
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowModifyPanel((v) => !v)}
+                className={showModifyPanel ? "text-violet-600 bg-violet-50 hover:bg-violet-100" : ""}
+              >
+                <Wand2 className="w-4 h-4" />
+                Editar con IA
+              </Button>
+
               <Button variant="ghost" size="sm" onClick={handleClone}>
                 <CloneIcon className="w-4 h-4" />
                 Clonar
@@ -636,6 +734,59 @@ export default function ContractDetailPage() {
           </Card>
         </motion.div>
 
+        {/* ── Panel Editar con IA (aparece justo debajo del contrato) ─────── */}
+        <AnimatePresence>
+          {showModifyPanel && (
+            <motion.div
+              key="modify-panel"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Card>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 bg-violet-50 rounded-xl flex items-center justify-center">
+                    <Wand2 className="w-4 h-4 text-violet-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-semibold text-slate-900">Editar con IA</h2>
+                    <p className="text-xs text-slate-500">Describí qué querés cambiar y la IA lo aplica en tiempo real</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={modifyInput}
+                    onChange={(e) => setModifyInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleModify(); } }}
+                    placeholder='Ej: "Agregá una cláusula de penalidades por incumplimiento"'
+                    disabled={isModifying}
+                    className="flex-1 px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent disabled:opacity-50 bg-white"
+                  />
+                  <button
+                    onClick={handleModify}
+                    disabled={isModifying || !modifyInput.trim()}
+                    className="w-10 h-10 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-colors shrink-0"
+                  >
+                    {isModifying ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <Wand2 className="w-4 h-4 text-white" />}
+                  </button>
+                </div>
+                {modifySuccess && (
+                  <p className="mt-2 text-xs text-green-600 flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Contrato actualizado y guardado
+                  </p>
+                )}
+                {isModifying && (
+                  <p className="mt-2 text-xs text-violet-500 flex items-center gap-1">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Aplicando cambios en tiempo real...
+                  </p>
+                )}
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* ── Opciones del documento ───────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -643,14 +794,25 @@ export default function ContractDetailPage() {
           transition={{ delay: 0.15 }}
         >
           <Card>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-9 h-9 bg-slate-50 rounded-xl flex items-center justify-center">
-                <Settings2 className="w-4 h-4 text-slate-500" />
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-slate-50 rounded-xl flex items-center justify-center">
+                  <Settings2 className="w-4 h-4 text-slate-500" />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-slate-900">Opciones del documento</h2>
+                  <p className="text-xs text-slate-500">Personalizá las opciones para PDF y Word</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-base font-semibold text-slate-900">Opciones del documento</h2>
-                <p className="text-xs text-slate-500">Personalizá las opciones para PDF y Word</p>
-              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowModifyPanel((v) => !v)}
+                className={showModifyPanel ? "text-violet-600 bg-violet-50 hover:bg-violet-100 shrink-0" : "shrink-0"}
+              >
+                <Wand2 className="w-4 h-4" />
+                Editar con IA
+              </Button>
             </div>
 
             <div className="space-y-3">
@@ -701,26 +863,39 @@ export default function ContractDetailPage() {
               </div>
 
               {/* Toggle: Codeudor */}
-              <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
-                <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
-                  <UserPlus className="w-4 h-4 text-emerald-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-800">Codeudor / Coarrendatario</p>
-                  <p className="text-xs text-slate-500">Agrega una tercera firma para codeudor o coarrendatario</p>
-                </div>
-                <button
-                  onClick={() => setShowCodudor((v) => !v)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 ${
-                    showCodudor ? "bg-indigo-600" : "bg-slate-200"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                      showCodudor ? "translate-x-6" : "translate-x-1"
+              <div className="rounded-xl border border-slate-100">
+                <div className="flex items-center gap-3 p-3 hover:bg-slate-50 transition-colors rounded-xl">
+                  <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
+                    <UserPlus className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-800">Codeudor / Coarrendatario</p>
+                    <p className="text-xs text-slate-500">Agrega una tercera firma para codeudor o coarrendatario</p>
+                  </div>
+                  <button
+                    onClick={() => setShowCodudor((v) => !v)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 ${
+                      showCodudor ? "bg-indigo-600" : "bg-slate-200"
                     }`}
-                  />
-                </button>
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                        showCodudor ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+                {showCodudor && (
+                  <div className="px-3 pb-3">
+                    <input
+                      type="text"
+                      value={codudorName}
+                      onChange={(e) => setCodudorName(e.target.value)}
+                      placeholder="Nombre completo del codeudor / coarrendatario"
+                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent bg-white text-slate-800 placeholder:text-slate-400"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </Card>

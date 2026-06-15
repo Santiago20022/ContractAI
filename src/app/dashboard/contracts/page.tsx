@@ -272,14 +272,15 @@ function ContractsPageContent() {
         {/* Contracts list */}
         {filteredContracts.length > 0 ? (
           <div className="grid gap-4">
-            <AnimatePresence>
+            <AnimatePresence mode="popLayout">
               {filteredContracts.map((contract, index) => (
                 <motion.div
                   key={contract.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ delay: index * 0.05 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ delay: index * 0.04, duration: 0.2 }}
+                  layout
                 >
                   <Card className="hover:border-slate-300 transition-colors">
                     <div className="flex items-center gap-4">

@@ -9,6 +9,61 @@ export interface ContractWordOptions {
   showCodudor?: boolean;
 }
 
+const CLAUSE_RE =
+  /^(CLÁUSULA\s+)?(PRIMERA|SEGUNDA|TERCERA|CUARTA|QUINTA|SEXTA|SÉPTIMA|OCTAVA|NOVENA|DÉCIMA|UNDÉCIMA|DUODÉCIMA|DECIMOPRIMERA|DECIMOSEGUNDA|DECIMOTERCERA|DECIMOCUARTA|DECIMOQUINTA|DECIMOSEXTA|DECIMOSÉPTIMA|DECIMOCTAVA|DECIMONOVENA|VIGÉSIMA)(\s+(PRIMERA|SEGUNDA|TERCERA|CUARTA|QUINTA|SEXTA|SÉPTIMA|OCTAVA|NOVENA))?\s*[\.\-:]/i;
+
+const SECTION_RE =
+  /^(REUNIDOS|EXPONEN|CLÁUSULAS|ESTIPULACIONES|CONSIDERACIONES|ANTECEDENTES|PARTES)$/i;
+
+function esc(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function parseBody(text: string): string {
+  const lines = text.split("\n");
+  const parts: string[] = [];
+
+  for (const raw of lines) {
+    const t = raw.trim();
+
+    if (!t) {
+      parts.push(`<p style="margin:0 0 4pt 0;">&nbsp;</p>`);
+      continue;
+    }
+
+    if (CLAUSE_RE.test(t)) {
+      parts.push(`
+        <table style="width:100%;border-collapse:collapse;margin:14pt 0 4pt 0;">
+          <tr>
+            <td style="width:4pt;background-color:#4f46e5;padding:0;">&nbsp;</td>
+            <td style="padding:4pt 8pt;background-color:#f8fafc;">
+              <p style="margin:0;font-size:9.5pt;font-weight:bold;color:#0f172a;">${esc(t)}</p>
+            </td>
+          </tr>
+        </table>`);
+      continue;
+    }
+
+    if (SECTION_RE.test(t)) {
+      parts.push(`<p style="margin:12pt 0 3pt 0;font-size:7.5pt;font-weight:bold;color:#4f46e5;letter-spacing:2px;">${esc(t)}</p>`);
+      continue;
+    }
+
+    if (/^[a-z]\)\s/.test(t) || /^(\d+)\.\s/.test(t) || t.startsWith("• ")) {
+      parts.push(`<p style="margin:0 0 4pt 0;padding-left:16pt;font-size:10pt;color:#334155;line-height:1.7;">${esc(t)}</p>`);
+      continue;
+    }
+
+    parts.push(`<p style="margin:0 0 5pt 0;font-size:10pt;color:#334155;line-height:1.75;">${esc(t)}</p>`);
+  }
+
+  return parts.join("\n");
+}
+
 export function generateContractWord(options: ContractWordOptions): Blob {
   const {
     contractTitle,
@@ -27,160 +82,124 @@ export function generateContractWord(options: ContractWordOptions): Blob {
     year: "numeric",
   });
 
-  const escapeHtml = (str: string) =>
-    str
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
+  const hasCodudor = showCodudor;
+  const colPct = hasCodudor ? "30%" : "44%";
+  const spacerPct = hasCodudor ? "5%" : "12%";
 
-  const contractBody = escapeHtml(contractText)
-    .split("\n")
-    .map((line) => (line.trim() ? `<p style="margin:0 0 6pt 0;">${line}</p>` : `<p style="margin:0 0 4pt 0;">&nbsp;</p>`))
-    .join("\n");
-
-  const confidentialBadge = showConfidentialBadge
-    ? `<p style="text-align:center;font-size:8pt;letter-spacing:4px;color:#94a3b8;margin:0 0 12pt 0;">
-        D O C U M E N T O &nbsp; L E G A L &nbsp; · &nbsp; C O N F I D E N C I A L
-      </p>`
+  const fingerprintHtml = showFingerprint
+    ? `<p style="margin:8pt 0 2pt 0;font-size:8pt;color:#64748b;">Huella dactilar:</p>
+       <table style="border-collapse:collapse;margin:0;">
+         <tr><td style="width:52pt;height:52pt;border:1pt dashed #cbd5e1;">&nbsp;</td></tr>
+       </table>`
     : "";
 
-  const fingerprintBox = showFingerprint
-    ? `<p style="margin:10pt 0 4pt 0;font-size:8pt;color:#64748b;">Huella dactilar:</p>
-       <div style="width:60pt;height:60pt;border:1pt dashed #cbd5e1;display:inline-block;"></div>`
-    : "";
-
-  const hasCodudor = showCodudor && partyC;
-  const colWidth = hasCodudor ? "30%" : "44%";
-
-  const sigColA = `
-    <td style="width:${colWidth};vertical-align:top;padding:0 8pt;">
-      <p style="border-top:1pt solid #1e293b;margin:0 0 6pt 0;">&nbsp;</p>
-      <p style="font-size:8pt;font-weight:bold;color:#0f172a;margin:0 0 2pt 0;">PRIMERA PARTE</p>
-      <p style="font-size:9pt;color:#334155;margin:0 0 10pt 0;">${escapeHtml(partyA || "_______________")}</p>
-      <p style="font-size:8pt;color:#94a3b8;border-top:1pt solid #e2e8f0;padding-top:4pt;margin:0 0 4pt 0;">Firma: _______________________</p>
-      <p style="font-size:8pt;color:#94a3b8;border-top:1pt solid #e2e8f0;padding-top:4pt;margin:0 0 4pt 0;">Cédula / DNI / RFC: ___________</p>
-      <p style="font-size:8pt;color:#94a3b8;border-top:1pt solid #e2e8f0;padding-top:4pt;margin:0;">Fecha: ________________________</p>
-      ${fingerprintBox}
-    </td>`;
-
-  const sigColB = `
-    <td style="width:${colWidth};vertical-align:top;padding:0 8pt;">
-      <p style="border-top:1pt solid #1e293b;margin:0 0 6pt 0;">&nbsp;</p>
-      <p style="font-size:8pt;font-weight:bold;color:#0f172a;margin:0 0 2pt 0;">SEGUNDA PARTE</p>
-      <p style="font-size:9pt;color:#334155;margin:0 0 10pt 0;">${escapeHtml(partyB || "_______________")}</p>
-      <p style="font-size:8pt;color:#94a3b8;border-top:1pt solid #e2e8f0;padding-top:4pt;margin:0 0 4pt 0;">Firma: _______________________</p>
-      <p style="font-size:8pt;color:#94a3b8;border-top:1pt solid #e2e8f0;padding-top:4pt;margin:0 0 4pt 0;">Cédula / DNI / RFC: ___________</p>
-      <p style="font-size:8pt;color:#94a3b8;border-top:1pt solid #e2e8f0;padding-top:4pt;margin:0;">Fecha: ________________________</p>
-      ${fingerprintBox}
-    </td>`;
-
-  const sigColC = hasCodudor
-    ? `
-    <td style="width:${colWidth};vertical-align:top;padding:0 8pt;">
-      <p style="border-top:1pt solid #1e293b;margin:0 0 6pt 0;">&nbsp;</p>
-      <p style="font-size:8pt;font-weight:bold;color:#0f172a;margin:0 0 2pt 0;">CODEUDOR / COARRENDATARIO</p>
-      <p style="font-size:9pt;color:#334155;margin:0 0 10pt 0;">${escapeHtml(partyC || "_______________")}</p>
-      <p style="font-size:8pt;color:#94a3b8;border-top:1pt solid #e2e8f0;padding-top:4pt;margin:0 0 4pt 0;">Firma: _______________________</p>
-      <p style="font-size:8pt;color:#94a3b8;border-top:1pt solid #e2e8f0;padding-top:4pt;margin:0 0 4pt 0;">Cédula / DNI / RFC: ___________</p>
-      <p style="font-size:8pt;color:#94a3b8;border-top:1pt solid #e2e8f0;padding-top:4pt;margin:0;">Fecha: ________________________</p>
-      ${fingerprintBox}
-    </td>`
-    : "";
+  function sigCol(role: string, name: string): string {
+    return `
+      <td style="width:${colPct};vertical-align:top;padding:0 10pt 0 0;">
+        <p style="border-top:1pt solid #1e293b;margin:0 0 5pt 0;">&nbsp;</p>
+        <p style="font-size:7.5pt;font-weight:bold;color:#4f46e5;letter-spacing:1.5px;margin:0 0 2pt 0;">${role}</p>
+        <p style="font-size:9.5pt;font-weight:bold;color:#0f172a;margin:0 0 10pt 0;">${esc(name || "_______________")}</p>
+        <p style="font-size:8pt;color:#94a3b8;border-top:1pt solid #e2e8f0;padding-top:4pt;margin:0 0 5pt 0;">Firma: _______________________</p>
+        <p style="font-size:8pt;color:#94a3b8;border-top:1pt solid #e2e8f0;padding-top:4pt;margin:0 0 5pt 0;">Cédula / DNI / RFC: ___________</p>
+        <p style="font-size:8pt;color:#94a3b8;border-top:1pt solid #e2e8f0;padding-top:4pt;margin:0;">Fecha: ________________________</p>
+        ${fingerprintHtml}
+      </td>`;
+  }
 
   const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office'
   xmlns:w='urn:schemas-microsoft-com:office:word'
   xmlns='http://www.w3.org/TR/REC-html40'>
 <head>
   <meta charset="UTF-8" />
-  <title>${escapeHtml(contractTitle)}</title>
-  <!--[if gte mso 9]>
-  <xml>
+  <title>${esc(contractTitle)}</title>
+  <!--[if gte mso 9]><xml>
     <w:WordDocument>
       <w:View>Print</w:View>
       <w:Zoom>100</w:Zoom>
+      <w:DoNotOptimizeForBrowser/>
     </w:WordDocument>
-  </xml>
-  <![endif]-->
+  </xml><![endif]-->
   <style>
-    body {
-      font-family: Helvetica, Arial, sans-serif;
-      font-size: 10pt;
-      color: #334155;
-      margin: 0;
-      padding: 0;
-    }
-    @page {
-      margin: 2.5cm 2cm;
-    }
+    @page { margin: 2cm 2.5cm; mso-header-margin: 1cm; mso-footer-margin: 1cm; }
+    body { font-family: Helvetica, Arial, sans-serif; font-size: 10pt; color: #334155; margin: 0; padding: 0; }
     p { margin: 0 0 6pt 0; line-height: 1.6; }
-    table { border-collapse: collapse; width: 100%; }
+    table { border-collapse: collapse; }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <table style="width:100%;border-bottom:2pt solid #4f46e5;margin-bottom:16pt;">
+  <!-- Slim header -->
+  <table style="width:100%;border-bottom:1.5pt solid #4f46e5;padding-bottom:6pt;margin-bottom:0;">
     <tr>
-      <td style="font-size:9pt;font-weight:bold;color:#0f172a;padding-bottom:6pt;">
-        Contract<span style="color:#4f46e5;">AI</span>
+      <td style="font-size:9pt;font-weight:bold;color:#0f172a;">
+        CONTRACT<span style="color:#4f46e5;">AI</span>
       </td>
-      <td style="text-align:right;font-size:7pt;color:#94a3b8;padding-bottom:6pt;">
-        ${escapeHtml(contractTitle)} &middot; ${today}
+      <td style="text-align:right;font-size:7.5pt;color:#94a3b8;">
+        ${esc(contractTitle)} &middot; ${today}
       </td>
     </tr>
   </table>
 
-  <!-- Title block -->
-  <div style="background-color:#4f46e5;padding:18pt 24pt;margin-bottom:16pt;">
-    <p style="font-size:7pt;font-weight:bold;color:#c7d2fe;letter-spacing:3px;margin:0 0 6pt 0;">DOCUMENTO LEGAL</p>
-    <p style="font-size:20pt;font-weight:bold;color:#ffffff;margin:0;">${escapeHtml(contractTitle)}</p>
+  <!-- Title block (white bg, matches PDF) -->
+  <div style="margin:20pt 0 0 0;">
+    <p style="margin:0 0 6pt 0;font-size:8pt;font-weight:bold;color:#4f46e5;letter-spacing:3px;">
+      DOCUMENTO LEGAL${showConfidentialBadge ? "&nbsp;&nbsp;&middot;&nbsp;&nbsp;CONFIDENCIAL" : ""}
+    </p>
+    <table style="margin:0 0 16pt 0;border-collapse:collapse;">
+      <tr>
+        <td style="width:36pt;height:2.5pt;background-color:#b8860b;font-size:1pt;">&nbsp;</td>
+      </tr>
+    </table>
+    <p style="margin:0 0 8pt 0;font-size:26pt;font-weight:bold;color:#0f172a;line-height:1.2;">${esc(contractTitle)}</p>
+    <p style="margin:0 0 20pt 0;font-size:10pt;color:#94a3b8;">Otorgado el ${today}</p>
   </div>
 
-  ${confidentialBadge}
-
-  <!-- Parties -->
-  <table style="border:1pt solid #e2e8f0;margin-bottom:16pt;">
+  <!-- Parties (solo Primera y Segunda parte, el codeudor va solo en firmas) -->
+  <table style="width:100%;border:1pt solid #e2e8f0;margin-bottom:16pt;">
     <tr>
       <td style="width:50%;padding:8pt 12pt;background-color:#f8fafc;">
-        <p style="font-size:7pt;font-weight:bold;color:#4f46e5;letter-spacing:2px;margin:0 0 4pt 0;">PRIMERA PARTE</p>
-        <p style="font-size:9pt;font-weight:bold;color:#0f172a;margin:0;">${escapeHtml(partyA || "—")}</p>
+        <p style="font-size:7pt;font-weight:bold;color:#4f46e5;letter-spacing:1.5px;margin:0 0 3pt 0;">PRIMERA PARTE</p>
+        <p style="font-size:9.5pt;font-weight:bold;color:#0f172a;margin:0;">${esc(partyA || "—")}</p>
       </td>
       <td style="width:50%;padding:8pt 12pt;background-color:#ffffff;border-left:1pt solid #e2e8f0;">
-        <p style="font-size:7pt;font-weight:bold;color:#4f46e5;letter-spacing:2px;margin:0 0 4pt 0;">SEGUNDA PARTE</p>
-        <p style="font-size:9pt;font-weight:bold;color:#0f172a;margin:0;">${escapeHtml(partyB || "—")}</p>
+        <p style="font-size:7pt;font-weight:bold;color:#4f46e5;letter-spacing:1.5px;margin:0 0 3pt 0;">SEGUNDA PARTE</p>
+        <p style="font-size:9.5pt;font-weight:bold;color:#0f172a;margin:0;">${esc(partyB || "—")}</p>
       </td>
     </tr>
   </table>
 
   <!-- Contract body -->
-  <div style="white-space:pre-wrap;font-size:10pt;line-height:1.75;color:#334155;margin-bottom:24pt;">
-    ${contractBody}
+  <div style="margin-bottom:24pt;">
+    ${parseBody(contractText)}
   </div>
 
   <!-- Signatures -->
-  <div style="margin-top:24pt;">
-    <hr style="border:none;border-top:1pt solid #cbd5e1;margin-bottom:16pt;" />
-    <p style="font-size:7pt;font-weight:bold;color:#64748b;letter-spacing:2px;text-align:center;margin:0 0 16pt 0;">
+  <div style="margin-top:28pt;">
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14pt;">
+      <tr><td style="border-top:1pt solid #cbd5e1;">&nbsp;</td></tr>
+    </table>
+    <p style="font-size:7.5pt;font-weight:bold;color:#64748b;letter-spacing:2px;text-align:center;margin:0 0 14pt 0;">
       FIRMAS DE CONFORMIDAD
     </p>
     <table style="width:100%;">
       <tr>
-        ${sigColA}
-        ${hasCodudor ? "" : `<td style="width:12%;">&nbsp;</td>`}
-        ${sigColB}
-        ${sigColC}
+        ${sigCol("PRIMERA PARTE", partyA)}
+        <td style="width:${spacerPct};">&nbsp;</td>
+        ${sigCol("SEGUNDA PARTE", partyB)}
+        ${hasCodudor ? `<td style="width:${spacerPct};">&nbsp;</td>${sigCol("CODEUDOR / COARRENDATARIO", partyC!)}` : ""}
       </tr>
     </table>
   </div>
 
   <!-- Footer -->
-  <div style="margin-top:32pt;border-top:1pt solid #e2e8f0;padding-top:6pt;">
-    <p style="font-size:7pt;color:#94a3b8;margin:0;">Generado por ContractAI &middot; contractai.app</p>
-  </div>
+  <table style="width:100%;border-top:1pt solid #e2e8f0;margin-top:28pt;">
+    <tr>
+      <td style="font-size:7.5pt;color:#94a3b8;padding-top:5pt;">Generado por ContractAI &middot; contractai.app</td>
+    </tr>
+  </table>
 
 </body>
 </html>`;
 
-  return new Blob(["﻿", html], { type: "application/msword" });
+  return new Blob([html], { type: "application/msword" });
 }
