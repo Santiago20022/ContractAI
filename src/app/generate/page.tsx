@@ -262,58 +262,65 @@ export default function GeneratePage() {
     const instruction = chatInput.trim();
     if (!instruction || !generatedContract || isModifying) return;
 
+    const previousContract = generatedContract;
     setChatInput("");
-    setChatMessages((prev) => [...prev, { role: "user", content: instruction }]);
+    setChatMessages((prev) => [...prev, { role: "user", content: instruction }, { role: "ai", content: "" }]);
     setIsModifying(true);
 
     try {
       const res = await fetch("/api/modify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contractText: generatedContract, instruction }),
+        body: JSON.stringify({ contractText: previousContract, instruction }),
       });
 
       const contentType = res.headers.get("Content-Type") || "";
 
       if (contentType.includes("application/json")) {
-        // Fallback — no Gemini
-        setChatMessages((prev) => [
-          ...prev,
-          { role: "ai", content: "No se pudo modificar con IA ahora. Intenta de nuevo más tarde." },
-        ]);
+        setChatMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "ai", content: "No se pudo modificar con IA. Intenta de nuevo." };
+          return updated;
+        });
+        return;
+      }
+
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No stream");
+
+      const decoder = new TextDecoder();
+      let fullText = "";
+      setGeneratedContract("");
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        fullText += decoder.decode(value, { stream: true });
+        setGeneratedContract(fullText);
+      }
+
+      if (fullText.trim()) {
+        setAiUsed(true);
+        setChatMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "ai", content: "✓ Contrato actualizado" };
+          return updated;
+        });
       } else {
-        const reader = res.body?.getReader();
-        if (!reader) throw new Error("No stream");
-
-        const decoder = new TextDecoder();
-        let fullText = "";
-
-        // Add placeholder AI message
-        setChatMessages((prev) => [...prev, { role: "ai", content: "" }]);
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          fullText += chunk;
-          setChatMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1] = { role: "ai", content: "✓ Contrato actualizado" };
-            return updated;
-          });
-        }
-
-        if (fullText.trim()) {
-          setGeneratedContract(fullText);
-          setAiUsed(true);
-          saveToStorage(fullText);
-        }
+        setGeneratedContract(previousContract);
+        setChatMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "ai", content: "La IA no devolvió contenido. Intenta de nuevo." };
+          return updated;
+        });
       }
     } catch {
-      setChatMessages((prev) => [
-        ...prev,
-        { role: "ai", content: "Ocurrió un error al modificar el contrato." },
-      ]);
+      setGeneratedContract(previousContract);
+      setChatMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: "ai", content: "Ocurrió un error al modificar el contrato." };
+        return updated;
+      });
     } finally {
       setIsModifying(false);
     }
