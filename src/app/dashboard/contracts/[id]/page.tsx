@@ -20,19 +20,24 @@ import dynamic from "next/dynamic";
 const SignatureCanvas = dynamic(() => import("@/components/shared/SignatureCanvas"), { ssr: false });
 import {
   ArrowLeft,
+  BadgeCheck,
   Calendar,
   CheckCircle2,
   Clock,
   Copy,
   Download,
+  FileDown,
   FileText,
+  Fingerprint,
   Loader2,
   MessageCircle,
   PenLine,
   Send,
+  Settings2,
   Share2,
   Trash2,
   User,
+  UserPlus,
   X,
   Plus,
   Pencil,
@@ -99,7 +104,12 @@ export default function ContractDetailPage() {
 
   // Delete confirm modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [sigRoleToRemove, setSigRoleToRemove] = useState<"A" | "B" | null>(null);
+  const [sigRoleToRemove, setSigRoleToRemove] = useState<"A" | "B" | "C" | null>(null);
+
+  // Document options
+  const [showFingerprint, setShowFingerprint] = useState(false);
+  const [showConfidentialBadge, setShowConfidentialBadge] = useState(false);
+  const [showCodudor, setShowCodudor] = useState(false);
 
   // Action state
   const [copied, setCopied] = useState(false);
@@ -108,7 +118,7 @@ export default function ContractDetailPage() {
 
   // Sign modal state
   const [showSignModal, setShowSignModal] = useState(false);
-  const [sigRole, setSigRole] = useState<"A" | "B">("A");
+  const [sigRole, setSigRole] = useState<"A" | "B" | "C">("A");
   const [sigName, setSigName] = useState("");
   const [isSigning, setIsSigning] = useState(false);
   const [sigMode, setSigMode] = useState<"text" | "draw" | "saved">("text");
@@ -150,6 +160,14 @@ export default function ContractDetailPage() {
     }
   }, [contractId, user, router]);
 
+  // ── Auto-detect codeudor ───────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (contract?.signatures?.some((s) => s.role === "C")) {
+      setShowCodudor(true);
+    }
+  }, [contract]);
+
   // ── Scroll chat to bottom ──────────────────────────────────────────────────
 
   useEffect(() => {
@@ -169,11 +187,19 @@ export default function ContractDetailPage() {
     if (!contract) return;
     try {
       const { generateContractPDF } = await import("@/lib/generateContractPDF");
+      const sigC = contract.signatures?.find((s) => s.role === "C");
       const blob = await generateContractPDF({
         contractTitle: contract.title,
         partyA: contract.partyAName || "",
         partyB: contract.partyBName || "",
+        partyC: sigC?.name,
         contractText: contract.content,
+        showFingerprint,
+        showConfidentialBadge,
+        showCodudor,
+        signatureA: sigA ? { name: sigA.name, signedAt: sigA.signedAt, image: sigA.signatureImage } : undefined,
+        signatureB: sigB ? { name: sigB.name, signedAt: sigB.signedAt, image: sigB.signatureImage } : undefined,
+        signatureC: sigC ? { name: sigC.name, signedAt: sigC.signedAt, image: sigC.signatureImage } : undefined,
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -186,6 +212,30 @@ export default function ContractDetailPage() {
     } catch (err) {
       console.error("PDF generation failed:", err);
     }
+  };
+
+  const handleDownloadWord = async () => {
+    if (!contract) return;
+    const { generateContractWord } = await import("@/lib/generateContractWord");
+    const sigC = contract.signatures?.find((s) => s.role === "C");
+    const blob = generateContractWord({
+      contractTitle: contract.title,
+      partyA: contract.partyAName || "",
+      partyB: contract.partyBName || "",
+      partyC: sigC?.name,
+      contractText: contract.content,
+      showConfidentialBadge,
+      showFingerprint,
+      showCodudor,
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${contract.title.replace(/\s+/g, "_")}.doc`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const handleShare = async () => {
@@ -240,7 +290,7 @@ export default function ContractDetailPage() {
 
   // ── Signature handlers ─────────────────────────────────────────────────────
 
-  const openSignModal = (role: "A" | "B") => {
+  const openSignModal = (role: "A" | "B" | "C") => {
     setSigRole(role);
     setSigName("");
     setSavedSigs(getSavedSignatures());
@@ -380,6 +430,7 @@ export default function ContractDetailPage() {
   const typeName = CONTRACT_TYPE_NAMES[contract.type] || contract.type;
   const sigA = contract.signatures?.find((s) => s.role === "A");
   const sigB = contract.signatures?.find((s) => s.role === "B");
+  const sigC = contract.signatures?.find((s) => s.role === "C");
 
   const expiryDays = contract.expiresAt ? getDaysRemaining(contract.expiresAt) : null;
   const expiryColor =
@@ -413,14 +464,13 @@ export default function ContractDetailPage() {
             Volver a mis contratos
           </Link>
 
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-            <div className="min-w-0">
-              <h1 className="text-2xl font-bold text-slate-900 break-words">
-                {contract.title}
-              </h1>
+          <div className="flex flex-col gap-3">
+            <h1 className="text-2xl font-bold text-slate-900 break-words">
+              {contract.title}
+            </h1>
 
-              {/* Metadata row */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-sm text-slate-500">
+            {/* Metadata row */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500">
                 <span className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full text-xs font-medium">
                   {typeName}
                 </span>
@@ -491,11 +541,10 @@ export default function ContractDetailPage() {
                     </button>
                   )}
                 </span>
-              </div>
             </div>
 
             {/* Action buttons */}
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <div className="flex flex-wrap items-center gap-2">
               <Button variant="ghost" size="sm" onClick={handleCopy}>
                 <Copy className="w-4 h-4" />
                 {copied ? "¡Copiado!" : "Copiar texto"}
@@ -504,6 +553,11 @@ export default function ContractDetailPage() {
               <Button variant="secondary" size="sm" onClick={handleDownloadPDF}>
                 <Download className="w-4 h-4" />
                 Descargar PDF
+              </Button>
+
+              <Button variant="ghost" size="sm" onClick={handleDownloadWord}>
+                <FileDown className="w-4 h-4" />
+                Descargar Word
               </Button>
 
               <Button
@@ -567,6 +621,13 @@ export default function ContractDetailPage() {
                 </div>
               )}
             </div>
+            {showConfidentialBadge && (
+              <div className="flex items-center justify-center mb-3">
+                <span className="text-xs font-semibold tracking-[0.3em] text-slate-400 border border-slate-200 rounded-full px-4 py-1">
+                  D O C U M E N T O &nbsp; L E G A L &nbsp; · &nbsp; C O N F I D E N C I A L
+                </span>
+              </div>
+            )}
             <div className="bg-slate-50 rounded-xl p-6 max-h-[600px] overflow-y-auto">
               <pre className="whitespace-pre-wrap font-mono text-sm text-slate-700 leading-relaxed">
                 {contract.content}
@@ -575,11 +636,101 @@ export default function ContractDetailPage() {
           </Card>
         </motion.div>
 
-        {/* ── Firma electrónica ─────────────────────────────────────────────── */}
+        {/* ── Opciones del documento ───────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
+        >
+          <Card>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-9 h-9 bg-slate-50 rounded-xl flex items-center justify-center">
+                <Settings2 className="w-4 h-4 text-slate-500" />
+              </div>
+              <div>
+                <h2 className="text-base font-semibold text-slate-900">Opciones del documento</h2>
+                <p className="text-xs text-slate-500">Personalizá las opciones para PDF y Word</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {/* Toggle: Confidencial */}
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
+                <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center shrink-0">
+                  <BadgeCheck className="w-4 h-4 text-indigo-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-800">Sello confidencial</p>
+                  <p className="text-xs text-slate-500">Agrega "DOCUMENTO LEGAL · CONFIDENCIAL" al encabezado</p>
+                </div>
+                <button
+                  onClick={() => setShowConfidentialBadge((v) => !v)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 ${
+                    showConfidentialBadge ? "bg-indigo-600" : "bg-slate-200"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      showConfidentialBadge ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Toggle: Huella dactilar */}
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
+                <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center shrink-0">
+                  <Fingerprint className="w-4 h-4 text-slate-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-800">Espacio para huella dactilar</p>
+                  <p className="text-xs text-slate-500">Incluye un recuadro para huella en cada firma</p>
+                </div>
+                <button
+                  onClick={() => setShowFingerprint((v) => !v)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 ${
+                    showFingerprint ? "bg-indigo-600" : "bg-slate-200"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      showFingerprint ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Toggle: Codeudor */}
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
+                <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
+                  <UserPlus className="w-4 h-4 text-emerald-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-800">Codeudor / Coarrendatario</p>
+                  <p className="text-xs text-slate-500">Agrega una tercera firma para codeudor o coarrendatario</p>
+                </div>
+                <button
+                  onClick={() => setShowCodudor((v) => !v)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 ${
+                    showCodudor ? "bg-indigo-600" : "bg-slate-200"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      showCodudor ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* ── Firma electrónica ─────────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
         >
           <Card>
             <div className="flex items-center gap-3 mb-5">
@@ -592,9 +743,13 @@ export default function ContractDetailPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {(["A", "B"] as const).map((role) => {
-                const sig = role === "A" ? sigA : sigB;
+            <div className={`grid grid-cols-1 gap-4 ${showCodudor ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
+              {(showCodudor ? (["A", "B", "C"] as const) : (["A", "B"] as const)).map((role) => {
+                const sig = role === "A" ? sigA : role === "B" ? sigB : sigC;
+                const roleLabel =
+                  role === "C" ? "CODEUDOR / COARRENDATARIO" : `Parte ${role}`;
+                const buttonLabel =
+                  role === "C" ? "Firmar como Codeudor" : `Firmar como Parte ${role}`;
                 return (
                   <div
                     key={role}
@@ -606,7 +761,7 @@ export default function ContractDetailPage() {
                   >
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                        Parte {role}
+                        {roleLabel}
                       </span>
                       {sig && (
                         <div className="flex items-center gap-2">
@@ -657,7 +812,7 @@ export default function ContractDetailPage() {
                           onClick={() => openSignModal(role)}
                         >
                           <PenLine className="w-3.5 h-3.5" />
-                          Firmar como Parte {role}
+                          {buttonLabel}
                         </Button>
                       </div>
                     )}

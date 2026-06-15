@@ -1,7 +1,7 @@
 // Contract storage using LocalStorage (no API key needed)
 
 export type Signature = {
-  role: "A" | "B";
+  role: "A" | "B" | "C";
   name: string;
   signedAt: string;
   signatureImage?: string;

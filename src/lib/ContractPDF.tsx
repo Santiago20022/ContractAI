@@ -368,11 +368,16 @@ export interface ContractPDFProps {
   contractTitle: string;
   partyA: string;
   partyB: string;
+  partyC?: string;
   signatureA?: { name: string; signedAt: string; image?: string };
   signatureB?: { name: string; signedAt: string; image?: string };
+  signatureC?: { name: string; signedAt: string; image?: string };
+  showFingerprint?: boolean;
+  showConfidentialBadge?: boolean;
+  showCodudor?: boolean;
 }
 
-export function ContractPDF({ contractText, contractTitle, partyA, partyB, signatureA, signatureB }: ContractPDFProps) {
+export function ContractPDF({ contractText, contractTitle, partyA, partyB, partyC, signatureA, signatureB, signatureC, showFingerprint, showConfidentialBadge, showCodudor }: ContractPDFProps) {
   const today = new Date().toLocaleDateString("es-ES", {
     year: "numeric",
     month: "long",
@@ -399,6 +404,15 @@ export function ContractPDF({ contractText, contractTitle, partyA, partyB, signa
           <Text style={s.docTitle}>{contractTitle}</Text>
         </View>
 
+        {/* ── Confidential badge ── */}
+        {showConfidentialBadge && (
+          <View style={{ alignItems: "center", paddingVertical: 6 }}>
+            <Text style={{ fontSize: 7, letterSpacing: 3, color: C.slate400 }}>
+              D O C U M E N T O   L E G A L   ·   C O N F I D E N C I A L
+            </Text>
+          </View>
+        )}
+
         {/* ── Body ── */}
         <View style={s.body}>
 
@@ -412,6 +426,12 @@ export function ContractPDF({ contractText, contractTitle, partyA, partyB, signa
               <Text style={s.partyLabel}>SEGUNDA PARTE</Text>
               <Text style={s.partyName}>{partyB || "—"}</Text>
             </View>
+            {showCodudor && partyC && (
+              <View style={[s.partyB, { borderLeftWidth: 1, borderLeftColor: C.slate200 }]}>
+                <Text style={s.partyLabel}>CODEUDOR / COARRENDATARIO</Text>
+                <Text style={s.partyName}>{partyC}</Text>
+              </View>
+            )}
           </View>
 
           {/* Contract content */}
@@ -422,7 +442,8 @@ export function ContractPDF({ contractText, contractTitle, partyA, partyB, signa
             <View style={s.sigRule} />
             <Text style={s.sigTitle}>FIRMAS DE CONFORMIDAD</Text>
             <View style={s.sigRow}>
-              <View style={s.sigCol}>
+              {/* Parte A */}
+              <View style={{ width: showCodudor ? "30%" : "44%" }}>
                 <View style={s.sigLine} />
                 <Text style={s.sigRole}>PRIMERA PARTE</Text>
                 <Text style={s.sigName}>{signatureA?.name || partyA || "_______________"}</Text>
@@ -435,8 +456,16 @@ export function ContractPDF({ contractText, contractTitle, partyA, partyB, signa
                 <Text style={s.sigField}>
                   Fecha: {signatureA?.signedAt ? new Date(signatureA.signedAt).toLocaleDateString("es-ES") : "_________________________"}
                 </Text>
+                {showFingerprint && (
+                  <View style={{ marginTop: 8 }}>
+                    <Text style={[s.sigField, { marginBottom: 4 }]}>Huella dactilar:</Text>
+                    <View style={{ width: 50, height: 50, borderWidth: 1, borderColor: C.slate300, borderStyle: "dashed" }} />
+                  </View>
+                )}
               </View>
-              <View style={s.sigCol}>
+
+              {/* Parte B */}
+              <View style={{ width: showCodudor ? "30%" : "44%" }}>
                 <View style={s.sigLine} />
                 <Text style={s.sigRole}>SEGUNDA PARTE</Text>
                 <Text style={s.sigName}>{signatureB?.name || partyB || "_______________"}</Text>
@@ -449,7 +478,37 @@ export function ContractPDF({ contractText, contractTitle, partyA, partyB, signa
                 <Text style={s.sigField}>
                   Fecha: {signatureB?.signedAt ? new Date(signatureB.signedAt).toLocaleDateString("es-ES") : "_________________________"}
                 </Text>
+                {showFingerprint && (
+                  <View style={{ marginTop: 8 }}>
+                    <Text style={[s.sigField, { marginBottom: 4 }]}>Huella dactilar:</Text>
+                    <View style={{ width: 50, height: 50, borderWidth: 1, borderColor: C.slate300, borderStyle: "dashed" }} />
+                  </View>
+                )}
               </View>
+
+              {/* Parte C — Codeudor */}
+              {showCodudor && (
+                <View style={{ width: "30%" }}>
+                  <View style={s.sigLine} />
+                  <Text style={s.sigRole}>CODEUDOR / COARRENDATARIO</Text>
+                  <Text style={s.sigName}>{signatureC?.name || partyC || "_______________"}</Text>
+                  {signatureC?.image ? (
+                    <Image src={signatureC.image} style={{ width: 100, height: 35, objectFit: "contain" }} />
+                  ) : (
+                    <Text style={s.sigField}>Firma: ________________________</Text>
+                  )}
+                  <Text style={s.sigField}>Cédula / DNI / RFC: ____________</Text>
+                  <Text style={s.sigField}>
+                    Fecha: {signatureC?.signedAt ? new Date(signatureC.signedAt).toLocaleDateString("es-ES") : "_________________________"}
+                  </Text>
+                  {showFingerprint && (
+                    <View style={{ marginTop: 8 }}>
+                      <Text style={[s.sigField, { marginBottom: 4 }]}>Huella dactilar:</Text>
+                      <View style={{ width: 50, height: 50, borderWidth: 1, borderColor: C.slate300, borderStyle: "dashed" }} />
+                    </View>
+                  )}
+                </View>
+              )}
             </View>
           </View>
 
