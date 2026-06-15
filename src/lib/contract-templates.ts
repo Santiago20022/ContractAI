@@ -3,6 +3,7 @@
 export type ContractData = {
   partyA: string;
   partyB: string;
+  partyC?: string;
   description: string;
   amount: string;
   duration: string;

@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
-    const prompt = `${SYSTEM_PROMPT}\n\nGenera un ${CONTRACT_TYPES_ES[type] || type} con estos datos:\nPARTE A: ${data.partyA}\nPARTE B: ${data.partyB}\nObjeto: ${data.description}\nValor: ${data.amount}\nDuración: ${data.duration}\nCiudad: ${data.city || "Bogotá, Colombia"}\nFecha: ${data.date || new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" })}\n${data.additionalClauses ? "Cláusulas adicionales: " + data.additionalClauses : ""}`;
+    const prompt = `${SYSTEM_PROMPT}\n\nGenera un ${CONTRACT_TYPES_ES[type] || type} con estos datos:\nPARTE A: ${data.partyA}\nPARTE B: ${data.partyB}\n${data.partyC ? `CODEUDOR / COARRENDATARIO: ${data.partyC}\n` : ""}Objeto: ${data.description}\nValor: ${data.amount}\nDuración: ${data.duration}\nCiudad: ${data.city || "Bogotá, Colombia"}\nFecha: ${data.date || new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" })}\n${data.additionalClauses ? "Cláusulas adicionales: " + data.additionalClauses : ""}`;
 
     const result = await model.generateContentStream(prompt);
 

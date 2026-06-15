@@ -34,6 +34,7 @@ import {
   Sparkles,
   Truck,
   UserCheck,
+  UserPlus,
   Users,
   Wand2,
 } from "lucide-react";
@@ -147,12 +148,14 @@ export default function GeneratePage() {
   const [formData, setFormData] = useState<ContractData>({
     partyA: "",
     partyB: "",
+    partyC: "",
     description: "",
     amount: "",
     duration: "",
     additionalClauses: "",
     city: "",
   });
+  const [showCodudor, setShowCodudor] = useState(false);
 
   // Mini-chat state
   type ChatMsg = { role: "user" | "ai"; content: string };
@@ -319,7 +322,7 @@ export default function GeneratePage() {
   const saveToStorage = (contract: string) => {
     if (user) {
       const selectedContractType = contractTypes.find((c) => c.id === selectedType);
-      addContract(user.id, {
+      const saved = addContract(user.id, {
         title: `${selectedContractType?.title || "Contrato"} - ${formData.partyB || "Sin nombre"}`,
         type: selectedType!,
         content: contract,
@@ -327,6 +330,14 @@ export default function GeneratePage() {
         partyAName: formData.partyA,
         partyBName: formData.partyB,
       });
+      if (showCodudor && formData.partyC) {
+        localStorage.setItem(`contractai_opts_${saved.id}`, JSON.stringify({
+          fingerprint: false,
+          confidential: false,
+          codeudor: true,
+          codudorName: formData.partyC,
+        }));
+      }
     }
   };
 
@@ -596,6 +607,36 @@ export default function GeneratePage() {
                       setFormData({ ...formData, city: e.target.value })
                     }
                   />
+
+                  {/* Codeudor opcional */}
+                  <div className="rounded-xl border border-slate-200 overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setShowCodudor((v) => !v)}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left"
+                    >
+                      <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
+                        <UserPlus className="w-4 h-4 text-emerald-500" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-slate-800">Codeudor / Coarrendatario <span className="text-slate-400 font-normal">(opcional)</span></p>
+                        <p className="text-xs text-slate-500">Agregar una tercera parte que garantiza el contrato</p>
+                      </div>
+                      <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 ${showCodudor ? "bg-emerald-500" : "bg-slate-200"}`}>
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${showCodudor ? "translate-x-6" : "translate-x-1"}`} />
+                      </div>
+                    </button>
+                    {showCodudor && (
+                      <div className="px-4 pb-4 pt-1 border-t border-slate-100 bg-slate-50">
+                        <Input
+                          label="Nombre completo del codeudor / coarrendatario"
+                          placeholder="Ej: Luis Eduardo Rocha"
+                          value={formData.partyC || ""}
+                          onChange={(e) => setFormData({ ...formData, partyC: e.target.value })}
+                        />
+                      </div>
+                    )}
+                  </div>
 
                   <Textarea
                     label="Cláusulas adicionales (opcional)"
