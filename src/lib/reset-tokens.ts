@@ -15,8 +15,8 @@ async function getKey(): Promise<CryptoKey> {
   );
 }
 
-function b64url(buf: ArrayBuffer): string {
-  const bytes = new Uint8Array(buf);
+function b64url(buf: ArrayBuffer | Uint8Array): string {
+  const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
   let bin = "";
   for (const b of bytes) bin += String.fromCharCode(b);
   return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
