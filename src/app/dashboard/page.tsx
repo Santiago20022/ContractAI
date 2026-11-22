@@ -278,7 +278,7 @@ export default function DashboardPage() {
 
               <div className="space-y-2">
                 {expiringContracts.map((contract) => {
-                  const daysLeft = getDaysLeft(contract.expiresAt);
+                  const daysLeft = getDaysLeft(contract.expiresAt!);
                   const colorClass = getExpiryColorClass(daysLeft);
                   return (
                     <Link
