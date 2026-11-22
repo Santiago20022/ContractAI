@@ -1,12 +1,11 @@
 import OpenAI from "openai";
 import { analyzeContract } from "@/lib/contract-templates";
 
-const groq = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1",
-});
-
 export async function POST(request: Request) {
+  const groq = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: "https://api.groq.com/openai/v1",
+  });
   let content = "";
 
   try {
