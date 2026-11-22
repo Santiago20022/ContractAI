@@ -1,19 +1,21 @@
 import OpenAI from "openai";
 
-const groq = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1",
-});
-
 const MODEL = "llama-3.3-70b-versatile";
 
 type Message = { role: "system" | "user" | "assistant"; content: string };
+
+function getClient() {
+  return new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: "https://api.groq.com/openai/v1",
+  });
+}
 
 export async function streamGroqText(
   messages: Message[],
   opts?: { temperature?: number }
 ): Promise<Response> {
-  const stream = await groq.chat.completions.create({
+  const stream = await getClient().chat.completions.create({
     model: MODEL,
     messages,
     stream: true,

@@ -740,7 +740,7 @@ export default function GeneratePage() {
                       {aiUsed === true && (
                         <span className="inline-flex items-center gap-1.5 bg-white/15 text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-white/20">
                           <Sparkles className="w-3 h-3" />
-                          Gemini AI
+                          Groq AI
                         </span>
                       )}
                       {aiUsed === false && (

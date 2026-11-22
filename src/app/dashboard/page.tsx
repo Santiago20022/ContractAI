@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/Card";
 import { DashboardLayout } from "@/components/shared/DashboardLayout";
 import { useAuth } from "@/context/AuthContext";
-import { getUserContracts, getUserStats } from "@/lib/contracts-storage";
+import { getUserContracts, getUserStats, Contract } from "@/lib/contracts-storage";
 import { motion } from "framer-motion";
 import {
   AlertTriangle,
@@ -27,7 +27,7 @@ import { useEffect, useState } from "react";
 export default function DashboardPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
-  const [contracts, setContracts] = useState<any[]>([]);
+  const [contracts, setContracts] = useState<Contract[]>([]);
   const [stats, setStats] = useState({
     totalContracts: 0,
     completedContracts: 0,
@@ -278,7 +278,7 @@ export default function DashboardPage() {
 
               <div className="space-y-2">
                 {expiringContracts.map((contract) => {
-                  const daysLeft = getDaysLeft(contract.expiresAt);
+                  const daysLeft = getDaysLeft(contract.expiresAt!);
                   const colorClass = getExpiryColorClass(daysLeft);
                   return (
                     <Link
