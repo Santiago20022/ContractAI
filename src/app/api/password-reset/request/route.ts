@@ -18,7 +18,7 @@ export async function POST(request: Request) {
 
   // Always return success to avoid user enumeration
   // (we generate and send a token only if the email actually exists — silently skip otherwise)
-  const token = createResetToken(normalizedEmail);
+  const token = await createResetToken(normalizedEmail);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const resetLink = `${appUrl}/reset-password?token=${token}`;
 

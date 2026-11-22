@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
   // consume=true: use the token (called when actually resetting the password)
   // consume=false/undefined: just check validity without burning it (used on page load)
-  const email = consume ? consumeResetToken(token) : peekResetToken(token);
+  const email = consume ? await consumeResetToken(token) : await peekResetToken(token);
 
   if (!email) {
     return Response.json({ valid: false, error: "Token inválido o expirado" }, { status: 400 });
