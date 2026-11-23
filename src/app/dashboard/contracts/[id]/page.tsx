@@ -102,6 +102,7 @@ export default function ContractDetailPage() {
 
   // Core state
   const [contract, setContract] = useState<Contract | null>(null);
+  const [contractLoading, setContractLoading] = useState(true);
 
   // Delete confirm modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -126,6 +127,7 @@ export default function ContractDetailPage() {
   const [isSigning, setIsSigning] = useState(false);
   const [sigMode, setSigMode] = useState<"text" | "draw" | "saved">("text");
   const [sigImageBase64, setSigImageBase64] = useState<string | null>(null);
+  const [sigConfirmed, setSigConfirmed] = useState(false);
   const [savedSigs, setSavedSigs] = useState<SavedSignature[]>([]);
   const [saveLabel, setSaveLabel] = useState("");
   const [showSaveForm, setShowSaveForm] = useState(false);
@@ -164,13 +166,13 @@ export default function ContractDetailPage() {
 
   useEffect(() => {
     if (contractId && user) {
+      setContractLoading(true);
       getContract(contractId, user.id).then((found) => {
         if (found) {
           setContract(found);
           setExpiryValue(found.expiresAt ? found.expiresAt.slice(0, 10) : "");
-        } else {
-          router.push("/dashboard/contracts");
         }
+        setContractLoading(false);
       });
     }
   }, [contractId, user, router]);
@@ -349,6 +351,7 @@ export default function ContractDetailPage() {
     setSavedSigs(getSavedSignatures());
     setSigMode("text");
     setSigImageBase64(null);
+    setSigConfirmed(false);
     setSaveLabel("");
     setShowSaveForm(false);
     setShowSignModal(true);
@@ -518,7 +521,7 @@ export default function ContractDetailPage() {
 
   // ── Loading / auth states ──────────────────────────────────────────────────
 
-  if (isLoading) {
+  if (isLoading || contractLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
@@ -1007,7 +1010,7 @@ export default function ContractDetailPage() {
                     </div>
 
                     {sig ? (
-                      <div>
+                      <div className="space-y-2">
                         <div className="flex items-center gap-2 mb-1">
                           <div className="w-7 h-7 bg-green-100 rounded-full flex items-center justify-center">
                             <User className="w-3.5 h-3.5 text-green-600" />
@@ -1028,6 +1031,33 @@ export default function ContractDetailPage() {
                             minute: "2-digit",
                           })}
                         </p>
+                        {role !== "A" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleGenerateSigningLink(role as "B" | "C")}
+                            disabled={signingLinkRole === role}
+                            className={
+                              signingLinkCopied && signingLinkRole === role
+                                ? "text-green-600 hover:text-green-700 hover:bg-green-50 text-xs"
+                                : "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 text-xs"
+                            }
+                          >
+                            {signingLinkRole === role && !signingLinkCopied ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : signingLinkCopied && signingLinkRole === role ? (
+                              <>
+                                <CheckCircle2 className="w-3 h-3" />
+                                Link copiado
+                              </>
+                            ) : (
+                              <>
+                                <Send className="w-3 h-3" />
+                                Reenviar link
+                              </>
+                            )}
+                          </Button>
+                        )}
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -1260,7 +1290,6 @@ export default function ContractDetailPage() {
                   <input
                     value={sigName}
                     onChange={(e) => setSigName(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") handleSign(); }}
                     placeholder="Tu nombre completo"
                     autoFocus
                     className="mt-1 w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400"
@@ -1369,10 +1398,18 @@ export default function ContractDetailPage() {
                 )}
               </div>
 
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-4 mb-5">
-                <p className="text-xs text-amber-700 leading-relaxed">
-                  Al firmar confirmas que has leído el contrato completo y aceptas todos sus términos y condiciones.
-                </p>
+              <div className="mt-4 mb-5 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={sigConfirmed}
+                    onChange={(e) => setSigConfirmed(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <span className="text-xs text-slate-700 leading-snug">
+                    He leído el contrato completo y acepto todos sus términos y condiciones.
+                  </span>
+                </label>
               </div>
 
               <div className="flex gap-3">
@@ -1391,6 +1428,7 @@ export default function ContractDetailPage() {
                   disabled={
                     isSigning ||
                     !sigName.trim() ||
+                    !sigConfirmed ||
                     ((sigMode === "draw" || sigMode === "saved") && !sigImageBase64)
                   }
                   className="flex-1"

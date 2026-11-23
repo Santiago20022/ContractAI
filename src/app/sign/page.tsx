@@ -1,18 +1,18 @@
 "use client";
 
-import { Suspense, useEffect, useState, useRef } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   AlertCircle,
   CheckCircle2,
+  Clock,
   FileText,
+  Info,
   Loader2,
   PenLine,
   Shield,
-  User,
-  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import dynamic from "next/dynamic";
@@ -28,6 +28,11 @@ interface ContractData {
   partyBName?: string;
 }
 
+interface AlreadySigned {
+  name: string;
+  signedAt: string;
+}
+
 const CONTRACT_TYPE_NAMES: Record<string, string> = {
   services: "Contrato de Servicios",
   nda: "NDA (Confidencialidad)",
@@ -40,6 +45,16 @@ const CONTRACT_TYPE_NAMES: Record<string, string> = {
   analyzed: "Documento Analizado",
 };
 
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function SignPageContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("t") ?? "";
@@ -47,10 +62,13 @@ function SignPageContent() {
   const [status, setStatus] = useState<"loading" | "ready" | "error" | "signed">("loading");
   const [contract, setContract] = useState<ContractData | null>(null);
   const [role, setRole] = useState<"B" | "C">("B");
+  const [alreadySigned, setAlreadySigned] = useState<AlreadySigned | null>(null);
+  const [reSignMode, setReSignMode] = useState(false);
 
   const [name, setName] = useState("");
-  const [sigMode, setSigMode] = useState<"text" | "draw">("text");
+  const [sigMode, setSigMode] = useState<"text" | "draw">("draw");
   const [sigImage, setSigImage] = useState<string | null>(null);
+  const [confirmed, setConfirmed] = useState(false);
   const [isSigning, setIsSigning] = useState(false);
   const [signError, setSignError] = useState("");
 
@@ -59,18 +77,20 @@ function SignPageContent() {
 
     fetch(`/api/signing/verify?t=${encodeURIComponent(token)}`)
       .then((r) => r.json())
-      .then((data) => {
+      .then((data: { error?: string; contract?: ContractData; role?: "B" | "C"; alreadySigned?: AlreadySigned | null }) => {
         if (data.error) { setStatus("error"); return; }
-        setContract(data.contract);
-        setRole(data.role);
+        setContract(data.contract!);
+        setRole(data.role!);
+        setAlreadySigned(data.alreadySigned ?? null);
         setStatus("ready");
       })
       .catch(() => setStatus("error"));
   }, [token]);
 
   const handleSign = async () => {
-    if (!name.trim()) { setSignError("El nombre es requerido"); return; }
+    if (!name.trim()) { setSignError("El nombre completo es requerido"); return; }
     if (sigMode === "draw" && !sigImage) { setSignError("Por favor dibuja tu firma"); return; }
+    if (!confirmed) { setSignError("Debes confirmar que aceptas los términos"); return; }
 
     setSignError("");
     setIsSigning(true);
@@ -85,22 +105,31 @@ function SignPageContent() {
           signatureImage: sigImage ?? undefined,
         }),
       });
-      const data = await res.json();
+      const data = await res.json() as { error?: string; success?: boolean };
       if (data.error) {
-        setSignError(data.error === "Invalid or expired token"
-          ? "Este enlace ya fue usado o ha expirado."
-          : "Error al guardar la firma. Intenta de nuevo.");
+        setSignError(
+          data.error === "Invalid or expired token"
+            ? "Este enlace ha expirado. Pide al remitente que genere uno nuevo."
+            : data.error === "Contract not found"
+            ? "No se encontró el contrato. Puede haber sido eliminado."
+            : "Error al guardar la firma. Intenta de nuevo."
+        );
         return;
       }
       setStatus("signed");
     } catch {
-      setSignError("Error de conexión. Intenta de nuevo.");
+      setSignError("Error de conexión. Verifica tu internet e intenta de nuevo.");
     } finally {
       setIsSigning(false);
     }
   };
 
   const roleLabel = role === "B" ? "Parte B" : "Codeudor / Coarrendatario";
+
+  const canSubmit =
+    name.trim().length > 0 &&
+    confirmed &&
+    (sigMode === "text" || (sigMode === "draw" && !!sigImage));
 
   if (status === "loading") {
     return (
@@ -126,7 +155,7 @@ function SignPageContent() {
           </div>
           <h2 className="text-xl font-bold text-slate-900 mb-2">Enlace inválido</h2>
           <p className="text-slate-500 mb-6 text-sm leading-relaxed">
-            Este enlace de firma no es válido, ya fue usado, o ha expirado. Pide al remitente que genere un nuevo enlace.
+            Este enlace de firma no es válido o ha expirado. Pide al remitente que genere un nuevo enlace.
           </p>
           <Link href="/">
             <Button variant="primary">Ir al inicio</Button>
@@ -157,6 +186,7 @@ function SignPageContent() {
   }
 
   const typeName = CONTRACT_TYPE_NAMES[contract!.type] || contract!.type;
+  const showAlreadySigned = alreadySigned && !reSignMode;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -207,6 +237,36 @@ function SignPageContent() {
           </div>
         </motion.div>
 
+        {/* Already signed banner */}
+        {alreadySigned && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
+                <Info className="w-4 h-4 text-blue-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-blue-900 mb-0.5">Ya firmaste este contrato</p>
+                <p className="text-xs text-blue-700">
+                  Firmado por <span className="font-medium">{alreadySigned.name}</span> el {formatDate(alreadySigned.signedAt)}
+                </p>
+                {!reSignMode && (
+                  <button
+                    onClick={() => setReSignMode(true)}
+                    className="mt-2 text-xs text-blue-600 hover:text-blue-800 underline font-medium"
+                  >
+                    Actualizar mi firma
+                  </button>
+                )}
+              </div>
+              {!reSignMode && (
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-4 h-4 text-green-600" />
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
         {/* Contract text */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
           <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Contenido del contrato</h2>
@@ -217,88 +277,145 @@ function SignPageContent() {
           </div>
         </motion.div>
 
-        {/* Sign form */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center">
-              <PenLine className="w-4 h-4 text-indigo-600" />
-            </div>
-            <div>
-              <h2 className="text-base font-semibold text-slate-900">Tu firma</h2>
-              <p className="text-xs text-slate-500">Firmando como {roleLabel}</p>
-            </div>
-          </div>
-
-          {/* Mode tabs */}
-          <div className="flex gap-1 bg-slate-100 rounded-xl p-1 mb-4">
-            {[{ id: "text", label: "Escribir nombre" }, { id: "draw", label: "Dibujar firma" }].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => { setSigMode(tab.id as "text" | "draw"); setSigImage(null); }}
-                className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-all ${
-                  sigMode === tab.id ? "bg-white shadow text-indigo-600" : "text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-slate-700">Nombre completo *</label>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Tu nombre completo"
-                className="mt-1 w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10"
-              />
-            </div>
-
-            {sigMode === "draw" && (
+        {/* Sign form — only shown if not already signed, OR if re-sign mode */}
+        {(!showAlreadySigned) && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center">
+                <PenLine className="w-4 h-4 text-indigo-600" />
+              </div>
               <div>
-                <label className="text-sm font-medium text-slate-700 mb-2 block">Dibuja tu firma</label>
-                <SignatureCanvas onChange={setSigImage} height={150} />
+                <h2 className="text-base font-semibold text-slate-900">
+                  {reSignMode ? "Actualizar tu firma" : "Tu firma"}
+                </h2>
+                <p className="text-xs text-slate-500">Firmando como {roleLabel}</p>
+              </div>
+            </div>
+
+            {/* Mode tabs */}
+            <div className="flex gap-1 bg-slate-100 rounded-xl p-1 mb-5">
+              {[
+                { id: "draw", label: "Dibujar firma" },
+                { id: "text", label: "Solo nombre" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => { setSigMode(tab.id as "text" | "draw"); setSigImage(null); }}
+                  className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-all ${
+                    sigMode === tab.id ? "bg-white shadow text-indigo-600" : "text-slate-500 hover:text-slate-700"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="space-y-5">
+              {/* Name field */}
+              <div>
+                <label className="text-sm font-medium text-slate-700">Nombre completo *</label>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Tu nombre completo tal como aparece en tu documento"
+                  className="mt-1 w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10"
+                />
+              </div>
+
+              {/* Draw mode */}
+              {sigMode === "draw" && (
+                <div>
+                  <label className="text-sm font-medium text-slate-700 mb-2 block">Dibuja tu firma *</label>
+                  <SignatureCanvas onChange={setSigImage} height={160} />
+                  {!sigImage && (
+                    <p className="text-xs text-slate-400 mt-1">Usa el mouse o tu dedo para firmar en el recuadro</p>
+                  )}
+                </div>
+              )}
+
+              {/* Text mode preview */}
+              {sigMode === "text" && name.trim() && (
+                <div>
+                  <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Vista previa de tu firma</label>
+                  <div className="mt-2 bg-slate-50 border border-slate-200 rounded-xl px-6 py-5 flex items-center justify-center">
+                    <span
+                      className="text-3xl text-slate-800"
+                      style={{ fontFamily: "'Dancing Script', 'Brush Script MT', cursive" }}
+                    >
+                      {name.trim()}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">Esta representación de tu nombre servirá como firma electrónica</p>
+                </div>
+              )}
+
+              {sigMode === "text" && !name.trim() && (
+                <p className="text-xs text-slate-400">Escribe tu nombre arriba para ver la vista previa de tu firma.</p>
+              )}
+            </div>
+
+            {/* Confirmation checkbox */}
+            <div className="mt-5 p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <label className="flex items-start gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={confirmed}
+                  onChange={(e) => setConfirmed(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                />
+                <span className="text-sm text-slate-700 leading-snug">
+                  He leído el contrato completo y acepto todos sus términos y condiciones. Entiendo que esta firma tiene validez legal.
+                </span>
+              </label>
+            </div>
+
+            {signError && (
+              <div className="flex items-center gap-2 text-red-600 text-sm mt-4 bg-red-50 px-4 py-3 rounded-xl">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                {signError}
               </div>
             )}
 
-            {sigMode === "text" && (
-              <p className="text-xs text-slate-500">Tu nombre escrito arriba servirá como firma electrónica.</p>
-            )}
-          </div>
-
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-4 mb-5">
-            <p className="text-xs text-amber-700 leading-relaxed">
-              Al firmar confirmas que has leído el contrato completo y aceptas todos sus términos y condiciones.
-            </p>
-          </div>
-
-          {signError && (
-            <div className="flex items-center gap-2 text-red-600 text-sm mb-4 bg-red-50 px-4 py-3 rounded-xl">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {signError}
+            <div className="flex gap-3 mt-5">
+              {reSignMode && (
+                <Button
+                  variant="ghost"
+                  onClick={() => { setReSignMode(false); setSignError(""); setName(""); setSigImage(null); setConfirmed(false); }}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+              )}
+              <Button
+                variant="primary"
+                onClick={handleSign}
+                disabled={isSigning || !canSubmit}
+                className="flex-1"
+              >
+                {isSigning ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Firmando...
+                  </>
+                ) : (
+                  <>
+                    <PenLine className="w-4 h-4" />
+                    {reSignMode ? "Actualizar firma" : "Firmar contrato"}
+                  </>
+                )}
+              </Button>
             </div>
-          )}
+          </motion.div>
+        )}
 
-          <Button
-            variant="primary"
-            onClick={handleSign}
-            disabled={isSigning || !name.trim() || (sigMode === "draw" && !sigImage)}
-            className="w-full"
-          >
-            {isSigning ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Firmando...
-              </>
-            ) : (
-              <>
-                <PenLine className="w-4 h-4" />
-                Firmar contrato
-              </>
-            )}
-          </Button>
-        </motion.div>
+        {/* If already signed and not re-signing: show a final message */}
+        {showAlreadySigned && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-4">
+            <p className="text-sm text-slate-500">
+              Si necesitas corregir tu firma, usa el botón <span className="font-medium text-blue-600">Actualizar mi firma</span> de arriba.
+            </p>
+          </motion.div>
+        )}
       </main>
     </div>
   );

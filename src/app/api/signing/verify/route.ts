@@ -33,6 +33,9 @@ export async function GET(request: Request) {
     return Response.json({ error: "Contract not found" }, { status: 404 });
   }
 
+  const sigs: Array<{ role: string; name: string; signedAt: string }> = data.signatures ?? [];
+  const existing = sigs.find((s) => s.role === payload.role);
+
   return Response.json({
     contract: {
       id: data.id,
@@ -43,5 +46,6 @@ export async function GET(request: Request) {
       partyBName: data.party_b_name,
     },
     role: payload.role,
+    alreadySigned: existing ? { name: existing.name, signedAt: existing.signedAt } : null,
   });
 }
