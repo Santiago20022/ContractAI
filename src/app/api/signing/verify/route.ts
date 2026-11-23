@@ -1,5 +1,12 @@
 import { verifySigningToken } from "@/lib/signing-tokens";
-import { getServerSupabase } from "@/lib/supabase-server";
+import { createClient } from "@supabase/supabase-js";
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -14,7 +21,7 @@ export async function GET(request: Request) {
     return Response.json({ error: "Invalid or expired token" }, { status: 401 });
   }
 
-  const sb = getServerSupabase();
+  const sb = getSupabase();
   const { data, error } = await sb
     .from("contracts")
     .select("id, title, type, content, party_a_name, party_b_name, signatures")

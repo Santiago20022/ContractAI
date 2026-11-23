@@ -1,5 +1,12 @@
 import { verifySigningToken } from "@/lib/signing-tokens";
-import { getServerSupabase } from "@/lib/supabase-server";
+import { createClient } from "@supabase/supabase-js";
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
 export async function POST(request: Request) {
   const body = await request.json() as {
@@ -19,9 +26,8 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid or expired token" }, { status: 401 });
   }
 
-  const sb = getServerSupabase();
+  const sb = getSupabase();
 
-  // Get current contract
   const { data: contract, error: fetchError } = await sb
     .from("contracts")
     .select("id, signatures, status")
@@ -36,7 +42,6 @@ export async function POST(request: Request) {
   const existing: Array<{ role: string; name: string; signedAt: string; signatureImage?: string }> =
     contract.signatures ?? [];
 
-  // Replace existing signature for this role if any, then add new one
   const withoutThisRole = existing.filter((s) => s.role !== payload.role);
   const newSig = {
     role: payload.role,

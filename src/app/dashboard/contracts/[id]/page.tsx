@@ -498,7 +498,7 @@ export default function ContractDetailPage() {
         body: JSON.stringify({ contractId: contract.id, role, userId: user.id }),
       });
       const data = await res.json() as { token?: string };
-      if (!data.token) return;
+      if (!data.token) { setSigningLinkRole(null); return; }
       const url = `${window.location.origin}/sign?t=${data.token}`;
       await navigator.clipboard.writeText(url);
       setSigningLinkCopied(true);
