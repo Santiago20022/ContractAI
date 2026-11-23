@@ -8,6 +8,12 @@ function getSupabase() {
   );
 }
 
+async function hashToken(token: string): Promise<string> {
+  const bytes = new TextEncoder().encode(token);
+  const buf = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const token = searchParams.get("t");
@@ -22,9 +28,22 @@ export async function GET(request: Request) {
   }
 
   const sb = getSupabase();
+  const tokenHash = await hashToken(token);
+
+  // Check if token was already used
+  const { data: usedToken } = await sb
+    .from("signing_tokens_used")
+    .select("token_hash")
+    .eq("token_hash", tokenHash)
+    .maybeSingle();
+
+  if (usedToken) {
+    return Response.json({ error: "Token already used" }, { status: 409 });
+  }
+
   const { data, error } = await sb
     .from("contracts")
-    .select("id, title, type, content, party_a_name, party_b_name, signatures")
+    .select("id, title, type, content, party_a_name, party_b_name")
     .eq("id", payload.contractId)
     .eq("user_id", payload.ownerUserId)
     .single();
@@ -32,9 +51,6 @@ export async function GET(request: Request) {
   if (error || !data) {
     return Response.json({ error: "Contract not found" }, { status: 404 });
   }
-
-  const sigs: Array<{ role: string; name: string; signedAt: string }> = data.signatures ?? [];
-  const existing = sigs.find((s) => s.role === payload.role);
 
   return Response.json({
     contract: {
@@ -46,6 +62,5 @@ export async function GET(request: Request) {
       partyBName: data.party_b_name,
     },
     role: payload.role,
-    alreadySigned: existing ? { name: existing.name, signedAt: existing.signedAt } : null,
   });
 }
