@@ -31,7 +31,7 @@ export default function LoginPage() {
     // Simulate network delay
     await new Promise((r) => setTimeout(r, 500));
 
-    const result = login(email, password);
+    const result = await login(email, password);
 
     if (result.success) {
       router.push("/dashboard");

@@ -78,8 +78,7 @@ function ResetPasswordContent() {
         return;
       }
 
-      // Update password in localStorage
-      const result = updatePassword(data.email, password);
+      const result = await updatePassword(data.email, password);
       if (!result.success) {
         setError(result.error ?? "Error al actualizar la contraseña");
         setIsSubmitting(false);

@@ -44,7 +44,7 @@ export default function RegisterPage() {
     // Simulate network delay
     await new Promise((r) => setTimeout(r, 500));
 
-    const result = register(email, password, name);
+    const result = await register(email, password, name);
 
     if (result.success) {
       router.push("/dashboard");

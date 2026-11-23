@@ -155,9 +155,9 @@ export default function SettingsPage() {
     setTimeout(() => setSavedSection(null), 2000);
   };
 
-  const handleSaveName = () => {
+  const handleSaveName = async () => {
     if (displayName.trim().length < 2) return;
-    updateUserName(user.id, displayName);
+    await updateUserName(user.id, displayName);
     setNameEditing(false);
     flashSaved("perfil");
   };
@@ -168,9 +168,9 @@ export default function SettingsPage() {
     if (newPass !== confirmPass) { setPassError("Las contraseñas no coinciden"); return; }
 
     const { login, updatePassword } = await import("@/lib/auth");
-    const check = login(user.email, currentPass);
+    const check = await login(user.email, currentPass);
     if (!check.success) { setPassError("La contraseña actual es incorrecta"); return; }
-    const result = updatePassword(user.email, newPass);
+    const result = await updatePassword(user.email, newPass);
     if (result.success) {
       setPassSuccess(true);
       setCurrentPass(""); setNewPass(""); setConfirmPass("");
@@ -181,8 +181,8 @@ export default function SettingsPage() {
     }
   };
 
-  const handleExportData = () => {
-    const contracts = getUserContracts(user.id);
+  const handleExportData = async () => {
+    const contracts = await getUserContracts(user.id);
     const data = { user: { name: user.name, email: user.email, createdAt: user.createdAt }, settings, contracts, exportedAt: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -599,10 +599,11 @@ export default function SettingsPage() {
                   <p className="text-xs text-red-600 mt-0.5">Borra todos tus contratos permanentemente. Tu cuenta queda activa.</p>
                 </div>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (confirm("¿Eliminar TODOS tus contratos? Esta acción no se puede deshacer.")) {
-                      const { getUserContracts, deleteContract } = require("@/lib/contracts-storage");
-                      getUserContracts(user.id).forEach((c: { id: string }) => deleteContract(c.id, user.id));
+                      const { getUserContracts, deleteContract } = await import("@/lib/contracts-storage");
+                      const all = await getUserContracts(user.id);
+                      await Promise.all(all.map((c: { id: string }) => deleteContract(c.id, user.id)));
                       alert("Contratos eliminados.");
                     }
                   }}

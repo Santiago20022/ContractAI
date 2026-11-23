@@ -143,6 +143,11 @@ export default function ContractDetailPage() {
   const [isModifying, setIsModifying] = useState(false);
   const [modifySuccess, setModifySuccess] = useState(false);
 
+  // Remote signing link state
+  const [signingLinkRole, setSigningLinkRole] = useState<"B" | "C" | null>(null);
+  const [signingLinkCopied, setSigningLinkCopied] = useState(false);
+  const [isRefreshingSigs, setIsRefreshingSigs] = useState(false);
+
   // Expiry state
   const [expiryEditing, setExpiryEditing] = useState(false);
   const [expiryValue, setExpiryValue] = useState("");
@@ -159,13 +164,14 @@ export default function ContractDetailPage() {
 
   useEffect(() => {
     if (contractId && user) {
-      const found = getContract(contractId, user.id);
-      if (found) {
-        setContract(found);
-        setExpiryValue(found.expiresAt ? found.expiresAt.slice(0, 10) : "");
-      } else {
-        router.push("/dashboard/contracts");
-      }
+      getContract(contractId, user.id).then((found) => {
+        if (found) {
+          setContract(found);
+          setExpiryValue(found.expiresAt ? found.expiresAt.slice(0, 10) : "");
+        } else {
+          router.push("/dashboard/contracts");
+        }
+      });
     }
   }, [contractId, user, router]);
 
@@ -308,7 +314,7 @@ export default function ContractDetailPage() {
 
   const handleClone = async () => {
     if (!contract || !user) return;
-    const cloned = addContract(user.id, {
+    const cloned = await addContract(user.id, {
       title: `Copia de ${contract.title}`,
       type: contract.type,
       content: contract.content,
@@ -321,16 +327,16 @@ export default function ContractDetailPage() {
 
   const handleDelete = () => setShowDeleteModal(true);
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!contract || !user) return;
-    deleteContract(contract.id, user.id);
+    await deleteContract(contract.id, user.id);
     router.push("/dashboard/contracts");
   };
 
-  const confirmRemoveSignature = () => {
+  const confirmRemoveSignature = async () => {
     if (!contract || !user || !sigRoleToRemove) return;
     const newSignatures = (contract.signatures || []).filter((s) => s.role !== sigRoleToRemove);
-    const result = updateContract(contract.id, user.id, { signatures: newSignatures, status: "draft" });
+    const result = await updateContract(contract.id, user.id, { signatures: newSignatures, status: "draft" });
     if (result) setContract(result);
     setSigRoleToRemove(null);
   };
@@ -358,7 +364,7 @@ export default function ContractDetailPage() {
       signedAt: new Date().toISOString(),
       ...(sigImageBase64 ? { signatureImage: sigImageBase64 } : {}),
     };
-    const updated = signContract(contract.id, user.id, sig);
+    const updated = await signContract(contract.id, user.id, sig);
     if (updated) setContract(updated);
     setIsSigning(false);
     setShowSignModal(false);
@@ -457,7 +463,7 @@ export default function ContractDetailPage() {
       if (!fullText.trim()) {
         setContract((prev) => prev ? { ...prev, content: previousContent } : prev);
       } else {
-        updateContract(contract.id, user.id, { content: fullText });
+        await updateContract(contract.id, user.id, { content: fullText });
         setModifySuccess(true);
         setTimeout(() => setModifySuccess(false), 3000);
       }
@@ -470,14 +476,44 @@ export default function ContractDetailPage() {
 
   // ── Expiry handler ─────────────────────────────────────────────────────────
 
-  const handleExpiryChange = (value: string) => {
+  const handleExpiryChange = async (value: string) => {
     if (!contract || !user) return;
     setExpiryValue(value);
-    const updated = updateContract(contract.id, user.id, {
+    const updated = await updateContract(contract.id, user.id, {
       expiresAt: value ? new Date(value).toISOString() : undefined,
     });
     if (updated) setContract(updated);
     setExpiryEditing(false);
+  };
+
+  // ── Remote signing link ────────────────────────────────────────────────────
+
+  const handleGenerateSigningLink = async (role: "B" | "C") => {
+    if (!contract || !user) return;
+    setSigningLinkRole(role);
+    try {
+      const res = await fetch("/api/signing/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contractId: contract.id, role, userId: user.id }),
+      });
+      const data = await res.json() as { token?: string };
+      if (!data.token) return;
+      const url = `${window.location.origin}/sign?t=${data.token}`;
+      await navigator.clipboard.writeText(url);
+      setSigningLinkCopied(true);
+      setTimeout(() => { setSigningLinkCopied(false); setSigningLinkRole(null); }, 3000);
+    } catch {
+      setSigningLinkRole(null);
+    }
+  };
+
+  const handleRefreshSignatures = async () => {
+    if (!contract || !user) return;
+    setIsRefreshingSigs(true);
+    const fresh = await getContract(contract.id, user.id);
+    if (fresh) setContract(fresh);
+    setIsRefreshingSigs(false);
   };
 
   // ── Loading / auth states ──────────────────────────────────────────────────
@@ -908,14 +944,29 @@ export default function ContractDetailPage() {
           transition={{ delay: 0.2 }}
         >
           <Card>
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center">
-                <PenLine className="w-4 h-4 text-indigo-600" />
+            <div className="flex items-center justify-between gap-3 mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center">
+                  <PenLine className="w-4 h-4 text-indigo-600" />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-slate-900">Firma electrónica</h2>
+                  <p className="text-xs text-slate-500">Ambas partes deben firmar para completar el contrato</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-base font-semibold text-slate-900">Firma electrónica</h2>
-                <p className="text-xs text-slate-500">Ambas partes deben firmar para completar el contrato</p>
-              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRefreshSignatures}
+                disabled={isRefreshingSigs}
+                className="shrink-0 text-slate-500"
+              >
+                {isRefreshingSigs ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <span className="text-xs">Actualizar</span>
+                )}
+              </Button>
             </div>
 
             <div className={`grid grid-cols-1 gap-4 ${showCodudor ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
@@ -979,8 +1030,8 @@ export default function ContractDetailPage() {
                         </p>
                       </div>
                     ) : (
-                      <div>
-                        <p className="text-sm text-slate-500 mb-3">Pendiente de firma</p>
+                      <div className="space-y-2">
+                        <p className="text-sm text-slate-500">Pendiente de firma</p>
                         <Button
                           variant="secondary"
                           size="sm"
@@ -989,6 +1040,33 @@ export default function ContractDetailPage() {
                           <PenLine className="w-3.5 h-3.5" />
                           {buttonLabel}
                         </Button>
+                        {role !== "A" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleGenerateSigningLink(role as "B" | "C")}
+                            disabled={signingLinkRole === role}
+                            className={
+                              signingLinkCopied && signingLinkRole === role
+                                ? "text-green-600 hover:text-green-700 hover:bg-green-50"
+                                : "text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                            }
+                          >
+                            {signingLinkRole === role && !signingLinkCopied ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : signingLinkCopied && signingLinkRole === role ? (
+                              <>
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                Link copiado
+                              </>
+                            ) : (
+                              <>
+                                <Send className="w-3.5 h-3.5" />
+                                Enviar link de firma
+                              </>
+                            )}
+                          </Button>
+                        )}
                       </div>
                     )}
                   </div>

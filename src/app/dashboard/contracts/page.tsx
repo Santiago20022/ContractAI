@@ -47,13 +47,13 @@ function ContractsPageContent() {
 
   useEffect(() => {
     if (user) {
-      setContracts(getUserContracts(user.id));
+      getUserContracts(user.id).then(setContracts);
     }
   }, [user]);
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (user && confirm("¿Estás seguro de que quieres eliminar este contrato?")) {
-      deleteContract(id, user.id);
+      await deleteContract(id, user.id);
       setContracts(contracts.filter((c) => c.id !== id));
     }
     setOpenMenu(null);
@@ -94,10 +94,10 @@ function ContractsPageContent() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleClone = (contract: Contract) => {
+  const handleClone = async (contract: Contract) => {
     if (!user) return;
     setOpenMenu(null);
-    const cloned = addContract(user.id, {
+    const cloned = await addContract(user.id, {
       title: `Copia de ${contract.title}`,
       type: contract.type,
       content: contract.content,

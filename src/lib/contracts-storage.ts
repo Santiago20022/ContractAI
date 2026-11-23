@@ -1,4 +1,4 @@
-// Contract storage using LocalStorage (no API key needed)
+import { supabase } from "./supabase-client";
 
 export type Signature = {
   role: "A" | "B" | "C";
@@ -16,41 +16,53 @@ export type Contract = {
   createdAt: string;
   status: "draft" | "completed" | "analyzed" | "signed";
   riskScore?: number;
-  expiresAt?: string;        // ISO date string for contract expiry
-  signatures?: Signature[];  // who has signed
-  partyAName?: string;       // stored separately for PDF generation
+  expiresAt?: string;
+  signatures?: Signature[];
+  partyAName?: string;
   partyBName?: string;
 };
 
-const CONTRACTS_KEY = "contractai_contracts";
-
-function getAllContracts(): Contract[] {
-  if (typeof window === "undefined") return [];
-  const contracts = localStorage.getItem(CONTRACTS_KEY);
-  return contracts ? JSON.parse(contracts) : [];
+function fromRow(row: Record<string, unknown>): Contract {
+  return {
+    id: row.id as string,
+    userId: row.user_id as string,
+    title: row.title as string,
+    type: row.type as string,
+    content: row.content as string,
+    createdAt: row.created_at as string,
+    status: row.status as Contract["status"],
+    riskScore: row.risk_score as number | undefined,
+    expiresAt: (row.expires_at as string | null) ?? undefined,
+    signatures: (row.signatures as Signature[]) ?? [],
+    partyAName: (row.party_a_name as string | null) ?? undefined,
+    partyBName: (row.party_b_name as string | null) ?? undefined,
+  };
 }
 
-function saveContracts(contracts: Contract[]): void {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(CONTRACTS_KEY, JSON.stringify(contracts));
+export async function getUserContracts(userId: string): Promise<Contract[]> {
+  const { data, error } = await supabase
+    .from("contracts")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error || !data) return [];
+  return data.map(fromRow);
 }
 
-// Get contracts for a specific user
-export function getUserContracts(userId: string): Contract[] {
-  const contracts = getAllContracts();
-  return contracts
-    .filter((c) => c.userId === userId)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+export async function getContract(id: string, userId: string): Promise<Contract | undefined> {
+  const { data, error } = await supabase
+    .from("contracts")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", userId)
+    .single();
+
+  if (error || !data) return undefined;
+  return fromRow(data);
 }
 
-// Get a single contract — ALWAYS verifies ownership to prevent IDOR
-export function getContract(id: string, userId: string): Contract | undefined {
-  const contracts = getAllContracts();
-  return contracts.find((c) => c.id === id && c.userId === userId);
-}
-
-// Add a new contract
-export function addContract(
+export async function addContract(
   userId: string,
   data: {
     title: string;
@@ -62,81 +74,103 @@ export function addContract(
     partyBName?: string;
     expiresAt?: string;
   }
-): Contract {
-  const contracts = getAllContracts();
+): Promise<Contract> {
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
 
-  const newContract: Contract = {
-    id: crypto.randomUUID(),
+  const { error } = await supabase.from("contracts").insert({
+    id,
+    user_id: userId,
+    title: data.title,
+    type: data.type,
+    content: data.content,
+    status: data.status ?? "completed",
+    risk_score: data.riskScore ?? null,
+    party_a_name: data.partyAName ?? null,
+    party_b_name: data.partyBName ?? null,
+    expires_at: data.expiresAt ?? null,
+    signatures: [],
+  });
+
+  if (error) throw new Error("Error al guardar el contrato");
+
+  return {
+    id,
     userId,
     title: data.title,
     type: data.type,
     content: data.content,
-    status: data.status || "completed",
+    createdAt: now,
+    status: data.status ?? "completed",
     riskScore: data.riskScore,
-    createdAt: new Date().toISOString(),
     partyAName: data.partyAName,
     partyBName: data.partyBName,
     expiresAt: data.expiresAt,
+    signatures: [],
   };
-
-  contracts.push(newContract);
-  saveContracts(contracts);
-
-  return newContract;
 }
 
-// Update a contract — verifies ownership
-export function updateContract(id: string, userId: string, updates: Partial<Contract>): Contract | undefined {
-  const contracts = getAllContracts();
-  const index = contracts.findIndex((c) => c.id === id && c.userId === userId);
+export async function updateContract(
+  id: string,
+  userId: string,
+  updates: Partial<Contract>
+): Promise<Contract | undefined> {
+  const dbUpdates: Record<string, unknown> = {};
+  if (updates.title !== undefined) dbUpdates.title = updates.title;
+  if (updates.type !== undefined) dbUpdates.type = updates.type;
+  if (updates.content !== undefined) dbUpdates.content = updates.content;
+  if (updates.status !== undefined) dbUpdates.status = updates.status;
+  if (updates.riskScore !== undefined) dbUpdates.risk_score = updates.riskScore;
+  if (Object.prototype.hasOwnProperty.call(updates, "expiresAt")) {
+    dbUpdates.expires_at = updates.expiresAt ?? null;
+  }
+  if (updates.partyAName !== undefined) dbUpdates.party_a_name = updates.partyAName;
+  if (updates.partyBName !== undefined) dbUpdates.party_b_name = updates.partyBName;
+  if (updates.signatures !== undefined) dbUpdates.signatures = updates.signatures;
 
-  if (index === -1) return undefined;
+  const { data, error } = await supabase
+    .from("contracts")
+    .update(dbUpdates)
+    .eq("id", id)
+    .eq("user_id", userId)
+    .select()
+    .single();
 
-  contracts[index] = { ...contracts[index], ...updates };
-  saveContracts(contracts);
-
-  return contracts[index];
+  if (error || !data) return undefined;
+  return fromRow(data);
 }
 
-// Delete a contract — verifies ownership
-export function deleteContract(id: string, userId: string): boolean {
-  const contracts = getAllContracts();
-  const index = contracts.findIndex((c) => c.id === id && c.userId === userId);
+export async function deleteContract(id: string, userId: string): Promise<boolean> {
+  const { error } = await supabase
+    .from("contracts")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", userId);
 
-  if (index === -1) return false;
-
-  contracts.splice(index, 1);
-  saveContracts(contracts);
-
-  return true;
+  return !error;
 }
 
-// Sign a contract — finds by id+userId, appends signature, marks "signed" when both parties have signed
-export function signContract(id: string, userId: string, sig: Signature): Contract | undefined {
-  const contracts = getAllContracts();
-  const index = contracts.findIndex((c) => c.id === id && c.userId === userId);
+export async function signContract(
+  id: string,
+  userId: string,
+  sig: Signature
+): Promise<Contract | undefined> {
+  const contract = await getContract(id, userId);
+  if (!contract) return undefined;
 
-  if (index === -1) return undefined;
-
-  const contract = contracts[index];
   const existing = contract.signatures ?? [];
   existing.push(sig);
-  const hasBoth = existing.some((s) => s.role === "A") && existing.some((s) => s.role === "B");
+  const hasBoth =
+    existing.some((s) => s.role === "A") && existing.some((s) => s.role === "B");
 
-  contracts[index] = {
-    ...contract,
+  return updateContract(id, userId, {
     signatures: existing,
     status: hasBoth ? "signed" : contract.status,
-  };
-
-  saveContracts(contracts);
-  return contracts[index];
+  });
 }
 
-// Get stats for a user
-export function getUserStats(userId: string) {
-  const contracts = getUserContracts(userId);
-
+export async function getUserStats(userId: string) {
+  const contracts = await getUserContracts(userId);
   return {
     totalContracts: contracts.length,
     completedContracts: contracts.filter((c) => c.status === "completed").length,

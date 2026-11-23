@@ -225,7 +225,7 @@ export default function GeneratePage() {
           const contract = generateContract(selectedType, formData);
           setAiUsed(false);
           setGeneratedContract(contract);
-          saveToStorage(contract);
+          await saveToStorage(contract);
         }
       } else {
         // Streaming response from Gemini
@@ -245,14 +245,14 @@ export default function GeneratePage() {
 
         setAiUsed(true);
         setGeneratedContract(fullText);
-        saveToStorage(fullText);
+        await saveToStorage(fullText);
       }
     } catch {
       // Fallback to local template on any error
       const contract = generateContract(selectedType, formData);
       setAiUsed(false);
       setGeneratedContract(contract);
-      saveToStorage(contract);
+      await saveToStorage(contract);
     } finally {
       setIsGenerating(false);
     }
@@ -326,10 +326,10 @@ export default function GeneratePage() {
     }
   };
 
-  const saveToStorage = (contract: string) => {
+  const saveToStorage = async (contract: string) => {
     if (user) {
       const selectedContractType = contractTypes.find((c) => c.id === selectedType);
-      const saved = addContract(user.id, {
+      const saved = await addContract(user.id, {
         title: `${selectedContractType?.title || "Contrato"} - ${formData.partyB || "Sin nombre"}`,
         type: selectedType!,
         content: contract,

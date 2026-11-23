@@ -6,8 +6,8 @@ import { User, getCurrentUser, login as authLogin, logout as authLogout, registe
 type AuthContextType = {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => { success: boolean; error?: string };
-  register: (email: string, password: string, name: string) => { success: boolean; error?: string };
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 };
 
@@ -18,22 +18,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session
     const currentUser = getCurrentUser();
     setUser(currentUser);
     setIsLoading(false);
   }, []);
 
-  const login = (email: string, password: string) => {
-    const result = authLogin(email, password);
+  const login = async (email: string, password: string) => {
+    const result = await authLogin(email, password);
     if (result.success && result.user) {
       setUser(result.user);
     }
     return { success: result.success, error: result.error };
   };
 
-  const register = (email: string, password: string, name: string) => {
-    const result = authRegister(email, password, name);
+  const register = async (email: string, password: string, name: string) => {
+    const result = await authRegister(email, password, name);
     if (result.success && result.user) {
       setUser(result.user);
     }

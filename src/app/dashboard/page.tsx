@@ -44,9 +44,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (user) {
-      const userContracts = getUserContracts(user.id);
-      setContracts(userContracts); // load ALL contracts for expiry check
-      setStats(getUserStats(user.id));
+      getUserContracts(user.id).then(setContracts);
+      getUserStats(user.id).then(setStats);
     }
   }, [user]);
 

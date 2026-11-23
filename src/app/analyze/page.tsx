@@ -150,10 +150,9 @@ export default function AnalyzePage() {
         setAnalysisSummary("");
       }
 
-      // Save to localStorage
       const finalScore = data.riskScore || data.score || 50;
       if (user) {
-        addContract(user.id, {
+        await addContract(user.id, {
           title: fileName || `Análisis - ${new Date().toLocaleDateString("es-ES")}`,
           type: "analyzed",
           content: contractText,
