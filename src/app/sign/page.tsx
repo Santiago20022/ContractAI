@@ -48,6 +48,7 @@ function SignPageContent() {
   const [role, setRole] = useState<"B" | "C">("B");
 
   const [name, setName] = useState("");
+  const [idNumber, setIdNumber] = useState("");
   const [sigImage, setSigImage] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [isSigning, setIsSigning] = useState(false);
@@ -80,7 +81,7 @@ function SignPageContent() {
       const res = await fetch("/api/signing/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, name: name.trim(), signatureImage: sigImage }),
+        body: JSON.stringify({ token, name: name.trim(), idNumber: idNumber.trim() || undefined, signatureImage: sigImage }),
       });
       const data = await res.json() as { error?: string; success?: boolean };
 
@@ -257,15 +258,26 @@ function SignPageContent() {
           </div>
 
           <div className="space-y-5">
-            {/* Name */}
-            <div>
-              <label className="text-sm font-medium text-slate-700">Nombre completo *</label>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Tu nombre completo tal como aparece en tu documento"
-                className="mt-1 w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10"
-              />
+            {/* Name + ID */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-slate-700">Nombre completo *</label>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Tu nombre completo"
+                  className="mt-1 w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700">Cédula / NIT</label>
+                <input
+                  value={idNumber}
+                  onChange={(e) => setIdNumber(e.target.value)}
+                  placeholder="Ej: 1234567890"
+                  className="mt-1 w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10"
+                />
+              </div>
             </div>
 
             {/* Draw signature — always required */}

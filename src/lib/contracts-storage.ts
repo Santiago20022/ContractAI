@@ -3,6 +3,7 @@ import { supabase } from "./supabase-client";
 export type Signature = {
   role: "A" | "B" | "C";
   name: string;
+  idNumber?: string;
   signedAt: string;
   signatureImage?: string;
 };
@@ -19,7 +20,9 @@ export type Contract = {
   expiresAt?: string;
   signatures?: Signature[];
   partyAName?: string;
+  partyAId?: string;
   partyBName?: string;
+  partyBId?: string;
 };
 
 function fromRow(row: Record<string, unknown>): Contract {
@@ -35,7 +38,9 @@ function fromRow(row: Record<string, unknown>): Contract {
     expiresAt: (row.expires_at as string | null) ?? undefined,
     signatures: (row.signatures as Signature[]) ?? [],
     partyAName: (row.party_a_name as string | null) ?? undefined,
+    partyAId: (row.party_a_id as string | null) ?? undefined,
     partyBName: (row.party_b_name as string | null) ?? undefined,
+    partyBId: (row.party_b_id as string | null) ?? undefined,
   };
 }
 
@@ -71,7 +76,9 @@ export async function addContract(
     status?: Contract["status"];
     riskScore?: number;
     partyAName?: string;
+    partyAId?: string;
     partyBName?: string;
+    partyBId?: string;
     expiresAt?: string;
   }
 ): Promise<Contract> {
@@ -87,7 +94,9 @@ export async function addContract(
     status: data.status ?? "completed",
     risk_score: data.riskScore ?? null,
     party_a_name: data.partyAName ?? null,
+    party_a_id: data.partyAId ?? null,
     party_b_name: data.partyBName ?? null,
+    party_b_id: data.partyBId ?? null,
     expires_at: data.expiresAt ?? null,
     signatures: [],
   });
@@ -104,7 +113,9 @@ export async function addContract(
     status: data.status ?? "completed",
     riskScore: data.riskScore,
     partyAName: data.partyAName,
+    partyAId: data.partyAId,
     partyBName: data.partyBName,
+    partyBId: data.partyBId,
     expiresAt: data.expiresAt,
     signatures: [],
   };
@@ -125,7 +136,9 @@ export async function updateContract(
     dbUpdates.expires_at = updates.expiresAt ?? null;
   }
   if (updates.partyAName !== undefined) dbUpdates.party_a_name = updates.partyAName;
+  if (updates.partyAId !== undefined) dbUpdates.party_a_id = updates.partyAId;
   if (updates.partyBName !== undefined) dbUpdates.party_b_name = updates.partyBName;
+  if (updates.partyBId !== undefined) dbUpdates.party_b_id = updates.partyBId;
   if (updates.signatures !== undefined) dbUpdates.signatures = updates.signatures;
 
   const { data, error } = await supabase

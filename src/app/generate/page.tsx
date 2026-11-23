@@ -147,7 +147,9 @@ export default function GeneratePage() {
   const [copied, setCopied] = useState(false);
   const [formData, setFormData] = useState<ContractData>({
     partyA: "",
+    partyAId: "",
     partyB: "",
+    partyBId: "",
     partyC: "",
     description: "",
     amount: "",
@@ -335,7 +337,9 @@ export default function GeneratePage() {
         content: contract,
         status: "completed",
         partyAName: formData.partyA,
+        partyAId: formData.partyAId || undefined,
         partyBName: formData.partyB,
+        partyBId: formData.partyBId || undefined,
       });
       if (showCodudor && formData.partyC) {
         localStorage.setItem(`contractai_opts_${saved.id}`, JSON.stringify({
@@ -559,22 +563,34 @@ export default function GeneratePage() {
               <Card className="max-w-2xl mx-auto">
                 <div className="space-y-6">
                   <div className="grid sm:grid-cols-2 gap-4">
-                    <Input
-                      label="Tu nombre o empresa"
-                      placeholder="Ej: María García López"
-                      value={formData.partyA}
-                      onChange={(e) =>
-                        setFormData({ ...formData, partyA: e.target.value })
-                      }
-                    />
-                    <Input
-                      label="Nombre del cliente/otra parte"
-                      placeholder="Ej: Empresa XYZ S.L."
-                      value={formData.partyB}
-                      onChange={(e) =>
-                        setFormData({ ...formData, partyB: e.target.value })
-                      }
-                    />
+                    <div className="space-y-2">
+                      <Input
+                        label="Tu nombre o empresa (Parte A)"
+                        placeholder="Ej: María García López"
+                        value={formData.partyA}
+                        onChange={(e) => setFormData({ ...formData, partyA: e.target.value })}
+                      />
+                      <Input
+                        label="Cédula / NIT de Parte A"
+                        placeholder="Ej: 1234567890"
+                        value={formData.partyAId || ""}
+                        onChange={(e) => setFormData({ ...formData, partyAId: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Input
+                        label="Nombre del cliente/otra parte (Parte B)"
+                        placeholder="Ej: Empresa XYZ S.L."
+                        value={formData.partyB}
+                        onChange={(e) => setFormData({ ...formData, partyB: e.target.value })}
+                      />
+                      <Input
+                        label="Cédula / NIT de Parte B"
+                        placeholder="Ej: 900123456-7"
+                        value={formData.partyBId || ""}
+                        onChange={(e) => setFormData({ ...formData, partyBId: e.target.value })}
+                      />
+                    </div>
                   </div>
 
                   <Textarea

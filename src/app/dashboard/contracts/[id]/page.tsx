@@ -746,13 +746,13 @@ export default function ContractDetailPage() {
                 Contenido del contrato
               </h2>
               {contract.partyAName && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">
-                    {contract.partyAName}
+                    {contract.partyAName}{contract.partyAId ? ` · ${contract.partyAId}` : ""}
                   </span>
                   {contract.partyBName && (
                     <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">
-                      {contract.partyBName}
+                      {contract.partyBName}{contract.partyBId ? ` · ${contract.partyBId}` : ""}
                     </span>
                   )}
                 </div>
@@ -1015,7 +1015,12 @@ export default function ContractDetailPage() {
                           <div className="w-7 h-7 bg-green-100 rounded-full flex items-center justify-center">
                             <User className="w-3.5 h-3.5 text-green-600" />
                           </div>
-                          <span className="text-sm font-semibold text-slate-800">{sig.name}</span>
+                          <div>
+                            <span className="text-sm font-semibold text-slate-800">{sig.name}</span>
+                            {sig.idNumber && (
+                              <span className="ml-2 text-xs text-slate-500">C.C./NIT {sig.idNumber}</span>
+                            )}
+                          </div>
                         </div>
                         {sig.signatureImage && (
                           <img

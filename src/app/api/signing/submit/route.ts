@@ -18,10 +18,11 @@ export async function POST(request: Request) {
   const body = await request.json() as {
     token?: string;
     name?: string;
+    idNumber?: string;
     signatureImage?: string;
   };
 
-  const { token, name, signatureImage } = body;
+  const { token, name, idNumber, signatureImage } = body;
 
   if (!token || !name?.trim()) {
     return Response.json({ error: "Token and name are required" }, { status: 400 });
@@ -74,6 +75,7 @@ export async function POST(request: Request) {
   const newSig = {
     role: payload.role,
     name: name.trim(),
+    ...(idNumber?.trim() ? { idNumber: idNumber.trim() } : {}),
     signedAt: new Date().toISOString(),
     signatureImage,
   };
