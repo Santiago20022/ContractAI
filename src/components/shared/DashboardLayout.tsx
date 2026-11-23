@@ -225,36 +225,44 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <main className="p-4 sm:p-6 pb-24 lg:pb-6">{children}</main>
       </div>
 
-      {/* Bottom Navigation — mobile only */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 flex">
-        {navigation.map((item) => {
-          const isActive =
-            pathname === item.href || pathname.startsWith(item.href + "/");
+      {/* Bottom Navigation — mobile only, max 5 items */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 flex safe-bottom">
+        {[
+          { name: "Inicio", href: "/dashboard", icon: Home },
+          { name: "Contratos", href: "/dashboard/contracts", icon: FolderOpen },
+          { name: "Generar", href: "/generate", icon: Plus, cta: true },
+          { name: "Analizar", href: "/analyze", icon: Search },
+          { name: "Ajustes", href: "/dashboard/settings", icon: Settings },
+        ].map((item) => {
+          const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+          if (item.cta) {
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5"
+              >
+                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-md shadow-indigo-200 -mt-4">
+                  <item.icon className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-[10px] font-medium text-indigo-600 mt-0.5">{item.name}</span>
+              </Link>
+            );
+          }
           return (
             <Link
               key={item.name}
               href={item.href}
               className={cn(
-                "flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-xs font-medium transition-colors",
-                isActive
-                  ? "text-indigo-600"
-                  : "text-slate-500 hover:text-slate-700"
+                "flex-1 flex flex-col items-center justify-center py-3 gap-0.5 text-[10px] font-medium transition-colors",
+                isActive ? "text-indigo-600" : "text-slate-400"
               )}
             >
-              <item.icon
-                className={cn("w-5 h-5", isActive && "text-indigo-600")}
-              />
+              <item.icon className={cn("w-5 h-5", isActive ? "text-indigo-600" : "text-slate-400")} />
               <span>{item.name}</span>
             </Link>
           );
         })}
-        <button
-          onClick={handleLogout}
-          className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-xs font-medium text-slate-500 hover:text-red-500 transition-colors"
-        >
-          <LogOut className="w-5 h-5" />
-          <span>Salir</span>
-        </button>
       </nav>
     </div>
   );

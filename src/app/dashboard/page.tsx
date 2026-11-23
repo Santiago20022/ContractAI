@@ -195,31 +195,35 @@ export default function DashboardPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl p-8 text-white"
+          className="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl p-5 sm:p-8 text-white"
         >
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold mb-2">
-                ¡Hola, {user.name.split(" ")[0]}! 👋
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-3xl font-bold mb-1 truncate">
+                Hola, {user.name.split(" ")[0]}
               </h1>
-              <p className="text-indigo-100 max-w-lg">
+              <p className="text-indigo-100 text-sm sm:text-base hidden sm:block max-w-lg">
                 {contracts.length === 0
                   ? "Bienvenido a ContractAI. Crea tu primer contrato para empezar."
-                  : `Tienes ${stats.totalContracts} contratos en tu cuenta. Tu negocio está protegido.`}
+                  : `${stats.totalContracts} contratos en tu cuenta. Tu negocio está protegido.`}
+              </p>
+              <p className="text-indigo-100 text-xs sm:hidden">
+                {stats.totalContracts} contratos en tu cuenta
               </p>
             </div>
             <Link
               href="/generate"
-              className="inline-flex items-center gap-2 bg-white text-indigo-600 px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all flex-shrink-0"
+              className="inline-flex items-center gap-1.5 bg-white text-indigo-600 px-4 py-2.5 rounded-xl font-medium hover:shadow-lg transition-all flex-shrink-0 text-sm"
             >
-              <Plus className="w-5 h-5" />
-              Nuevo contrato
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Nuevo contrato</span>
+              <span className="sm:hidden">Nuevo</span>
             </Link>
           </div>
         </motion.div>
 
         {/* Stats grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {statsData.map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -227,24 +231,21 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className="h-full">
-                <div className="flex items-start justify-between">
+              <Card className="h-full p-4">
+                <div className="flex items-center justify-between mb-3">
                   <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center ${
                       colorClasses[stat.color as keyof typeof colorClasses]
                     }`}
                   >
-                    <stat.icon className="w-6 h-6" />
+                    <stat.icon className="w-4 h-4" />
                   </div>
                   {parseInt(stat.value) > 0 && (
-                    <TrendingUp className="w-5 h-5 text-green-500" />
+                    <TrendingUp className="w-4 h-4 text-green-500" />
                   )}
                 </div>
-                <div className="mt-4">
-                  <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
-                  <p className="text-sm text-slate-500 mt-1">{stat.label}</p>
-                  <p className="text-xs text-green-600 mt-2">{stat.change}</p>
-                </div>
+                <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+                <p className="text-xs text-slate-500 mt-0.5 leading-tight">{stat.label}</p>
               </Card>
             </motion.div>
           ))}
