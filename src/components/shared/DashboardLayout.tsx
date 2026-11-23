@@ -17,6 +17,7 @@ import {
   Plus,
   Search,
   Settings,
+  Upload,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -44,6 +45,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       label: "Acciones",
       items: [
         { name: "Generar contrato", href: "/generate", icon: Plus },
+        { name: "Importar contrato", href: "/dashboard/import", icon: Upload },
         { name: "Analizar contrato", href: "/analyze", icon: Search },
         { name: "Estadísticas", href: "/dashboard", icon: BarChart2 },
       ],
