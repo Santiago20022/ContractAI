@@ -19,27 +19,30 @@ export async function GET() {
     availableModels = [`ERROR listing models: ${String(err).slice(0, 100)}`];
   }
 
-  // Test the first chat model
-  let testResult = "not tested";
-  const chatModel = availableModels.find((m) => !m.includes("ERROR"));
-  if (chatModel) {
+  // Test each text model with a real prompt
+  const textModels = availableModels.filter(
+    (m) => !m.includes("orpheus") && !m.includes("whisper") && !m.includes("ERROR")
+  );
+  const testResults: Record<string, string> = {};
+  for (const model of textModels) {
     try {
       const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: chatModel,
-          messages: [{ role: "user", content: "Di OK" }],
-          max_tokens: 5,
+          model,
+          messages: [{ role: "user", content: "Responde solo con la palabra OK" }],
+          max_tokens: 20,
+          temperature: 0,
         }),
       });
       const data = await res.json() as { choices?: { message?: { content?: string } }[]; error?: { message: string } };
-      if (data.error) testResult = `ERROR: ${data.error.message}`;
-      else testResult = `OK con ${chatModel}: "${data.choices?.[0]?.message?.content ?? ""}"`;
+      if (data.error) testResults[model] = `ERROR: ${data.error.message.slice(0, 100)}`;
+      else testResults[model] = `OK: "${(data.choices?.[0]?.message?.content ?? "").trim()}"`;
     } catch (err) {
-      testResult = `ERROR: ${String(err).slice(0, 100)}`;
+      testResults[model] = `EXCEPTION: ${String(err).slice(0, 80)}`;
     }
   }
 
-  return Response.json({ keyPrefix: key.slice(0, 8) + "...", availableModels, testResult });
+  return Response.json({ keyPrefix: key.slice(0, 8) + "...", availableModels, testResults });
 }
