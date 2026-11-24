@@ -10,6 +10,8 @@ import {
   Loader2,
   PenLine,
   Shield,
+  Upload,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import dynamic from "next/dynamic";
@@ -50,6 +52,7 @@ function SignPageContent() {
   const [name, setName] = useState("");
   const [idNumber, setIdNumber] = useState("");
   const [sigImage, setSigImage] = useState<string | null>(null);
+  const [sigMethod, setSigMethod] = useState<"draw" | "upload">("draw");
   const [confirmed, setConfirmed] = useState(false);
   const [isSigning, setIsSigning] = useState(false);
   const [signError, setSignError] = useState("");
@@ -280,16 +283,74 @@ function SignPageContent() {
               </div>
             </div>
 
-            {/* Draw signature — always required */}
+            {/* Signature — draw or upload */}
             <div>
               <label className="text-sm font-medium text-slate-700 mb-2 block">
-                Firma dibujada *
-                {sigImage && (
-                  <span className="ml-2 text-xs text-green-600 font-normal">Firma registrada</span>
-                )}
+                Firma *
+                {sigImage && <span className="ml-2 text-xs text-green-600 font-normal">Firma registrada</span>}
               </label>
-              <SignatureCanvas onChange={setSigImage} height={160} />
-              <p className="text-xs text-slate-400 mt-1">Usa el mouse o tu dedo para firmar en el recuadro de arriba</p>
+
+              {/* Method selector */}
+              <div className="flex border border-slate-200 rounded-xl overflow-hidden mb-3 text-sm">
+                <button
+                  type="button"
+                  onClick={() => { setSigMethod("draw"); setSigImage(null); }}
+                  className={`flex-1 py-2 font-medium transition-colors ${sigMethod === "draw" ? "bg-indigo-600 text-white" : "bg-white text-slate-600 hover:bg-slate-50"}`}
+                >
+                  Dibujar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setSigMethod("upload"); setSigImage(null); }}
+                  className={`flex-1 py-2 font-medium transition-colors ${sigMethod === "upload" ? "bg-indigo-600 text-white" : "bg-white text-slate-600 hover:bg-slate-50"}`}
+                >
+                  Subir imagen
+                </button>
+              </div>
+
+              {sigMethod === "draw" ? (
+                <>
+                  <SignatureCanvas onChange={setSigImage} height={160} />
+                  <p className="text-xs text-slate-400 mt-1">Usa el mouse o tu dedo para firmar en el recuadro</p>
+                </>
+              ) : (
+                <div>
+                  <label className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-xl p-6 cursor-pointer transition-all ${sigImage ? "border-green-300 bg-green-50" : "border-slate-200 hover:border-indigo-300 hover:bg-slate-50"}`}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (file.size > 5 * 1024 * 1024) { setSignError("La imagen no debe superar 5 MB"); return; }
+                        const reader = new FileReader();
+                        reader.onload = (evt) => setSigImage(evt.target?.result as string);
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                    {sigImage ? (
+                      <img src={sigImage} alt="Firma" className="max-h-24 object-contain" />
+                    ) : (
+                      <>
+                        <Upload className="w-7 h-7 text-indigo-400" />
+                        <p className="text-sm text-slate-600 font-medium">Haz clic para subir tu firma</p>
+                        <p className="text-xs text-slate-400">JPG, PNG u otro formato de imagen</p>
+                      </>
+                    )}
+                  </label>
+                  {sigImage && (
+                    <button
+                      type="button"
+                      onClick={() => setSigImage(null)}
+                      className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500 mt-1.5 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                      Cambiar imagen
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Confirmation checkbox */}

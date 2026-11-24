@@ -643,8 +643,26 @@ export default function SettingsPage() {
           <p className="text-slate-500 text-sm mt-1">Personaliza tu cuenta y preferencias de ContractAI</p>
         </motion.div>
 
+        {/* Mobile section tabs — full width, above content */}
+        <div className="md:hidden mb-4 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+          {SECTIONS.map((section) => (
+            <button
+              key={section.id}
+              onClick={() => setActiveSection(section.id)}
+              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                activeSection === section.id
+                  ? "bg-indigo-600 text-white border-indigo-600"
+                  : "border-slate-200 text-slate-600 bg-white"
+              }`}
+            >
+              <section.icon className="w-3 h-3" />
+              {section.label}
+            </button>
+          ))}
+        </div>
+
         <div className="flex gap-6">
-          {/* Sidebar nav */}
+          {/* Sidebar nav — desktop only */}
           <motion.aside
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -667,23 +685,6 @@ export default function SettingsPage() {
               ))}
             </div>
           </motion.aside>
-
-          {/* Mobile section tabs */}
-          <div className="md:hidden w-full mb-4 flex gap-2 overflow-x-auto pb-2">
-            {SECTIONS.map((section) => (
-              <button
-                key={section.id}
-                onClick={() => setActiveSection(section.id)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                  activeSection === section.id
-                    ? "bg-indigo-600 text-white border-indigo-600"
-                    : "border-slate-200 text-slate-600"
-                }`}
-              >
-                {section.label}
-              </button>
-            ))}
-          </div>
 
           {/* Content */}
           <motion.div

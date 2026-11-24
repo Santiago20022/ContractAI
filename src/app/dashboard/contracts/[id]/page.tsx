@@ -144,6 +144,7 @@ export default function ContractDetailPage() {
   const [modifyInput, setModifyInput] = useState("");
   const [isModifying, setIsModifying] = useState(false);
   const [modifySuccess, setModifySuccess] = useState(false);
+  const [modifyError, setModifyError] = useState(false);
 
   // Remote signing link state
   const [signingLinkRole, setSigningLinkRole] = useState<"B" | "C" | null>(null);
@@ -451,7 +452,12 @@ export default function ContractDetailPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contractText: previousContent, instruction }),
       });
-      if (res.headers.get("Content-Type")?.includes("application/json")) { setIsModifying(false); return; }
+      if (res.headers.get("Content-Type")?.includes("application/json")) {
+        setModifyError(true);
+        setTimeout(() => setModifyError(false), 4000);
+        setIsModifying(false);
+        return;
+      }
       const reader = res.body?.getReader();
       if (!reader) throw new Error("No stream");
       const decoder = new TextDecoder();
@@ -472,6 +478,8 @@ export default function ContractDetailPage() {
       }
     } catch {
       setContract((prev) => prev ? { ...prev, content: previousContent } : prev);
+      setModifyError(true);
+      setTimeout(() => setModifyError(false), 4000);
     } finally {
       setIsModifying(false);
     }
@@ -811,6 +819,11 @@ export default function ContractDetailPage() {
                     {isModifying ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <Wand2 className="w-4 h-4 text-white" />}
                   </button>
                 </div>
+                {modifyError && (
+                  <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
+                    <X className="w-3.5 h-3.5" /> No se pudo modificar con IA. Intenta de nuevo.
+                  </p>
+                )}
                 {modifySuccess && (
                   <p className="mt-2 text-xs text-green-600 flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Contrato actualizado y guardado

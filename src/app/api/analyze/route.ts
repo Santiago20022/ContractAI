@@ -1,11 +1,7 @@
-import OpenAI from "openai";
+import { callGroqJSON } from "@/lib/groq";
 import { analyzeContract } from "@/lib/contract-templates";
 
 export async function POST(request: Request) {
-  const groq = new OpenAI({
-    apiKey: process.env.GROQ_API_KEY,
-    baseURL: "https://api.groq.com/openai/v1",
-  });
   let content = "";
 
   try {
@@ -62,13 +58,10 @@ CONTRATO:
 ${content}`;
 
   try {
-    const result = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.2,
-    });
-
-    const responseText = result.choices[0]?.message?.content ?? "";
+    const responseText = await callGroqJSON(
+      [{ role: "user", content: prompt }],
+      { temperature: 0.2 }
+    );
     const cleaned = responseText.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
 
     try {

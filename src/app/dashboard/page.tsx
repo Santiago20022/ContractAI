@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/Card";
 import { DashboardLayout } from "@/components/shared/DashboardLayout";
+import { OnboardingTour } from "@/components/shared/OnboardingTour";
 import { useAuth } from "@/context/AuthContext";
 import { getUserContracts, getUserStats, Contract } from "@/lib/contracts-storage";
 import { motion } from "framer-motion";
@@ -14,6 +15,7 @@ import {
   Clock,
   FileCheck,
   FileText,
+  HelpCircle,
   Plus,
   Search,
   Shield,
@@ -28,6 +30,7 @@ export default function DashboardPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const [contracts, setContracts] = useState<Contract[]>([]);
+  const [showTour, setShowTour] = useState(false);
   const [stats, setStats] = useState({
     totalContracts: 0,
     completedContracts: 0,
@@ -190,6 +193,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
+      <OnboardingTour forceOpen={showTour} onClose={() => setShowTour(false)} />
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Welcome section */}
         <motion.div
@@ -211,14 +215,24 @@ export default function DashboardPage() {
                 {stats.totalContracts} contratos en tu cuenta
               </p>
             </div>
-            <Link
-              href="/generate"
-              className="inline-flex items-center gap-1.5 bg-white text-indigo-600 px-4 py-2.5 rounded-xl font-medium hover:shadow-lg transition-all flex-shrink-0 text-sm"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Nuevo contrato</span>
-              <span className="sm:hidden">Nuevo</span>
-            </Link>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={() => setShowTour(true)}
+                className="inline-flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-xl text-sm font-medium transition-all"
+                title="Ver tour de la app"
+              >
+                <HelpCircle className="w-4 h-4" />
+                <span className="hidden sm:inline">Ver tour</span>
+              </button>
+              <Link
+                href="/generate"
+                className="inline-flex items-center gap-1.5 bg-white text-indigo-600 px-4 py-2.5 rounded-xl font-medium hover:shadow-lg transition-all text-sm"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">Nuevo contrato</span>
+                <span className="sm:hidden">Nuevo</span>
+              </Link>
+            </div>
           </div>
         </motion.div>
 
