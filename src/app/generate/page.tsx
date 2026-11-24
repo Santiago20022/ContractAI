@@ -164,6 +164,7 @@ export default function GeneratePage() {
   const [chatMessages, setChatMessages] = useState<ChatMsg[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [isModifying, setIsModifying] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const streamingRef = useRef<HTMLPreElement>(null);
   const chatBottomRef = useRef<HTMLDivElement>(null);
@@ -249,8 +250,8 @@ export default function GeneratePage() {
         setGeneratedContract(fullText);
         await saveToStorage(fullText);
       }
-    } catch {
-      // Fallback to local template on any error
+    } catch (err) {
+      console.error("[handleGenerate] Error:", err);
       const contract = generateContract(selectedType, formData);
       setAiUsed(false);
       setGeneratedContract(contract);
@@ -329,7 +330,12 @@ export default function GeneratePage() {
   };
 
   const saveToStorage = async (contract: string) => {
-    if (user) {
+    if (!user) {
+      console.error("[saveToStorage] No user — skipping save");
+      setSaveError("No se pudo guardar: no hay sesión activa. Recarga la página.");
+      return;
+    }
+    try {
       const selectedContractType = contractTypes.find((c) => c.id === selectedType);
       const saved = await addContract(user.id, {
         title: `${selectedContractType?.title || "Contrato"} - ${formData.partyB || "Sin nombre"}`,
@@ -349,6 +355,9 @@ export default function GeneratePage() {
           codudorName: formData.partyC,
         }));
       }
+    } catch (err) {
+      console.error("[saveToStorage] Supabase error:", err);
+      setSaveError("El contrato se generó pero no se pudo guardar. Copia el texto antes de salir.");
     }
   };
 
@@ -749,7 +758,9 @@ export default function GeneratePage() {
                     <div className="flex-1 min-w-0">
                       <h1 className="text-xl font-bold text-white leading-tight">¡Tu contrato está listo!</h1>
                       <p className="text-indigo-200 text-sm mt-0.5">
-                        {user ? "Guardado automáticamente en tu dashboard" : "Descárgalo antes de salir"}
+                        {saveError
+                          ? <span className="text-red-300 font-medium">{saveError}</span>
+                          : user ? "Guardado automáticamente en tu dashboard" : "Descárgalo antes de salir"}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">

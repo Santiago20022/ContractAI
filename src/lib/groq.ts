@@ -1,10 +1,10 @@
 import OpenAI from "openai";
 
 const MODELS = [
-  "llama-3.3-70b-versatile",
-  "llama3-70b-8192",
   "llama-3.1-8b-instant",
   "gemma2-9b-it",
+  "llama-3.3-70b-versatile",
+  "llama3-70b-8192",
 ];
 
 type Message = { role: "system" | "user" | "assistant"; content: string };
