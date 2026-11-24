@@ -1,5 +1,3 @@
-import OpenAI from "openai";
-
 export async function GET() {
   const key = process.env.GROQ_API_KEY;
 
@@ -7,34 +5,41 @@ export async function GET() {
     return Response.json({ ok: false, error: "GROQ_API_KEY not set in env" });
   }
 
-  const client = new OpenAI({
-    apiKey: key,
-    baseURL: "https://api.groq.com/openai/v1",
-  });
+  // List all models available for this key
+  let availableModels: string[] = [];
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/models", {
+      headers: { Authorization: `Bearer ${key}` },
+    });
+    const data = await res.json() as { data?: { id: string }[] };
+    availableModels = (data.data ?? []).map((m) => m.id).filter((id) =>
+      !id.includes("whisper") && !id.includes("guard") && !id.includes("tts")
+    );
+  } catch (err) {
+    availableModels = [`ERROR listing models: ${String(err).slice(0, 100)}`];
+  }
 
-  const models = [
-    "llama-3.3-70b-versatile",
-    "llama3-70b-8192",
-    "llama-3.1-8b-instant",
-    "gemma2-9b-it",
-  ];
-
-  const results: Record<string, string> = {};
-
-  for (const model of models) {
+  // Test the first chat model
+  let testResult = "not tested";
+  const chatModel = availableModels.find((m) => !m.includes("ERROR"));
+  if (chatModel) {
     try {
-      const res = await client.chat.completions.create({
-        model,
-        messages: [{ role: "user", content: "Di OK" }],
-        max_tokens: 5,
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: chatModel,
+          messages: [{ role: "user", content: "Di OK" }],
+          max_tokens: 5,
+        }),
       });
-      const text = res.choices[0]?.message?.content ?? "(vacío)";
-      results[model] = `OK — "${text.trim()}"`;
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      results[model] = `ERROR: ${msg.slice(0, 150)}`;
+      const data = await res.json() as { choices?: { message?: { content?: string } }[]; error?: { message: string } };
+      if (data.error) testResult = `ERROR: ${data.error.message}`;
+      else testResult = `OK con ${chatModel}: "${data.choices?.[0]?.message?.content ?? ""}"`;
+    } catch (err) {
+      testResult = `ERROR: ${String(err).slice(0, 100)}`;
     }
   }
 
-  return Response.json({ keyPrefix: key.slice(0, 8) + "...", results });
+  return Response.json({ keyPrefix: key.slice(0, 8) + "...", availableModels, testResult });
 }
